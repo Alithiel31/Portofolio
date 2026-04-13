@@ -1,0 +1,22 @@
+# ── Backend dev ──────────────────────────────────────────────────────────────
+FROM node:22-alpine AS backend-dev
+
+WORKDIR /app/backend
+COPY backend/package*.json ./
+RUN npm install
+
+COPY backend/ ./
+RUN npx prisma generate
+
+EXPOSE 3000
+
+# ── Frontend dev ─────────────────────────────────────────────────────────────
+FROM node:22-alpine AS frontend-dev
+
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+
+COPY frontend/ ./
+
+EXPOSE 5173

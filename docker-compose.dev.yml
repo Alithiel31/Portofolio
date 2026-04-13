@@ -1,0 +1,65 @@
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: portfolio-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER:     portfolio
+      POSTGRES_PASSWORD: portfolio_dev
+      POSTGRES_DB:       portfolio
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ── Backend (Express + Prisma) ──────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+      target: backend-dev
+    container_name: portfolio-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://portfolio:portfolio_dev@postgres:5432/portfolio
+      NODE_ENV:     development
+      PORT:         3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/src:/app/backend/src
+      - ./backend/prisma:/app/backend/prisma
+    command: >
+      sh -c "npx prisma migrate dev --name init &&
+             npx prisma db seed &&
+             npm run dev"
+
+  # ── Frontend (Vite dev server) ──────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+      target: frontend-dev
+    container_name: portfolio-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/index.html:/app/frontend/index.html
+    command: npm run dev -- --host
+
+volumes:
+  postgres_data:

@@ -1,0 +1,23 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+
+# Prisma
+backend/prisma/migrations/dev/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Docker volumes
+postgres_data/

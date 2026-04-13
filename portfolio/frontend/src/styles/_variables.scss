@@ -1,0 +1,37 @@
+// Variables CSS → consommées en SCSS via @use
+// Les vraies valeurs sont dans :root (App.svelte), ici on expose des mixins et breakpoints
+
+// Breakpoints
+$mobile:  768px;
+$tablet:  1024px;
+$desktop: 1280px;
+
+// Mixins responsive
+@mixin mobile  { @media (max-width: #{$mobile})  { @content; } }
+@mixin tablet  { @media (max-width: #{$tablet})  { @content; } }
+@mixin desktop { @media (min-width: #{$desktop}) { @content; } }
+
+// Transition standard (réfère à la CSS var)
+@mixin transition($props: all) {
+  transition: $props 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Truncate texte sur N lignes
+@mixin clamp-lines($n: 3) {
+  display: -webkit-box;
+  -webkit-line-clamp: $n;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Skeleton loading animation
+@mixin skeleton {
+  background: var(--surface-2);
+  border-radius: 0.5rem;
+  animation: shimmer 1.5s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.5; }
+    50%       { opacity: 1; }
+  }
+}

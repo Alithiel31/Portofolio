@@ -1,0 +1,17 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "sh -c 'cd /app/backend && npx prisma migrate deploy && node dist/index.js'"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[[services]]
+name = "portfolio"
+
+[services.variables]
+NODE_ENV = "production"
+# DATABASE_URL est injecté automatiquement par Railway PostgreSQL plugin
