@@ -17,7 +17,7 @@
       </div>
 
       <div class="hero-text">
-        <p class="hero-greeting">Bonjour, je suis</p>
+        <p class="hero-greeting">Hello ! I'm</p>
         <h1>{data?.name ?? '...'}</h1>
         <h2>{data?.title ?? ''}</h2>
         <p class="hero-bio">{data?.bio ?? ''}</p>
@@ -35,11 +35,11 @@
         <div class="hero-cta">
           {#if data?.cvUrl}
             <a href={data.cvUrl} class="btn btn-primary" download>
-              <i class="bx bx-download"></i> Télécharger CV
+              <i class="bx bx-download"></i> Download CV
             </a>
           {/if}
           <a href="#contact" class="btn btn-outline">
-            <i class="bx bx-envelope"></i> Me contacter
+            <i class="bx bx-envelope"></i> Contact Me
           </a>
         </div>
       </div>

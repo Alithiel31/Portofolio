@@ -66,7 +66,6 @@
 </main>
 
 <style lang="scss">
-  @use './styles/variables' as *;
 
   :global(*) {
     margin: 0;

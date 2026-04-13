@@ -6,14 +6,27 @@
   let message = $state('')
   let status  = $state(null) // 'sending' | 'success' | 'error'
 
-  async function handleSubmit(e) {
+ async function handleSubmit(e) {
     e.preventDefault()
     status = 'sending'
-    // Ici vous pouvez brancher un service mail (Resend, SendGrid, etc.)
-    // Pour l'instant, simuler un délai
-    await new Promise(r => setTimeout(r, 1200))
-    status = 'success'
-    name = email = message = ''
+
+    try {
+      const response = await fetch('http://localhost:3001/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message })
+      });
+
+      if (response.ok) {
+        status = 'success'
+        name = email = message = ''
+      } else {
+        status = 'error'
+      }
+    } catch (err) {
+      status = 'error'
+      console.error(err)
+    }
   }
 </script>
 
@@ -21,7 +34,7 @@
   <section class="section">
     <div class="section-header">
       <span class="section-tag">Contact</span>
-      <h2>Travaillons <span class="accent">ensemble</span></h2>
+      <h2>Let's work <span class="accent">together !</span></h2>
     </div>
 
     <div class="contact-layout">
@@ -40,7 +53,7 @@
           <div class="contact-item">
             <div class="contact-icon"><i class="bx bx-map-pin"></i></div>
             <div>
-              <span class="contact-label">Localisation</span>
+              <span class="contact-label">Location</span>
               <span class="contact-value">{profile.location}</span>
             </div>
           </div>
@@ -63,14 +76,14 @@
             <label for="name">Nom</label>
             <input
               id="name" type="text" bind:value={name}
-              placeholder="Votre nom" required
+              placeholder="Your name" required
             />
           </div>
           <div class="field">
             <label for="email">Email</label>
             <input
               id="email" type="email" bind:value={email}
-              placeholder="votre@email.com" required
+              placeholder="your@email.com" required
             />
           </div>
         </div>
@@ -79,27 +92,27 @@
           <label for="message">Message</label>
           <textarea
             id="message" bind:value={message}
-            placeholder="Votre message..." rows="5" required
+            placeholder="Your message..." rows="5" required
           ></textarea>
         </div>
 
         {#if status === 'success'}
           <div class="form-feedback success">
             <i class="bx bx-check-circle"></i>
-            Message envoyé ! Je vous répondrai rapidement.
+            Message sent! I'll get back to you soon. /
           </div>
         {:else if status === 'error'}
           <div class="form-feedback error">
             <i class="bx bx-error-circle"></i>
-            Une erreur est survenue. Réessayez ou contactez-moi par email.
+            Something went wrong. Please try again or contact me directly by email.
           </div>
         {/if}
 
         <button type="submit" class="submit-btn" disabled={status === 'sending'}>
           {#if status === 'sending'}
-            <i class="bx bx-loader-alt bx-spin"></i> Envoi en cours…
+            <i class="bx bx-loader-alt bx-spin"></i> Sending...
           {:else}
-            <i class="bx bx-send"></i> Envoyer le message
+            <i class="bx bx-send"></i> Send a message
           {/if}
         </button>
       </form>

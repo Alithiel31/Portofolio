@@ -11,5 +11,8 @@
     "db:migrate": "cd backend && npx prisma migrate deploy",
     "db:seed": "cd backend && npx prisma db seed",
     "db:studio": "cd backend && npx prisma studio"
+  },
+  "dependencies": {
+    "resend": "^6.11.0"
   }
 }

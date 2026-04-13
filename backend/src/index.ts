@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import compression from 'compression'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { Resend } from 'resend';
 
 import profileRouter    from './routes/profile.js'
 import experienceRouter from './routes/experiences.js'
@@ -15,6 +16,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 3000
 const isProd = process.env.NODE_ENV === 'production'
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(helmet({
@@ -26,6 +30,26 @@ app.use(cors({
   methods: ['GET'],
 }))
 app.use(express.json())
+
+// ── Mail service ────────────────────────────────────────────────────────────────
+
+app.post('/api/contact', async (req, res) => {
+  const { name, email, message } = req.body;
+
+  try {
+    await resend.emails.send({
+      from: 'Portfolio <onboarding@resend.dev>', 
+      to: 'jacques.duchamplecheval@gmail.com',
+      subject: `Nouveau message de ${name}`,
+      html: `<p><strong>Nom:</strong> ${name}</p>
+             <p><strong>Email:</strong> ${email}</p>
+             <p><strong>Message:</strong> ${message}</p>`
+    });
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Erreur lors de l'envoi" });
+  }
+});
 
 // ── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/profile',     profileRouter)

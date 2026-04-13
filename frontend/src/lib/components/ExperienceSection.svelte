@@ -12,7 +12,7 @@
   <section class="section">
     <div class="section-header">
       <span class="section-tag">Parcours</span>
-      <h2>Expériences & <span class="accent">formations</span></h2>
+      <h2>Experiences & <span class="accent">trainings</span></h2>
     </div>
 
     <div class="tabs">
@@ -20,13 +20,13 @@
         class="tab" class:active={activeTab === 'WORK'}
         onclick={() => activeTab = 'WORK'}
       >
-        <i class="bx bx-briefcase"></i> Professionnel
+        <i class="bx bx-briefcase"></i> Professional
       </button>
       <button
         class="tab" class:active={activeTab === 'EDUCATION'}
         onclick={() => activeTab = 'EDUCATION'}
       >
-        <i class="bx bx-book-open"></i> Formation
+        <i class="bx bx-book-open"></i> Education
       </button>
     </div>
 

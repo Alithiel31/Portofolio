@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: portfolio_dev
       POSTGRES_DB:       portfolio
     ports:
-      - "5434:5432"
+      - "5434:5432" # Accès Windows via 5434 pour éviter les conflits
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -31,16 +31,18 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      # URL interne à Docker (utilise le nom du service 'postgres' et le port 5432)
       DATABASE_URL: postgresql://portfolio:portfolio_dev@postgres:5432/portfolio
       NODE_ENV:     development
       PORT:         3000
     ports:
-      - "3000:3000"
+      - "3001:3000" # Accès Windows via 3001
     volumes:
       - ./backend/src:/app/backend/src
       - ./backend/prisma:/app/backend/prisma
+    # Correction : Utilisation de db push pour éviter le mode interactif
     command: >
-      sh -c "npx prisma migrate dev --name init &&
+      sh -c "npx prisma db push &&
              npx prisma db seed &&
              npm run dev"
 
@@ -53,7 +55,8 @@ services:
     container_name: portfolio-frontend
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://localhost:3000
+      # Pointer vers le port externe du backend (3001)
+      VITE_API_URL: http://localhost:3001
     ports:
       - "5173:5173"
     volumes:
