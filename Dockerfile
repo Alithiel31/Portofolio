@@ -1,30 +1,31 @@
 # ── Stage 1 : Build frontend ──────────────────────────────────────────────────
 FROM node:22-alpine AS frontend-builder
-
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
-
 COPY frontend/ ./
 RUN npm run build
 
 # ── Stage 2 : Build backend ───────────────────────────────────────────────────
 FROM node:22-alpine AS backend-builder
+# 🛠️ AJOUT : OpenSSL est nécessaire pour 'prisma generate'
+RUN apk add --no-cache openssl
 
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm ci
-
 COPY backend/ ./
 
 # Générer le client Prisma
 RUN npx prisma generate
-
 # Compiler TypeScript
 RUN npm run build
 
 # ── Stage 3 : Image de production ─────────────────────────────────────────────
 FROM node:22-alpine AS production
+
+# 🛠️ AJOUT : OpenSSL est INDISPENSABLE pour faire tourner Prisma en prod
+RUN apk add --no-cache openssl
 
 ENV NODE_ENV=production
 
@@ -41,7 +42,9 @@ COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 WORKDIR /app/backend
 
+# Railway injecte son propre PORT, mais on documente le port par défaut
 EXPOSE 3000
 
 # Lancer les migrations puis le serveur
+# Note : 'npx prisma migrate deploy' est parfait ici pour Railway
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
