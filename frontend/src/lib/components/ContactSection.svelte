@@ -1,4 +1,6 @@
 <script>
+  import { API_BASE } from '../stores/api.svelte.js'
+
   let { profile } = $props()
 
   let name    = $state('')
@@ -6,16 +8,16 @@
   let message = $state('')
   let status  = $state(null) // 'sending' | 'success' | 'error'
 
- async function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     status = 'sending'
 
     try {
-      const response = await fetch('http://localhost:3001/api/contact', {
+      const response = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message })
-      });
+      })
 
       if (response.ok) {
         status = 'success'
@@ -62,7 +64,7 @@
         {#if profile?.socialLinks?.length}
           <div class="social-row">
             {#each profile.socialLinks as link}
-              <a href={link.url} target="_blank" rel="noopener" class="social-btn" aria-label={link.platform}>
+              <a href={link.url} target="_blank" rel="noopener noreferrer" class="social-btn" aria-label={link.platform}>
                 <i class="bx {link.icon}"></i>
               </a>
             {/each}
@@ -96,17 +98,19 @@
           ></textarea>
         </div>
 
-        {#if status === 'success'}
-          <div class="form-feedback success">
-            <i class="bx bx-check-circle"></i>
-            Message sent! I'll get back to you soon. /
-          </div>
-        {:else if status === 'error'}
-          <div class="form-feedback error">
-            <i class="bx bx-error-circle"></i>
-            Something went wrong. Please try again or contact me directly by email.
-          </div>
-        {/if}
+        <div aria-live="polite" aria-atomic="true">
+          {#if status === 'success'}
+            <div class="form-feedback success" role="status">
+              <i class="bx bx-check-circle"></i>
+              Message sent! I'll get back to you soon.
+            </div>
+          {:else if status === 'error'}
+            <div class="form-feedback error" role="alert">
+              <i class="bx bx-error-circle"></i>
+              Something went wrong. Please try again or contact me directly by email.
+            </div>
+          {/if}
+        </div>
 
         <button type="submit" class="submit-btn" disabled={status === 'sending'}>
           {#if status === 'sending'}
@@ -255,9 +259,13 @@
     &::placeholder { color: var(--text-muted); }
 
     &:focus {
-      outline: none;
       border-color: var(--accent);
       background: var(--surface);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
   }
 

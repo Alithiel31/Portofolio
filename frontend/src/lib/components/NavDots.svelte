@@ -31,6 +31,7 @@
       class:active={activeId === section.id}
       onclick={() => scrollTo(section.id)}
       aria-label={section.label}
+      aria-current={activeId === section.id ? 'true' : undefined}
       title={section.label}
     >
       <span class="dot-label">{section.label}</span>
