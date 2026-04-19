@@ -45,6 +45,5 @@ WORKDIR /app/backend
 # Railway injecte son propre PORT, mais on documente le port par défaut
 EXPOSE 3000
 
-# Lancer les migrations puis le serveur
-# Note : 'npx prisma migrate deploy' est parfait ici pour Railway
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+# Synchronise le schéma Prisma avec la DB, seed si vide, puis démarre le serveur
+CMD ["sh", "-c", "npx prisma db push && npx prisma db seed && node dist/index.js"]
