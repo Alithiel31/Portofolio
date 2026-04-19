@@ -4,19 +4,28 @@
   let activeId = $state(sections[0]?.id ?? '')
 
   $effect(() => {
-    const observers = sections.map(({ id }) => {
-      const el = document.getElementById(id)
-      if (!el) return null
+    // Pour les cartes sticky, on cherche laquelle est collée en haut du viewport
+    // plutôt que d'utiliser IntersectionObserver (qui ne marche pas bien avec sticky)
+    function onScroll() {
+      const STICKY_TOP = 24 // 1.5rem en px
+      let closestId = sections[0]?.id ?? ''
+      let closestDist = Infinity
 
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) activeId = id },
-        { threshold: 0.4 }
-      )
-      obs.observe(el)
-      return obs
-    })
+      for (const { id } of sections) {
+        const el = document.getElementById(id)
+        if (!el) continue
+        const dist = Math.abs(el.getBoundingClientRect().top - STICKY_TOP)
+        if (dist < closestDist) {
+          closestDist = dist
+          closestId = id
+        }
+      }
+      activeId = closestId
+    }
 
-    return () => observers.forEach(o => o?.disconnect())
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
   })
 
   function scrollTo(id) {
