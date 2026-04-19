@@ -3,6 +3,12 @@ import { PrismaClient, ExperienceType, SkillType } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
+  const existing = await prisma.profile.count()
+  if (existing > 0) {
+    console.log('✅ Base de données déjà initialisée, seed ignoré.')
+    return
+  }
+
   console.log('🌱 Seeding database...')
 
   await prisma.socialLink.deleteMany()
@@ -41,35 +47,35 @@ async function main() {
     ]
   })
 
-  const catLang = await prisma.skillCategory.create({ data: { name: 'Langages', icon: 'bx-code-alt', order: 1 } })
-  const catBack = await prisma.skillCategory.create({ data: { name: 'Backend', icon: 'bx-server', order: 2 } })
-  const catFront = await prisma.skillCategory.create({ data: { name: 'Frontend', icon: 'bx-palette', order: 3 } })
-  const catOps = await prisma.skillCategory.create({ data: { name: 'DevOps', icon: 'bx-cloud', order: 4 } })
+  const catLang  = await prisma.skillCategory.create({ data: { name: 'Langages',  icon: 'bx-code-alt', order: 1 } })
+  const catBack  = await prisma.skillCategory.create({ data: { name: 'Backend',   icon: 'bx-server',   order: 2 } })
+  const catFront = await prisma.skillCategory.create({ data: { name: 'Frontend',  icon: 'bx-palette',  order: 3 } })
+  const catOps   = await prisma.skillCategory.create({ data: { name: 'DevOps',    icon: 'bx-cloud',    order: 4 } })
 
   await prisma.skill.createMany({
     data: [
-      { name: 'JavaScript', type: SkillType.MAIN, order: 1, categoryId: catLang.id },
-      { name: 'TypeScript', type: SkillType.MAIN, order: 2, categoryId: catLang.id },
-      { name: 'Python', type: SkillType.MAIN, order: 3, categoryId: catLang.id },
-      { name: 'SQL', type: SkillType.MAIN, order: 4, categoryId: catLang.id },
+      { name: 'JavaScript', type: SkillType.MAIN,      order: 1, categoryId: catLang.id },
+      { name: 'TypeScript', type: SkillType.MAIN,      order: 2, categoryId: catLang.id },
+      { name: 'Python',     type: SkillType.MAIN,      order: 3, categoryId: catLang.id },
+      { name: 'SQL',        type: SkillType.MAIN,      order: 4, categoryId: catLang.id },
 
-      { name: 'Node.js', type: SkillType.MAIN, order: 1, categoryId: catBack.id },
-      { name: 'Express', type: SkillType.FRAMEWORK, parent: 'Node.js', order: 2, categoryId: catBack.id },
-      { name: 'Fastify', type: SkillType.FRAMEWORK, parent: 'Node.js', order: 3, categoryId: catBack.id },
-      { name: 'PostgreSQL', type: SkillType.MAIN, order: 4, categoryId: catBack.id },
-      { name: 'Prisma', type: SkillType.FRAMEWORK, parent: 'PostgreSQL', order: 5, categoryId: catBack.id },
-      { name: 'Redis', type: SkillType.MAIN, order: 6, categoryId: catBack.id },
+      { name: 'Node.js',    type: SkillType.MAIN,      order: 1, categoryId: catBack.id },
+      { name: 'Express',    type: SkillType.FRAMEWORK, parent: 'Node.js',    order: 2, categoryId: catBack.id },
+      { name: 'Fastify',    type: SkillType.FRAMEWORK, parent: 'Node.js',    order: 3, categoryId: catBack.id },
+      { name: 'PostgreSQL', type: SkillType.MAIN,      order: 4, categoryId: catBack.id },
+      { name: 'Prisma',     type: SkillType.FRAMEWORK, parent: 'PostgreSQL', order: 5, categoryId: catBack.id },
+      { name: 'Redis',      type: SkillType.MAIN,      order: 6, categoryId: catBack.id },
 
-      { name: 'Svelte', type: SkillType.MAIN, order: 1, categoryId: catFront.id },
-      { name: 'SvelteKit', type: SkillType.FRAMEWORK, parent: 'Svelte', order: 2, categoryId: catFront.id },
-      { name: 'React', type: SkillType.MAIN, order: 3, categoryId: catFront.id },
-      { name: 'Next.js', type: SkillType.FRAMEWORK, parent: 'React', order: 4, categoryId: catFront.id },
-      { name: 'SCSS / CSS', type: SkillType.MAIN, order: 5, categoryId: catFront.id },
+      { name: 'Svelte',     type: SkillType.MAIN,      order: 1, categoryId: catFront.id },
+      { name: 'SvelteKit',  type: SkillType.FRAMEWORK, parent: 'Svelte',     order: 2, categoryId: catFront.id },
+      { name: 'React',      type: SkillType.MAIN,      order: 3, categoryId: catFront.id },
+      { name: 'Next.js',    type: SkillType.FRAMEWORK, parent: 'React',      order: 4, categoryId: catFront.id },
+      { name: 'SCSS / CSS', type: SkillType.MAIN,      order: 5, categoryId: catFront.id },
 
-      { name: 'Docker', type: SkillType.MAIN, order: 1, categoryId: catOps.id },
-      { name: 'Railway', type: SkillType.MAIN, order: 2, categoryId: catOps.id },
-      { name: 'Git / GitHub', type: SkillType.MAIN, order: 3, categoryId: catOps.id },
-      { name: 'CI/CD', type: SkillType.MAIN, order: 4, categoryId: catOps.id },
+      { name: 'Docker',     type: SkillType.MAIN,      order: 1, categoryId: catOps.id },
+      { name: 'Railway',    type: SkillType.MAIN,      order: 2, categoryId: catOps.id },
+      { name: 'Git / GitHub', type: SkillType.MAIN,    order: 3, categoryId: catOps.id },
+      { name: 'CI/CD',      type: SkillType.MAIN,      order: 4, categoryId: catOps.id },
     ]
   })
 
@@ -80,8 +86,8 @@ async function main() {
         description: 'Ce portfolio — architecture Svelte + Express + PostgreSQL, déployé sur Railway via Docker.',
         techStack: 'Svelte, Node.js, Prisma, PostgreSQL, Docker',
         imageUrl: 'https://picsum.photos/seed/portfolio/800/400',
-        githubUrl: 'https://github.com',
-        demoUrl: 'https://example.com',
+        githubUrl: 'https://github.com/Alithiel31/portofolio',
+        demoUrl: null,
         featured: true,
         order: 1,
       },
@@ -90,7 +96,7 @@ async function main() {
         description: 'Tableau de bord temps réel pour le suivi de métriques business. Graphiques interactifs, alertes configurables.',
         techStack: 'React, Next.js, TypeScript, Recharts, Redis',
         imageUrl: 'https://picsum.photos/seed/dashboard/800/400',
-        demoUrl: 'https://example.com',
+        demoUrl: null,
         featured: true,
         order: 2,
       },
@@ -99,7 +105,7 @@ async function main() {
         description: 'Architecture microservices pour une plateforme e-commerce. Gestion des commandes, stocks, paiements.',
         techStack: 'Node.js, Fastify, PostgreSQL, Docker, RabbitMQ',
         imageUrl: 'https://picsum.photos/seed/api/800/400',
-        githubUrl: 'https://github.com',
+        githubUrl: null,
         featured: false,
         order: 3,
       },
@@ -108,10 +114,10 @@ async function main() {
 
   await prisma.service.createMany({
     data: [
-      { title: 'Développement Web', description: 'Conception et développement d\'applications web modernes, performantes et responsive. Du MVP à la production.', icon: 'bx-code-block', order: 1 },
-      { title: 'Architecture Backend', description: 'Design d\'APIs REST robustes, modélisation BDD, optimisation des performances et scalabilité.', icon: 'bx-server', order: 2 },
-      { title: 'Conseil Technique', description: 'Audit de code, choix technologiques, accompagnement d\'équipes dans leurs projets de transformation digitale.', icon: 'bx-bulb', order: 3 },
-      { title: 'DevOps & Déploiement', description: 'Mise en place de pipelines CI/CD, containerisation Docker, déploiement cloud et monitoring.', icon: 'bx-cloud-upload', order: 4 },
+      { title: 'Développement Web',     description: 'Conception et développement d\'applications web modernes, performantes et responsive. Du MVP à la production.', icon: 'bx-code-block',   order: 1 },
+      { title: 'Architecture Backend',  description: 'Design d\'APIs REST robustes, modélisation BDD, optimisation des performances et scalabilité.',                 icon: 'bx-server',       order: 2 },
+      { title: 'Conseil Technique',     description: 'Audit de code, choix technologiques, accompagnement d\'équipes dans leurs projets de transformation digitale.',  icon: 'bx-bulb',         order: 3 },
+      { title: 'DevOps & Déploiement', description: 'Mise en place de pipelines CI/CD, containerisation Docker, déploiement cloud et monitoring.',                   icon: 'bx-cloud-upload', order: 4 },
     ]
   })
 

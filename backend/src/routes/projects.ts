@@ -18,10 +18,12 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/:id', async (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ error: 'ID invalide' })
+  }
   try {
-    const project = await prisma.project.findUnique({
-      where: { id: Number(req.params.id) }
-    })
+    const project = await prisma.project.findUnique({ where: { id } })
     if (!project) return res.status(404).json({ error: 'Projet non trouvé' })
     res.json(project)
   } catch (e) {

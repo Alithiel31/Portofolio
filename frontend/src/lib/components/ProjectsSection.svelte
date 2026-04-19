@@ -47,12 +47,12 @@
 
             <div class="project-links">
               {#if project.githubUrl}
-                <a href={project.githubUrl} target="_blank" rel="noopener" class="link-btn">
+                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" class="link-btn">
                   <i class="bx bxl-github"></i> Code
                 </a>
               {/if}
               {#if project.demoUrl}
-                <a href={project.demoUrl} target="_blank" rel="noopener" class="link-btn primary">
+                <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" class="link-btn primary">
                   <i class="bx bx-link-external"></i> Demo
                 </a>
               {/if}

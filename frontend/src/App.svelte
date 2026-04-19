@@ -72,7 +72,7 @@
     padding: 0;
     box-sizing: border-box;
     text-decoration: none;
-    outline: none;
+    // outline: none removed — :focus-visible in global.scss handles focus indicators
   }
 
   :global(:root) {
@@ -107,7 +107,6 @@
   .stacking-cards {
     list-style: none;
     display: grid;
-    // Chaque carte occupe 90vh pour créer l'espace de scroll
     grid-template-rows: repeat(var(--card-count), 90vh);
     padding-bottom: 4rem;
   }
@@ -115,28 +114,38 @@
   .card {
     position: sticky;
     top: 1.5rem;
-    // Décalage visuel progressif : chaque carte est légèrement plus haute
-    padding-top: calc(sibling-index() * 8px);
-
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    overflow: hidden;
+    // overflow: hidden moved to :global(.card-inner) to avoid breaking sticky positioning
 
-    // Effet de profondeur au scroll : les cartes du fond rétrécissent
-    .card-inner {
-      animation: stack-scale linear forwards;
-      animation-timeline: view();
-      animation-range: 15vh 85vh;
+    // Target .card-inner from child components (cross-component selector)
+    :global(.card-inner) {
+      overflow: hidden;
+      border-radius: var(--radius);
       width: 100%;
       height: 100%;
+
+      @supports (animation-timeline: view()) {
+        animation: stack-scale linear forwards;
+        animation-timeline: view();
+        animation-range: 15vh 85vh;
+      }
+    }
+  }
+
+  // Replace unsupported sibling-index() with explicit nth-child + CSS custom property
+  @for $i from 1 through 6 {
+    .card:nth-child(#{$i}) {
+      --si: #{$i};
+      padding-top: calc(#{$i} * 8px);
     }
   }
 
   @keyframes stack-scale {
     to {
-      transform: scale(calc(1 - (sibling-index() * 0.025)));
-      filter: brightness(calc(1 - (sibling-index() * 0.04)));
+      transform: scale(calc(1 - (var(--si, 1) * 0.025)));
+      filter: brightness(calc(1 - (var(--si, 1) * 0.04)));
     }
   }
 
@@ -185,7 +194,7 @@
       top: auto;
       padding-top: 0;
 
-      .card-inner {
+      :global(.card-inner) {
         animation: none;
       }
     }

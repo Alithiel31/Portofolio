@@ -25,7 +25,7 @@
         {#if data?.socialLinks?.length}
           <div class="social-links">
             {#each data.socialLinks as link}
-              <a href={link.url} target="_blank" rel="noopener" aria-label={link.platform}>
+              <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
                 <i class="bx {link.icon}"></i>
               </a>
             {/each}
