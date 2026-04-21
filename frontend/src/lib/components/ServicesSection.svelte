@@ -5,8 +5,8 @@
 <div class="card-inner">
   <section class="section">
     <div class="section-header">
-      <span class="section-tag">Prestations</span>
-      <h2>Ce que je <span class="accent">propose</span></h2>
+      <span class="section-tag">Core Competencies</span>
+      <h2>My <span class="accent">core</span><span class="accent">competencies</span></h2>
     </div>
 
     {#if loading}

@@ -16,11 +16,11 @@
   const services    = createApiStore('/services')
 
   const sections = [
-    { id: 'hero',       label: 'Profil' },
-    { id: 'skills',     label: 'Compétences' },
-    { id: 'experience', label: 'Expérience' },
-    { id: 'projects',   label: 'Portfolio' },
-    { id: 'services',   label: 'Services' },
+    { id: 'hero',       label: 'About me' },
+    { id: 'skills',     label: 'Expertise' },
+    { id: 'experience', label: 'Experience' },
+    { id: 'projects',   label: 'Works' },
+    { id: 'services',   label: 'Core Competencies' },
     { id: 'contact',    label: 'Contact' },
   ]
 </script>
@@ -33,8 +33,8 @@
   {:else if profile.error}
     <div class="api-error">
       <i class="bx bx-error-circle"></i>
-      <p>Impossible de charger le portfolio. Vérifiez la connexion au serveur.</p>
-      <button onclick={profile.reload}>Réessayer</button>
+      <p>Impossible to load the portfolio. Please check your connection to the server.</p>
+      <button onclick={profile.reload}>Try Again</button>
     </div>
   {:else}
     <ul class="stacking-cards" style="--card-count: {sections.length}">

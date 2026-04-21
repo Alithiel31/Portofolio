@@ -5,8 +5,8 @@
 <div class="card-inner">
   <section class="section">
     <div class="section-header">
-      <span class="section-tag">Savoir-faire</span>
-      <h2>Compétences <span class="accent">techniques</span></h2>
+      <span class="section-tag">Skills</span>
+      <h2>Technicals <span class="accent">skills</span></h2>
     </div>
 
     {#if loading}

@@ -11,8 +11,8 @@
 <div class="card-inner">
   <section class="section">
     <div class="section-header">
-      <span class="section-tag">Parcours</span>
-      <h2>Experiences & <span class="accent">trainings</span></h2>
+      <span class="section-tag">Professional Experience</span>
+      <h2>Work Experience & <span class="accent">Education</span></h2>
     </div>
 
     <div class="tabs">
