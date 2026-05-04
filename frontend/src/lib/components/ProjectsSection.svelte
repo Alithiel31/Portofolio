@@ -1,12 +1,13 @@
 <script>
+  import { t } from '../i18n/t.svelte.js'
   let { data, loading } = $props()
 </script>
 
 <div class="card-inner">
   <section class="section">
     <div class="section-header">
-      <span class="section-tag">Works</span>
-      <h2>My <span class="accent">works</span></h2>
+      <span class="section-tag">{t('projects.tag')}</span>
+      <h2>{t('projects.title')} <span class="accent">{t('projects.titleAccent')}</span></h2>
     </div>
 
     {#if loading}
@@ -21,7 +22,7 @@
           <article class="project-card" class:featured={project.featured}>
             {#if project.featured}
               <span class="featured-badge">
-                <i class="bx bx-star"></i> Featured
+                <i class="bx bx-star"></i> {t('projects.featured')}
               </span>
             {/if}
 
@@ -48,12 +49,12 @@
             <div class="project-links">
               {#if project.githubUrl}
                 <a href={project.githubUrl} target="_blank" rel="noopener" class="link-btn">
-                  <i class="bx bxl-github"></i> Code
+                  <i class="bx bxl-github"></i> {t('projects.code')}
                 </a>
               {/if}
               {#if project.demoUrl}
                 <a href={project.demoUrl} target="_blank" rel="noopener" class="link-btn primary">
-                  <i class="bx bx-link-external"></i> Demo
+                  <i class="bx bx-link-external"></i> {t('projects.demo')}
                 </a>
               {/if}
             </div>

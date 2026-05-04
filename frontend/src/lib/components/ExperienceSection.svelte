@@ -1,4 +1,5 @@
 <script>
+  import { t } from '../i18n/t.svelte.js'
   let { data, loading } = $props()
 
   let activeTab = $state('WORK')
@@ -11,8 +12,8 @@
 <div class="card-inner">
   <section class="section">
     <div class="section-header">
-      <span class="section-tag">Professional Experience</span>
-      <h2>Work Experience & <span class="accent">Education</span></h2>
+      <span class="section-tag">{t('experience.tag')}</span>
+      <h2>{t('experience.title')} <span class="accent">{t('experience.titleAccent')}</span></h2>
     </div>
 
     <div class="tabs">
@@ -20,13 +21,13 @@
         class="tab" class:active={activeTab === 'WORK'}
         onclick={() => activeTab = 'WORK'}
       >
-        <i class="bx bx-briefcase"></i> Professional
+        <i class="bx bx-briefcase"></i> {t('experience.tabWork')}
       </button>
       <button
         class="tab" class:active={activeTab === 'EDUCATION'}
         onclick={() => activeTab = 'EDUCATION'}
       >
-        <i class="bx bx-book-open"></i> Education
+        <i class="bx bx-book-open"></i> {t('experience.tabEducation')}
       </button>
     </div>
 

@@ -1,4 +1,5 @@
 <script>
+  import { t } from '../i18n/t.svelte.js'
   let { profile } = $props()
 
   let name    = $state('')
@@ -34,7 +35,7 @@
   <section class="section">
     <div class="section-header">
       <span class="section-tag">Contact</span>
-      <h2>Let's work <span class="accent">together !</span></h2>
+      <h2>{t('contact.title')} <span class="accent">{t('contact.titleAccent')}</span></h2>
     </div>
 
     <div class="contact-layout">
@@ -53,7 +54,7 @@
           <div class="contact-item">
             <div class="contact-icon"><i class="bx bx-map-pin"></i></div>
             <div>
-              <span class="contact-label">Location</span>
+              <span class="contact-label">{t('contact.location')}</span>
               <span class="contact-value">{profile.location}</span>
             </div>
           </div>
@@ -73,46 +74,46 @@
       <form class="contact-form" onsubmit={handleSubmit}>
         <div class="form-row">
           <div class="field">
-            <label for="name">Nom</label>
+            <label for="name">{t('contact.name')}</label>
             <input
               id="name" type="text" bind:value={name}
-              placeholder="Your name" required
+              placeholder={t('contact.namePlaceholder')} required
             />
           </div>
           <div class="field">
-            <label for="email">Email</label>
+            <label for="email">{t('contact.email')}</label>
             <input
               id="email" type="email" bind:value={email}
-              placeholder="your@email.com" required
+              placeholder={t('contact.emailPlaceholder')} required
             />
           </div>
         </div>
 
         <div class="field">
-          <label for="message">Message</label>
+          <label for="message">{t('contact.message')}</label>
           <textarea
             id="message" bind:value={message}
-            placeholder="Your message..." rows="5" required
+            placeholder={t('contact.messagePlaceholder')} rows="5" required
           ></textarea>
         </div>
 
         {#if status === 'success'}
           <div class="form-feedback success">
             <i class="bx bx-check-circle"></i>
-            Message sent! I'll get back to you soon. /
+            {t('contact.success')}
           </div>
         {:else if status === 'error'}
           <div class="form-feedback error">
             <i class="bx bx-error-circle"></i>
-            Something went wrong. Please try again or contact me directly by email.
+            {t('contact.error')}
           </div>
         {/if}
 
         <button type="submit" class="submit-btn" disabled={status === 'sending'}>
           {#if status === 'sending'}
-            <i class="bx bx-loader-alt bx-spin"></i> Sending...
+            <i class="bx bx-loader-alt bx-spin"></i> {t('contact.sending')}
           {:else}
-            <i class="bx bx-send"></i> Send a message
+            <i class="bx bx-send"></i> {t('contact.send')}
           {/if}
         </button>
       </form>

@@ -1,5 +1,7 @@
 <script>
   import { createApiStore } from './lib/stores/api.svelte.js'
+  import { locale } from './lib/stores/locale.svelte.js'
+  import { t } from './lib/i18n/t.svelte.js'
   import HeroSection       from './lib/components/HeroSection.svelte'
   import SkillsSection     from './lib/components/SkillsSection.svelte'
   import ExperienceSection from './lib/components/ExperienceSection.svelte'
@@ -15,15 +17,21 @@
   const projects    = createApiStore('/projects')
   const services    = createApiStore('/services')
 
-  const sections = [
-    { id: 'hero',       label: 'About me' },
-    { id: 'skills',     label: 'Expertise' },
-    { id: 'experience', label: 'Experience' },
-    { id: 'projects',   label: 'Works' },
-    { id: 'services',   label: 'Core Competencies' },
-    { id: 'contact',    label: 'Contact' },
-  ]
+  const sections = $derived([
+    { id: 'hero',       label: t('nav.about') },
+    { id: 'skills',     label: t('nav.expertise') },
+    { id: 'experience', label: t('nav.experience') },
+    { id: 'projects',   label: t('nav.works') },
+    { id: 'services',   label: t('nav.competencies') },
+    { id: 'contact',    label: t('nav.contact') },
+  ])
 </script>
+
+<div class="lang-switcher">
+  <button class:active={locale.current === 'fr'} onclick={() => locale.set('fr')}>FR</button>
+  <span>|</span>
+  <button class:active={locale.current === 'en'} onclick={() => locale.set('en')}>EN</button>
+</div>
 
 <NavDots {sections} />
 
@@ -33,8 +41,8 @@
   {:else if profile.error}
     <div class="api-error">
       <i class="bx bx-error-circle"></i>
-      <p>Impossible to load the portfolio. Please check your connection to the server.</p>
-      <button onclick={profile.reload}>Try Again</button>
+      <p>{t('error.load')}</p>
+      <button onclick={profile.reload}>{t('error.retry')}</button>
     </div>
   {:else}
     <ul class="stacking-cards" style="--card-count: {sections.length}">
@@ -137,6 +145,39 @@
     to {
       transform: scale(calc(1 - (sibling-index() * 0.025)));
       filter: brightness(calc(1 - (sibling-index() * 0.04)));
+    }
+  }
+
+  /* ── Lang switcher ─────────────────────────────────────────────────── */
+  .lang-switcher {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+
+    button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0;
+      font-family: inherit;
+      transition: var(--transition);
+
+      &.active { color: var(--accent); }
+      &:hover  { color: var(--text); }
     }
   }
 
