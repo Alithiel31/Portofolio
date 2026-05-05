@@ -7,16 +7,16 @@
   let message = $state('')
   let status  = $state(null) // 'sending' | 'success' | 'error'
 
- async function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     status = 'sending'
 
     try {
-      const response = await fetch('http://localhost:3001/api/contact', {
+      const response = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message })
-      });
+      })
 
       if (response.ok) {
         status = 'success'
@@ -63,7 +63,7 @@
         {#if profile?.socialLinks?.length}
           <div class="social-row">
             {#each profile.socialLinks as link}
-              <a href={link.url} target="_blank" rel="noopener" class="social-btn" aria-label={link.platform}>
+              <a href={link.url} target="_blank" rel="noopener noreferrer" class="social-btn" aria-label={link.platform}>
                 <i class="bx {link.icon}"></i>
               </a>
             {/each}
@@ -256,9 +256,13 @@
     &::placeholder { color: var(--text-muted); }
 
     &:focus {
-      outline: none;
       border-color: var(--accent);
       background: var(--surface);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
   }
 

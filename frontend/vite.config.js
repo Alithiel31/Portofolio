@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // Ce raccourci dit à Vite : "$styles" = "src/lib/styles"
-      '$styles': path.resolve(__dirname, './src/lib/styles'),
+      '$styles': path.resolve(__dirname, './src/styles'),
       '$lib': path.resolve(__dirname, './src/lib')
     }
   }

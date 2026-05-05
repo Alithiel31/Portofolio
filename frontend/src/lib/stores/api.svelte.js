@@ -34,9 +34,9 @@ export function createApiStore(endpoint) {
   })
 
   return {
-    get data() { return data },
+    get data()    { return data },
     get loading() { return loading },
-    get error() { return error },
+    get error()   { return error },
     reload: load,
   }
 }
