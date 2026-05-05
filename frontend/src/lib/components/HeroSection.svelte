@@ -1,4 +1,5 @@
 <script>
+  import { t } from '../i18n/t.svelte.js'
   let { data } = $props()
 </script>
 
@@ -17,7 +18,7 @@
       </div>
 
       <div class="hero-text">
-        <p class="hero-greeting">Hello ! I'm</p>
+        <p class="hero-greeting">{t('hero.greeting')}</p>
         <h1>{data?.name ?? '...'}</h1>
         <h2>{data?.title ?? ''}</h2>
         <p class="hero-bio">{data?.bio ?? ''}</p>
@@ -35,11 +36,11 @@
         <div class="hero-cta">
           {#if data?.cvUrl}
             <a href={data.cvUrl} class="btn btn-primary" download>
-              <i class="bx bx-download"></i> Download CV
+              <i class="bx bx-download"></i> {t('hero.downloadCv')}
             </a>
           {/if}
           <a href="#contact" class="btn btn-outline">
-            <i class="bx bx-envelope"></i> Contact Me
+            <i class="bx bx-envelope"></i> {t('hero.contactMe')}
           </a>
         </div>
       </div>

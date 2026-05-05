@@ -1,15 +1,17 @@
 import { Router } from 'express'
 import prisma from '../prisma.js'
+import { getLocale, localizeFields } from '../utils/localize.js'
 
 const router = Router()
 
 router.get('/', async (_req, res) => {
   try {
+    const locale = getLocale(_req.query)
     const categories = await prisma.skillCategory.findMany({
       include: { skills: { orderBy: { order: 'asc' } } },
       orderBy: { order: 'asc' },
     })
-    res.json(categories)
+    res.json(categories.map(c => localizeFields(c, locale, ['name'])))
   } catch (e) {
     console.error(e)
     res.status(500).json({ error: 'Erreur serveur' })

@@ -1,30 +1,37 @@
-export const API_BASE = import.meta.env.VITE_API_URL ?? ''
+import { locale } from './locale.svelte.js'
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 async function apiFetch(endpoint) {
-  const url = `${API_BASE}/api${endpoint}`
+  const url = `${API_BASE}/api${endpoint}?locale=${locale.current}`
+  console.log(`[API Call]: ${url}`)
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Erreur API ${res.status} sur ${endpoint}`)
   return res.json()
 }
 
 export function createApiStore(endpoint) {
-  let data    = $state(null)
+  let data = $state(null)
   let loading = $state(true)
-  let error   = $state(null)
+  let error = $state(null)
 
   async function load() {
     loading = true
-    error   = null
+    error = null
     try {
       data = await apiFetch(endpoint)
     } catch (e) {
       error = e.message
+      console.error(`Erreur Store ${endpoint}:`, e)
     } finally {
       loading = false
     }
   }
 
-  load()
+  $effect(() => {
+    locale.current
+    load()
+  })
 
   return {
     get data()    { return data },

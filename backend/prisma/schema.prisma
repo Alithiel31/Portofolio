@@ -11,7 +11,9 @@ model Profile {
   id          Int      @id @default(autoincrement())
   name        String
   title       String
+  titleFr     String?
   bio         String   @db.Text
+  bioFr       String?  @db.Text
   photoUrl    String?
   email       String?
   location    String?
@@ -33,15 +35,17 @@ model SocialLink {
 }
 
 model Experience {
-  id          Int      @id @default(autoincrement())
-  year        String
-  title       String
-  company     String
-  description String   @db.Text
-  type        ExperienceType @default(WORK)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  year          String
+  title         String
+  titleFr       String?
+  company       String
+  description   String   @db.Text
+  descriptionFr String?  @db.Text
+  type          ExperienceType @default(WORK)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 enum ExperienceType {
@@ -52,6 +56,7 @@ enum ExperienceType {
 model SkillCategory {
   id     Int     @id @default(autoincrement())
   name   String
+  nameFr String?
   icon   String?
   order  Int     @default(0)
   skills Skill[]
@@ -73,25 +78,29 @@ enum SkillType {
 }
 
 model Project {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String   @db.Text
-  techStack   String
-  imageUrl    String?
-  demoUrl     String?
-  githubUrl   String?
-  featured    Boolean  @default(false)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  title         String
+  titleFr       String?
+  description   String   @db.Text
+  descriptionFr String?  @db.Text
+  techStack     String
+  imageUrl      String?
+  demoUrl       String?
+  githubUrl     String?
+  featured      Boolean  @default(false)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Service {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String   @db.Text
-  icon        String
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  title         String
+  titleFr       String?
+  description   String   @db.Text
+  descriptionFr String?  @db.Text
+  icon          String
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

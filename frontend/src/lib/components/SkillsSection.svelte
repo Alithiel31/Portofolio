@@ -1,12 +1,13 @@
 <script>
+  import { t } from '../i18n/t.svelte.js'
   let { data, loading } = $props()
 </script>
 
 <div class="card-inner">
   <section class="section">
     <div class="section-header">
-      <span class="section-tag">Savoir-faire</span>
-      <h2>Compétences <span class="accent">techniques</span></h2>
+      <span class="section-tag">{t('skills.tag')}</span>
+      <h2>{t('skills.title')} <span class="accent">{t('skills.titleAccent')}</span></h2>
     </div>
 
     {#if loading}
