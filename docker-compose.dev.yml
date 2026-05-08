@@ -45,6 +45,7 @@ services:
       sh -c "npx prisma db push &&
              npx prisma db seed &&
              npm run dev"
+      # Note: seed.ts est idempotent — il vérifie si des données existent avant d'insérer
 
   # ── Frontend (Vite dev server) ──────────────────────────────────────────────
   frontend:

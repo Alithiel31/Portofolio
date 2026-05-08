@@ -2,8 +2,8 @@
   let { message = 'Chargement du portfolio…' } = $props()
 </script>
 
-<div class="spinner-wrap">
-  <div class="spinner">
+<div class="spinner-wrap" role="status" aria-live="polite" aria-label={message}>
+  <div class="spinner" aria-hidden="true">
     <div class="ring"></div>
     <div class="ring ring--delay"></div>
   </div>
