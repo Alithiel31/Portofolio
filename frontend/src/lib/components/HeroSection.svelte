@@ -155,6 +155,7 @@
     color: var(--text-muted);
     max-width: 540px;
     line-height: 1.7;
+    margin: 0 auto;
   }
 
   .social-links {
