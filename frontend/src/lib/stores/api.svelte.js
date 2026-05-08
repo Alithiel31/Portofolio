@@ -1,6 +1,7 @@
 import { locale } from './locale.svelte.js'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+// En prod : URL relative (même domaine qu'Express). En dev : proxy Vite → port 3001.
+const API_BASE = import.meta.env.VITE_API_URL ?? ''
 
 async function apiFetch(endpoint) {
   const url = `${API_BASE}/api${endpoint}?locale=${locale.current}`
