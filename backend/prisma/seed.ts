@@ -66,6 +66,7 @@ async function main() {
       { name: 'PostgreSQL', type: SkillType.MAIN,      order: 4, categoryId: catBack.id },
       { name: 'Prisma',     type: SkillType.FRAMEWORK, parent: 'PostgreSQL', order: 5, categoryId: catBack.id },
       { name: 'Redis',      type: SkillType.MAIN,      order: 6, categoryId: catBack.id },
+      { name: 'Sequelize',  type: SkillType.FRAMEWORK, parent: 'Node.js',    order: 7, categoryId: catBack.id },
 
       { name: 'Svelte',     type: SkillType.MAIN,      order: 1, categoryId: catFront.id },
       { name: 'SvelteKit',  type: SkillType.FRAMEWORK, parent: 'Svelte',     order: 2, categoryId: catFront.id },
