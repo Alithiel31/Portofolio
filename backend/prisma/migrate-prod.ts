@@ -5,8 +5,11 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🔄 Migration de production démarrée...\n')
 
-  // ── Skills manquants ────────────────────────────────────────────────────────
+  // ── Enum LEARNING (idempotent) ──────────────────────────────────────────────
+  await prisma.$executeRawUnsafe(`ALTER TYPE "SkillType" ADD VALUE IF NOT EXISTS 'LEARNING'`)
+  console.log('✅ Enum LEARNING vérifié\n')
 
+  // ── Catégories ──────────────────────────────────────────────────────────────
   const catLang  = await prisma.skillCategory.findFirst({ where: { name: 'Langages' } })
   const catBack  = await prisma.skillCategory.findFirst({ where: { name: 'Backend' } })
   const catFront = await prisma.skillCategory.findFirst({ where: { name: 'Frontend' } })
@@ -16,13 +19,40 @@ async function main() {
     throw new Error('Catégories de skills introuvables — vérifier la base de données.')
   }
 
+  // ── Corrections des skills existants ────────────────────────────────────────
+
+  // PHP → LEARNING dans Langages
+  const php = await prisma.skill.findFirst({ where: { name: 'PHP' } })
+  if (php) {
+    await prisma.skill.update({ where: { id: php.id }, data: { type: SkillType.LEARNING, categoryId: catLang.id, order: 7 } })
+    console.log('✅ PHP mis à jour : LEARNING dans Langages')
+  }
+
+  // Sequelize → MAIN dans Langages (était FRAMEWORK dans Backend)
+  const sequelize = await prisma.skill.findFirst({ where: { name: 'Sequelize' } })
+  if (sequelize) {
+    await prisma.skill.update({ where: { id: sequelize.id }, data: { type: SkillType.MAIN, categoryId: catLang.id, parent: null, order: 5 } })
+    console.log('✅ Sequelize mis à jour : MAIN dans Langages')
+  }
+
+  // Suppression de Redis
+  const redis = await prisma.skill.findFirst({ where: { name: 'Redis' } })
+  if (redis) {
+    await prisma.skill.delete({ where: { id: redis.id } })
+    console.log('✅ Redis supprimé')
+  } else {
+    console.log('⏭  Redis déjà absent')
+  }
+
+  // ── Skills manquants ────────────────────────────────────────────────────────
+
   const skillsToAdd = [
-    { name: 'PHP',       type: SkillType.MAIN,      order: 5, categoryId: catLang.id },
-    { name: 'HTML',      type: SkillType.MAIN,      order: 6, categoryId: catFront.id },
-    { name: 'YAML',      type: SkillType.MAIN,      order: 5, categoryId: catOps.id },
-    { name: 'Sequelize', type: SkillType.FRAMEWORK, parent: 'Node.js', order: 7, categoryId: catBack.id },
+    { name: 'Prisma', type: SkillType.MAIN,      order: 6, categoryId: catLang.id },
+    { name: 'HTML',   type: SkillType.MAIN,      order: 6, categoryId: catFront.id },
+    { name: 'YAML',   type: SkillType.MAIN,      order: 5, categoryId: catOps.id },
   ]
 
+  console.log('')
   for (const skill of skillsToAdd) {
     const existing = await prisma.skill.findFirst({ where: { name: skill.name, categoryId: skill.categoryId } })
     if (existing) {
