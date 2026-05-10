@@ -1,6 +1,10 @@
 <script>
   import { t } from '../i18n/t.svelte.js'
   let { data, loading } = $props()
+
+  function needsInvert(iconUrl) {
+    return iconUrl && (iconUrl.includes('express') || iconUrl.includes('nextjs') || iconUrl.includes('fastify') || iconUrl.includes('prisma'))
+  }
 </script>
 
 <div class="card-inner">
@@ -27,8 +31,16 @@
             <ul class="skill-list">
               {#each category.skills as skill}
                 <li class="skill-item" class:framework={skill.type === 'FRAMEWORK'}>
-                  {#if skill.type === 'FRAMEWORK'}
-                    <span class="framework-parent">{skill.parent} ›</span>
+                  {#if skill.iconUrl}
+                    <img
+                      src={skill.iconUrl}
+                      alt={skill.name}
+                      class="skill-icon"
+                      class:invert={needsInvert(skill.iconUrl)}
+                      loading="lazy"
+                    />
+                  {:else}
+                    <span class="skill-icon-placeholder"></span>
                   {/if}
                   <span class="skill-name">{skill.name}</span>
                 </li>
@@ -82,27 +94,36 @@
     color: var(--text);
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-
-    &::before {
-      content: '▸';
-      color: var(--accent);
-      font-size: 0.75rem;
-    }
+    gap: 0.6rem;
 
     &.framework {
-      margin-left: 1rem;
+      margin-left: 1.2rem;
       color: var(--text-muted);
       font-size: 0.85rem;
 
-      &::before { content: '└'; color: var(--border); }
+      .skill-icon { width: 16px; height: 16px; opacity: 0.75; }
     }
   }
 
-  .framework-parent {
-    color: var(--text-muted);
-    font-style: italic;
-    font-size: 0.8rem;
+  .skill-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+
+    &.invert { filter: invert(1) brightness(2); }
+  }
+
+  .skill-icon-placeholder {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    border-radius: 3px;
+    background: var(--accent-dim);
+  }
+
+  .skill-name {
+    line-height: 1.2;
   }
 
   .skeleton-grid {
