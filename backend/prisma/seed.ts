@@ -52,34 +52,36 @@ async function main() {
   const catFront = await prisma.skillCategory.create({ data: { name: 'Frontend',  icon: 'bx-palette',  order: 3 } })
   const catOps   = await prisma.skillCategory.create({ data: { name: 'DevOps',    icon: 'bx-cloud',    order: 4 } })
 
+  const D = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons'
+
   await prisma.skill.createMany({
     data: [
-      { name: 'JavaScript', type: SkillType.MAIN,      order: 1, categoryId: catLang.id },
-      { name: 'TypeScript', type: SkillType.MAIN,      order: 2, categoryId: catLang.id },
-      { name: 'Python',     type: SkillType.MAIN,      order: 3, categoryId: catLang.id },
-      { name: 'SQL',        type: SkillType.MAIN,      order: 4, categoryId: catLang.id },
-      { name: 'PHP',        type: SkillType.MAIN,      order: 5, categoryId: catLang.id },
+      { name: 'JavaScript', type: SkillType.MAIN,      iconUrl: `${D}/javascript/javascript-original.svg`, order: 1, categoryId: catLang.id },
+      { name: 'TypeScript', type: SkillType.MAIN,      iconUrl: `${D}/typescript/typescript-original.svg`, order: 2, categoryId: catLang.id },
+      { name: 'Python',     type: SkillType.MAIN,      iconUrl: `${D}/python/python-original.svg`,         order: 3, categoryId: catLang.id },
+      { name: 'SQL',        type: SkillType.MAIN,      iconUrl: `${D}/postgresql/postgresql-original.svg`, order: 4, categoryId: catLang.id },
+      { name: 'PHP',        type: SkillType.MAIN,      iconUrl: `${D}/php/php-original.svg`,               order: 5, categoryId: catLang.id },
 
-      { name: 'Node.js',    type: SkillType.MAIN,      order: 1, categoryId: catBack.id },
-      { name: 'Express',    type: SkillType.FRAMEWORK, parent: 'Node.js',    order: 2, categoryId: catBack.id },
-      { name: 'Fastify',    type: SkillType.FRAMEWORK, parent: 'Node.js',    order: 3, categoryId: catBack.id },
-      { name: 'PostgreSQL', type: SkillType.MAIN,      order: 4, categoryId: catBack.id },
-      { name: 'Prisma',     type: SkillType.FRAMEWORK, parent: 'PostgreSQL', order: 5, categoryId: catBack.id },
-      { name: 'Redis',      type: SkillType.MAIN,      order: 6, categoryId: catBack.id },
-      { name: 'Sequelize',  type: SkillType.FRAMEWORK, parent: 'Node.js',    order: 7, categoryId: catBack.id },
+      { name: 'Node.js',    type: SkillType.MAIN,      iconUrl: `${D}/nodejs/nodejs-original.svg`,         order: 1, categoryId: catBack.id },
+      { name: 'Express',    type: SkillType.FRAMEWORK, iconUrl: `${D}/express/express-original-wordmark.svg`, parent: 'Node.js',    order: 2, categoryId: catBack.id },
+      { name: 'Fastify',    type: SkillType.FRAMEWORK, iconUrl: `${D}/fastify/fastify-original.svg`,       parent: 'Node.js',    order: 3, categoryId: catBack.id },
+      { name: 'PostgreSQL', type: SkillType.MAIN,      iconUrl: `${D}/postgresql/postgresql-original.svg`, order: 4, categoryId: catBack.id },
+      { name: 'Prisma',     type: SkillType.FRAMEWORK, iconUrl: `${D}/prisma/prisma-original.svg`,         parent: 'PostgreSQL', order: 5, categoryId: catBack.id },
+      { name: 'Redis',      type: SkillType.MAIN,      iconUrl: `${D}/redis/redis-original.svg`,           order: 6, categoryId: catBack.id },
+      { name: 'Sequelize',  type: SkillType.FRAMEWORK, iconUrl: `${D}/sequelize/sequelize-original.svg`,   parent: 'Node.js',    order: 7, categoryId: catBack.id },
 
-      { name: 'Svelte',     type: SkillType.MAIN,      order: 1, categoryId: catFront.id },
-      { name: 'SvelteKit',  type: SkillType.FRAMEWORK, parent: 'Svelte',     order: 2, categoryId: catFront.id },
-      { name: 'React',      type: SkillType.MAIN,      order: 3, categoryId: catFront.id },
-      { name: 'Next.js',    type: SkillType.FRAMEWORK, parent: 'React',      order: 4, categoryId: catFront.id },
-      { name: 'SCSS / CSS', type: SkillType.MAIN,      order: 5, categoryId: catFront.id },
-      { name: 'HTML',       type: SkillType.MAIN,      order: 6, categoryId: catFront.id },
+      { name: 'Svelte',     type: SkillType.MAIN,      iconUrl: `${D}/svelte/svelte-original.svg`,         order: 1, categoryId: catFront.id },
+      { name: 'SvelteKit',  type: SkillType.FRAMEWORK, iconUrl: `${D}/svelte/svelte-original.svg`,         parent: 'Svelte',     order: 2, categoryId: catFront.id },
+      { name: 'React',      type: SkillType.MAIN,      iconUrl: `${D}/react/react-original.svg`,           order: 3, categoryId: catFront.id },
+      { name: 'Next.js',    type: SkillType.FRAMEWORK, iconUrl: `${D}/nextjs/nextjs-original.svg`,         parent: 'React',      order: 4, categoryId: catFront.id },
+      { name: 'SCSS / CSS', type: SkillType.MAIN,      iconUrl: `${D}/sass/sass-original.svg`,             order: 5, categoryId: catFront.id },
+      { name: 'HTML',       type: SkillType.MAIN,      iconUrl: `${D}/html5/html5-original.svg`,           order: 6, categoryId: catFront.id },
 
-      { name: 'Docker',     type: SkillType.MAIN,      order: 1, categoryId: catOps.id },
-      { name: 'Railway',    type: SkillType.MAIN,      order: 2, categoryId: catOps.id },
-      { name: 'Git / GitHub', type: SkillType.MAIN,    order: 3, categoryId: catOps.id },
-      { name: 'CI/CD',      type: SkillType.MAIN,      order: 4, categoryId: catOps.id },
-      { name: 'YAML',       type: SkillType.MAIN,      order: 5, categoryId: catOps.id },
+      { name: 'Docker',       type: SkillType.MAIN, iconUrl: `${D}/docker/docker-original.svg`,                  order: 1, categoryId: catOps.id },
+      { name: 'Railway',      type: SkillType.MAIN, iconUrl: null,                                                order: 2, categoryId: catOps.id },
+      { name: 'Git / GitHub', type: SkillType.MAIN, iconUrl: `${D}/git/git-original.svg`,                        order: 3, categoryId: catOps.id },
+      { name: 'CI/CD',        type: SkillType.MAIN, iconUrl: `${D}/githubactions/githubactions-original.svg`,     order: 4, categoryId: catOps.id },
+      { name: 'YAML',         type: SkillType.MAIN, iconUrl: null,                                                order: 5, categoryId: catOps.id },
     ]
   })
 

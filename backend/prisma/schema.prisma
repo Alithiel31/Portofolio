@@ -67,6 +67,7 @@ model Skill {
   name       String
   type       SkillType     @default(MAIN)
   parent     String?
+  iconUrl    String?
   order      Int           @default(0)
   categoryId Int
   category   SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)

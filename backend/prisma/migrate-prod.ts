@@ -121,6 +121,46 @@ async function main() {
     }
   }
 
+  // ── Icônes Devicon sur les skills ──────────────────────────────────────────
+
+  const D = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons'
+
+  const skillIcons: Record<string, string | null> = {
+    'JavaScript': `${D}/javascript/javascript-original.svg`,
+    'TypeScript': `${D}/typescript/typescript-original.svg`,
+    'Python':     `${D}/python/python-original.svg`,
+    'SQL':        `${D}/postgresql/postgresql-original.svg`,
+    'PHP':        `${D}/php/php-original.svg`,
+    'Node.js':    `${D}/nodejs/nodejs-original.svg`,
+    'Express':    `${D}/express/express-original-wordmark.svg`,
+    'Fastify':    `${D}/fastify/fastify-original.svg`,
+    'PostgreSQL': `${D}/postgresql/postgresql-original.svg`,
+    'Prisma':     `${D}/prisma/prisma-original.svg`,
+    'Redis':      `${D}/redis/redis-original.svg`,
+    'Sequelize':  `${D}/sequelize/sequelize-original.svg`,
+    'Svelte':     `${D}/svelte/svelte-original.svg`,
+    'SvelteKit':  `${D}/svelte/svelte-original.svg`,
+    'React':      `${D}/react/react-original.svg`,
+    'Next.js':    `${D}/nextjs/nextjs-original.svg`,
+    'SCSS / CSS': `${D}/sass/sass-original.svg`,
+    'HTML':       `${D}/html5/html5-original.svg`,
+    'Docker':     `${D}/docker/docker-original.svg`,
+    'Railway':    null,
+    'Git / GitHub': `${D}/git/git-original.svg`,
+    'CI/CD':      `${D}/githubactions/githubactions-original.svg`,
+    'YAML':       null,
+  }
+
+  console.log('\n🎨 Mise à jour des icônes skills...')
+  for (const [name, iconUrl] of Object.entries(skillIcons)) {
+    const updated = await prisma.skill.updateMany({ where: { name }, data: { iconUrl } })
+    if (updated.count > 0) {
+      console.log(`✅ Icône ajoutée : ${name}`)
+    } else {
+      console.log(`⏭  Skill non trouvé : ${name}`)
+    }
+  }
+
   console.log('\n🎉 Migration terminée avec succès !')
 }
 
