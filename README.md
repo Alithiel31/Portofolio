@@ -1,4 +1,8 @@
-# Portfolio Fullstack — Svelte + Express + Prisma + PostgreSQL
+# Portfolio Fullstack — Svelte 5 · Express · Prisma · PostgreSQL
+
+Portfolio personnel fullstack avec interface bilingue (FR/EN), sections animées en stacking cards, formulaire de contact et déploiement Railway.
+
+---
 
 ## Stack
 
@@ -7,7 +11,8 @@
 | Frontend | Svelte 5, Vite, SCSS |
 | Backend | Node.js, Express, TypeScript |
 | ORM | Prisma |
-| Base de données | PostgreSQL |
+| Base de données | PostgreSQL 16 |
+| Email | Resend |
 | Conteneur | Docker + Docker Compose |
 | Hébergement | Railway |
 
@@ -16,10 +21,11 @@
 ## Démarrage local
 
 ### Prérequis
+
 - Docker + Docker Compose
 - Node.js 22+
 
-### 1. Cloner et installer
+### 1. Cloner le repo
 
 ```bash
 git clone <votre-repo>
@@ -32,20 +38,36 @@ cd portfolio
 cp backend/.env.example backend/.env
 ```
 
+Éditer `backend/.env` et renseigner au minimum :
+
+```env
+DATABASE_URL="postgresql://portfolio:portfolio_dev@localhost:5432/portfolio"
+NODE_ENV="development"
+PORT=3000
+
+# Formulaire de contact (optionnel en local)
+RESEND_API_KEY="re_xxxxxxxxxxxxxxxxxxxx"
+CONTACT_EMAIL="votre@email.com"
+```
+
+> Sans `RESEND_API_KEY` et `CONTACT_EMAIL`, le formulaire de contact retournera une erreur 503 — le reste du portfolio fonctionne normalement.
+
 ### 3. Lancer avec Docker Compose
 
 ```bash
 npm run dev
-# ou directement :
-docker compose -f docker-compose.dev.yml up
+# équivalent à : docker compose -f docker-compose.dev.yml up
 ```
 
-Le compose va :
-1. Démarrer PostgreSQL
-2. Exécuter les migrations Prisma
-3. Seeder la BDD avec des données de démo
-4. Lancer le backend sur http://localhost:3000
-5. Lancer le frontend Vite sur http://localhost:5173
+Docker va automatiquement :
+
+1. Démarrer PostgreSQL sur le port `5434`
+2. Pousser le schéma Prisma (`db push`)
+3. Seeder la BDD avec les données initiales
+4. Lancer le backend sur `http://localhost:3001`
+5. Lancer le frontend Vite sur `http://localhost:5173`
+
+> **Note Windows** : le backend est exposé sur `3001` (et non `3000`) pour éviter les conflits de port. Le frontend pointe automatiquement dessus via `VITE_API_URL`.
 
 ### 4. Prisma Studio (interface BDD visuelle)
 
@@ -62,39 +84,44 @@ npm run db:studio
 portfolio/
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma      # Modèles BDD
-│   │   └── seed.ts            # Données initiales
-│   └── src/
-│       ├── index.ts           # Entry point Express
-│       ├── prisma.ts          # Client Prisma singleton
-│       └── routes/
-│           ├── profile.ts
-│           ├── experiences.ts
-│           ├── skills.ts
-│           ├── projects.ts
-│           └── services.ts
+│   │   ├── schema.prisma        # Modèles BDD
+│   │   └── seed.ts              # Données initiales (idempotent)
+│   ├── src/
+│   │   ├── index.ts             # Entry point Express + route contact
+│   │   ├── prisma.ts            # Client Prisma singleton
+│   │   └── routes/
+│   │       ├── profile.ts
+│   │       ├── experiences.ts
+│   │       ├── skills.ts
+│   │       ├── projects.ts
+│   │       └── services.ts
+│   └── .env.example
 ├── frontend/
 │   └── src/
-│       ├── App.svelte         # Stacking cards + routing
+│       ├── App.svelte            # Stacking cards + navigation
 │       ├── main.js
-│       ├── lib/
-│       │   ├── stores/
-│       │   │   └── api.svelte.js   # Fetch store réactif
-│       │   └── components/
-│       │       ├── HeroSection.svelte
-│       │       ├── SkillsSection.svelte
-│       │       ├── ExperienceSection.svelte
-│       │       ├── ProjectsSection.svelte
-│       │       ├── ServicesSection.svelte
-│       │       ├── ContactSection.svelte
-│       │       ├── NavDots.svelte
-│       │       └── LoadingSpinner.svelte
-│       └── styles/
-│           ├── global.scss
-│           └── _section.scss
+│       └── lib/
+│           ├── stores/
+│           │   └── api.svelte.js # Fetch store réactif
+│           ├── i18n/
+│           │   ├── en.js         # Traductions anglais
+│           │   ├── fr.js         # Traductions français
+│           │   └── t.svelte.js   # Store de langue
+│           ├── components/
+│           │   ├── HeroSection.svelte
+│           │   ├── SkillsSection.svelte
+│           │   ├── ExperienceSection.svelte
+│           │   ├── ProjectsSection.svelte
+│           │   ├── ServicesSection.svelte
+│           │   ├── ContactSection.svelte
+│           │   ├── NavDots.svelte
+│           │   └── LoadingSpinner.svelte
+│           └── styles/
+│               ├── global.scss
+│               └── _section.scss
 ├── docker/
 │   └── Dockerfile.dev
-├── Dockerfile                 # Multi-stage prod
+├── Dockerfile                    # Multi-stage build prod
 ├── docker-compose.dev.yml
 ├── railway.toml
 └── package.json
@@ -105,79 +132,84 @@ portfolio/
 ## API Endpoints
 
 ```
-GET /api/health          → Status serveur
-GET /api/profile         → Profil + réseaux sociaux
-GET /api/experiences     → Toutes les expériences
-GET /api/experiences?type=WORK      → Filtrer par type
-GET /api/experiences?type=EDUCATION
-GET /api/skills          → Catégories + compétences
-GET /api/projects        → Tous les projets
-GET /api/projects?featured=true    → Projets mis en avant
-GET /api/projects/:id    → Un projet
-GET /api/services        → Services proposés
+GET  /api/health                       → Statut du serveur
+GET  /api/profile                      → Profil + réseaux sociaux
+GET  /api/experiences                  → Toutes les expériences
+GET  /api/experiences?type=WORK        → Filtrer : emplois
+GET  /api/experiences?type=EDUCATION   → Filtrer : formations
+GET  /api/skills                       → Catégories + compétences
+GET  /api/projects                     → Tous les projets
+GET  /api/projects?featured=true       → Projets mis en avant
+GET  /api/projects/:id                 → Un projet par ID
+GET  /api/services                     → Services proposés
+POST /api/contact                      → Envoi du formulaire de contact
 ```
+
+**Rate limit contact :** 5 requêtes par IP toutes les 15 minutes.
 
 ---
 
 ## Modifier le contenu
 
-### Via Prisma Studio (recommandé en local)
+### En local — Prisma Studio
 
 ```bash
 npm run db:studio
+# → http://localhost:5555
 ```
 
-Ouvre une interface web sur http://localhost:5555 pour éditer toutes les tables.
+Interface web pour éditer toutes les tables directement.
 
-### Via Railway Dashboard (en production)
+### En production — Railway Dashboard
 
-1. Railway → votre projet → onglet **Data** (PostgreSQL plugin)
-2. Utiliser l'onglet **Tables** pour éditer directement
+1. Railway → votre projet → service PostgreSQL → onglet **Data**
+2. Utiliser l'onglet **Tables** pour éditer les données
 
-### Via Prisma Studio connecté à la prod
+### En production — Prisma Studio connecté à la prod
 
 ```bash
-# Dans backend/.env, mettre la DATABASE_URL de Railway
-npx prisma studio
+# Remplacer DATABASE_URL dans backend/.env par l'URL Railway, puis :
+npm run db:studio
 ```
 
 ---
 
 ## Déploiement Railway
 
-### 1. Créer le projet Railway
+### 1. Initialiser Railway
 
 ```bash
-# Installer Railway CLI
 npm install -g @railway/cli
-
 railway login
 railway init
 ```
 
 ### 2. Ajouter PostgreSQL
 
-Dans le dashboard Railway :
-- **New** → **Database** → **PostgreSQL**
-- Railway injecte automatiquement `DATABASE_URL` dans votre service
+Dans le dashboard Railway : **New → Database → PostgreSQL**
 
-### 3. Déployer
+Railway injecte automatiquement `DATABASE_URL` dans votre service.
+
+### 3. Variables d'environnement
+
+Dans **Settings → Variables** de votre service, ajouter :
+
+```env
+NODE_ENV=production
+FRONTEND_URL=https://votre-portfolio.up.railway.app
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
+CONTACT_EMAIL=votre@email.com
+```
+
+> `DATABASE_URL` est injectée automatiquement par le plugin PostgreSQL, ne pas la redéfinir.
+
+### 4. Déployer
 
 ```bash
 railway up
 ```
 
-Ou connectez votre repo GitHub pour le déploiement automatique à chaque push.
-
-### 4. Variables d'environnement Railway
-
-Dans **Settings → Variables** de votre service, ajouter :
-
-```
-NODE_ENV=production
-```
-
-`DATABASE_URL` est injectée automatiquement par le plugin PostgreSQL.
+Ou connecter le repo GitHub pour le déploiement automatique à chaque push sur `main`.
 
 ### 5. Seeder la BDD de production
 
@@ -188,20 +220,25 @@ railway run npm run db:seed
 
 ---
 
-## Ajouter un projet en production
+## Scripts disponibles
 
-```sql
--- Via Railway dashboard ou Prisma Studio connecté à la prod
-INSERT INTO "Project" (title, description, "techStack", "imageUrl", "demoUrl", "githubUrl", featured, "order")
-VALUES ('Mon nouveau projet', 'Description...', 'Svelte, Node.js', 'https://...', 'https://...', null, true, 4);
-```
+| Commande | Description |
+|----------|-------------|
+| `npm run dev` | Lance tout en local (Docker Compose) |
+| `npm run dev:backend` | Backend seul (hors Docker) |
+| `npm run dev:frontend` | Frontend seul (hors Docker) |
+| `npm run build` | Build production du frontend |
+| `npm run db:migrate` | Applique les migrations Prisma |
+| `npm run db:seed` | Insère les données initiales |
+| `npm run db:studio` | Ouvre Prisma Studio |
 
 ---
 
-## Développement — modifier les modèles BDD
+## Développement — modifier le schéma BDD
 
 ```bash
-# Modifier backend/prisma/schema.prisma puis :
+# 1. Modifier backend/prisma/schema.prisma
+# 2. Créer une migration
 cd backend
 npx prisma migrate dev --name nom_de_la_migration
 ```

@@ -19,8 +19,12 @@
     {:else if data}
       <div class="projects-grid">
         {#each data as project}
-          <article class="project-card" class:featured={project.featured}>
-            {#if project.featured}
+          <article class="project-card" class:featured={project.featured} class:in-progress={project.status === 'IN_PROGRESS'}>
+            {#if project.status === 'IN_PROGRESS'}
+              <span class="in-progress-badge">
+                <i class="bx bx-loader-circle"></i> {t('projects.inProgress')}
+              </span>
+            {:else if project.featured}
               <span class="featured-badge">
                 <i class="bx bx-star"></i> {t('projects.featured')}
               </span>
@@ -98,6 +102,28 @@
     &.featured {
       border-color: rgba(0, 171, 240, 0.4);
     }
+
+    &.in-progress {
+      border-color: rgba(255, 170, 0, 0.4);
+    }
+  }
+
+  .in-progress-badge {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    background: #ffaa00;
+    color: #000;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    z-index: 1;
+
+    i { font-size: 0.8rem; }
   }
 
   .featured-badge {

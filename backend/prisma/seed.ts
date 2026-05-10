@@ -1,4 +1,4 @@
-import { PrismaClient, ExperienceType, SkillType } from '@prisma/client'
+import { PrismaClient, ExperienceType, SkillType, ProjectStatus } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -58,6 +58,7 @@ async function main() {
       { name: 'TypeScript', type: SkillType.MAIN,      order: 2, categoryId: catLang.id },
       { name: 'Python',     type: SkillType.MAIN,      order: 3, categoryId: catLang.id },
       { name: 'SQL',        type: SkillType.MAIN,      order: 4, categoryId: catLang.id },
+      { name: 'PHP',        type: SkillType.MAIN,      order: 5, categoryId: catLang.id },
 
       { name: 'Node.js',    type: SkillType.MAIN,      order: 1, categoryId: catBack.id },
       { name: 'Express',    type: SkillType.FRAMEWORK, parent: 'Node.js',    order: 2, categoryId: catBack.id },
@@ -71,11 +72,13 @@ async function main() {
       { name: 'React',      type: SkillType.MAIN,      order: 3, categoryId: catFront.id },
       { name: 'Next.js',    type: SkillType.FRAMEWORK, parent: 'React',      order: 4, categoryId: catFront.id },
       { name: 'SCSS / CSS', type: SkillType.MAIN,      order: 5, categoryId: catFront.id },
+      { name: 'HTML',       type: SkillType.MAIN,      order: 6, categoryId: catFront.id },
 
       { name: 'Docker',     type: SkillType.MAIN,      order: 1, categoryId: catOps.id },
       { name: 'Railway',    type: SkillType.MAIN,      order: 2, categoryId: catOps.id },
       { name: 'Git / GitHub', type: SkillType.MAIN,    order: 3, categoryId: catOps.id },
       { name: 'CI/CD',      type: SkillType.MAIN,      order: 4, categoryId: catOps.id },
+      { name: 'YAML',       type: SkillType.MAIN,      order: 5, categoryId: catOps.id },
     ]
   })
 
@@ -92,22 +95,57 @@ async function main() {
         order: 1,
       },
       {
-        title: 'SaaS Analytics Dashboard',
-        description: 'Tableau de bord temps réel pour le suivi de métriques business. Graphiques interactifs, alertes configurables.',
-        techStack: 'React, Next.js, TypeScript, Recharts, Redis',
-        imageUrl: 'https://picsum.photos/seed/dashboard/800/400',
-        demoUrl: null,
+        title: 'GenevaWillBeBlue',
+        description: 'Plateforme logistique et d\'information pour l\'événement de la communauté de jeu Ingress à Genève (juin 2026).',
+        techStack: 'Svelte 5, TypeScript, SCSS, Sequelize, PostgreSQL, Railway',
+        imageUrl: 'https://picsum.photos/seed/geneva/800/400',
+        githubUrl: 'https://github.com/Alithiel31/GenevaWillBeBlueV2',
+        demoUrl: 'https://genevawillbebluev2-production.up.railway.app/',
         featured: true,
         order: 2,
       },
       {
-        title: 'API REST Microservices',
-        description: 'Architecture microservices pour une plateforme e-commerce. Gestion des commandes, stocks, paiements.',
-        techStack: 'Node.js, Fastify, PostgreSQL, Docker, RabbitMQ',
-        imageUrl: 'https://picsum.photos/seed/api/800/400',
-        githubUrl: null,
-        featured: false,
+        title: 'SkillFusion',
+        description: 'Plateforme éducative DIY développée en équipe (méthode agile, Titre Professionnel). Architecture 3-tier complète : SvelteKit (Svelte 5 + runes), Express TypeScript, PostgreSQL/Prisma. 4 rôles utilisateurs, 8 tables, sécurité renforcée (Argon2, Zod, Helmet, rate-limiting, sanitization XSS).',
+        techStack: 'SvelteKit, TypeScript, Express, PostgreSQL, Prisma, Docker, Railway',
+        imageUrl: 'https://picsum.photos/seed/skillfusion/800/400',
+        githubUrl: 'https://github.com/Alithiel31/SkillFusion',
+        demoUrl: 'https://skillfusion-client-production.up.railway.app/',
+        featured: true,
         order: 3,
+      },
+      {
+        title: 'ParseAndCutV2',
+        description: 'Outil propulsé par l\'IA utilisant l\'API Groq pour transcrire et résumer des fichiers audio en fiches de synthèse professionnelles.',
+        techStack: 'Python, JavaScript, HTML/CSS, Docker, GitHub Actions',
+        imageUrl: 'https://picsum.photos/seed/parseandcut/800/400',
+        githubUrl: 'https://github.com/Alithiel31/ParseAndCutV2',
+        demoUrl: 'https://parseandcut.alithiel31.dev/',
+        featured: false,
+        status: ProjectStatus.COMPLETED,
+        order: 4,
+      },
+      {
+        title: 'ThyFollow',
+        description: 'Application de suivi thyroïdien inspirée de Clue. Journal quotidien (énergie, humeur, symptômes), suivi des analyses sanguines avec graphiques d\'évolution (TSH, FT4, FT3), gestion des médicaments et agenda médical.',
+        techStack: 'React 18, TypeScript, Express, PostgreSQL, Prisma, Zustand, TanStack Query, Recharts, Railway',
+        imageUrl: 'https://picsum.photos/seed/thyfollow/800/400',
+        githubUrl: 'https://github.com/Alithiel31/ThyFollow',
+        demoUrl: null,
+        featured: false,
+        status: ProjectStatus.IN_PROGRESS,
+        order: 5,
+      },
+      {
+        title: 'TheMachine',
+        description: 'Projet personnel fan-made : reproduction de l\'interface de "La Machine" de la série Person of Interest, connectée à l\'API Bluesky pour une surveillance en temps réel du réseau social.',
+        techStack: 'JavaScript',
+        imageUrl: 'https://picsum.photos/seed/themachine/800/400',
+        githubUrl: 'https://github.com/Alithiel31/TheMachine',
+        demoUrl: null,
+        featured: false,
+        status: ProjectStatus.IN_PROGRESS,
+        order: 6,
       },
     ]
   })

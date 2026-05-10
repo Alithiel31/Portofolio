@@ -24,6 +24,7 @@ export const en = {
     title: 'My',
     titleAccent: 'works',
     featured: 'Featured',
+    inProgress: 'In Progress',
     code: 'Code',
     demo: 'Demo',
   },

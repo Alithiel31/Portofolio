@@ -108,7 +108,7 @@ app.post('/api/contact', async (req, res) => {
 
   try {
     await resend.emails.send({
-      from:    'Portfolio <onboarding@resend.dev>',
+      from:    'Portfolio <contact@alithiel31.dev>',
       to:      CONTACT_EMAIL,
       subject: `Nouveau message de ${escapeHtml(name)}`,
       html: `<p><strong>Nom:</strong> ${escapeHtml(name)}</p>
