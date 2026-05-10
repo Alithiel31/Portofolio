@@ -24,6 +24,7 @@ export const fr = {
     title: 'Mes',
     titleAccent: 'projets',
     featured: 'À la une',
+    inProgress: 'En cours',
     code: 'Code',
     demo: 'Démo',
   },

@@ -78,19 +78,25 @@ enum SkillType {
 }
 
 model Project {
-  id            Int      @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   title         String
   titleFr       String?
-  description   String   @db.Text
-  descriptionFr String?  @db.Text
+  description   String        @db.Text
+  descriptionFr String?       @db.Text
   techStack     String
   imageUrl      String?
   demoUrl       String?
   githubUrl     String?
-  featured      Boolean  @default(false)
-  order         Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  featured      Boolean       @default(false)
+  status        ProjectStatus @default(COMPLETED)
+  order         Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum ProjectStatus {
+  COMPLETED
+  IN_PROGRESS
 }
 
 model Service {
