@@ -1,5 +1,7 @@
 <script>
   import { t } from '../i18n/t.svelte.js'
+
+  const API_BASE = import.meta.env.VITE_API_URL ?? ''
   let { profile } = $props()
 
   let name    = $state('')
