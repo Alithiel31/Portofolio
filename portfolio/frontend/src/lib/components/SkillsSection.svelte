@@ -25,11 +25,14 @@
             </h3>
             <ul class="skill-list">
               {#each category.skills as skill}
-                <li class="skill-item" class:framework={skill.type === 'FRAMEWORK'}>
+                <li class="skill-item" class:framework={skill.type === 'FRAMEWORK'} class:learning={skill.type === 'LEARNING'}>
                   {#if skill.type === 'FRAMEWORK'}
                     <span class="framework-parent">{skill.parent} ›</span>
                   {/if}
                   <span class="skill-name">{skill.name}</span>
+                  {#if skill.type === 'LEARNING'}
+                    <span class="learning-badge">en cours</span>
+                  {/if}
                 </li>
               {/each}
             </ul>
@@ -96,6 +99,25 @@
 
       &::before { content: '└'; color: var(--border); }
     }
+
+    &.learning {
+      font-style: italic;
+      color: var(--text-muted);
+
+      &::before { content: '▸'; color: var(--accent); opacity: 0.5; }
+    }
+  }
+
+  .learning-badge {
+    font-size: 0.7rem;
+    font-style: normal;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 0.05rem 0.4rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    opacity: 0.8;
   }
 
   .framework-parent {

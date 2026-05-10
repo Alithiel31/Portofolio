@@ -55,6 +55,7 @@ async function main() {
       { name: 'SQL',         type: SkillType.MAIN,      order: 4, categoryId: catLang.id },
       { name: 'Sequelize',   type: SkillType.MAIN,      order: 5, categoryId: catLang.id },
       { name: 'Prisma',      type: SkillType.MAIN,      order: 6, categoryId: catLang.id },
+      { name: 'PHP',         type: SkillType.LEARNING,  order: 7, categoryId: catLang.id },
 
       { name: 'Node.js',     type: SkillType.MAIN,      order: 1, categoryId: catBack.id },
       { name: 'Express',     type: SkillType.FRAMEWORK, parent: 'Node.js', order: 2, categoryId: catBack.id },
