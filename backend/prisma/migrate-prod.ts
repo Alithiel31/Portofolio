@@ -79,12 +79,17 @@ async function main() {
 
   // ── Projets ─────────────────────────────────────────────────────────────────
 
-  // Mise à jour du Portfolio Fullstack (order 1) — ajouter status COMPLETED
+  const THUMB = 'https://image.thum.io/get/width/800/crop/400'
+
+  // Mise à jour du Portfolio Fullstack (order 1)
   await prisma.project.updateMany({
     where: { order: 1 },
-    data: { status: ProjectStatus.COMPLETED },
+    data: {
+      status:   ProjectStatus.COMPLETED,
+      imageUrl: `${THUMB}/https://alithiel31.dev`,
+    },
   })
-  console.log('\n✅ Projet 1 mis à jour : Portfolio Fullstack (status COMPLETED)')
+  console.log('\n✅ Projet 1 mis à jour : Portfolio Fullstack')
 
   // Remplacement projet 2 : SaaS Analytics Dashboard → GenevaWillBeBlue
   await prisma.project.updateMany({
@@ -93,7 +98,7 @@ async function main() {
       title:       'GenevaWillBeBlue',
       description: "Plateforme logistique et d'information pour l'événement de la communauté de jeu Ingress à Genève (juin 2026).",
       techStack:   'Svelte 5, TypeScript, SCSS, Sequelize, PostgreSQL, Railway',
-      imageUrl:    'https://picsum.photos/seed/geneva/800/400',
+      imageUrl:    `${THUMB}/https://genevawillbebluev2-production.up.railway.app/`,
       githubUrl:   'https://github.com/Alithiel31/GenevaWillBeBlueV2',
       demoUrl:     'https://genevawillbebluev2-production.up.railway.app/',
       featured:    true,
@@ -109,7 +114,7 @@ async function main() {
       title:       'SkillFusion',
       description: "Plateforme éducative DIY développée en équipe (méthode agile, Titre Professionnel). Architecture 3-tier complète : SvelteKit (Svelte 5 + runes), Express TypeScript, PostgreSQL/Prisma. 4 rôles utilisateurs, 8 tables, sécurité renforcée (Argon2, Zod, Helmet, rate-limiting, sanitization XSS).",
       techStack:   'SvelteKit, TypeScript, Express, PostgreSQL, Prisma, Docker, Railway',
-      imageUrl:    'https://picsum.photos/seed/skillfusion/800/400',
+      imageUrl:    `${THUMB}/https://skillfusion-client-production.up.railway.app/`,
       githubUrl:   'https://github.com/Alithiel31/SkillFusion',
       demoUrl:     'https://skillfusion-client-production.up.railway.app/',
       featured:    true,
@@ -124,7 +129,7 @@ async function main() {
       title:       'ParseAndCutV2',
       description: "Outil propulsé par l'IA utilisant l'API Groq pour transcrire et résumer des fichiers audio en fiches de synthèse professionnelles.",
       techStack:   'Python, JavaScript, HTML/CSS, Docker, GitHub Actions',
-      imageUrl:    'https://picsum.photos/seed/parseandcut/800/400',
+      imageUrl:    `${THUMB}/https://parseandcut.alithiel31.dev/`,
       githubUrl:   'https://github.com/Alithiel31/ParseAndCutV2',
       demoUrl:     'https://parseandcut.alithiel31.dev/',
       featured:    false,
@@ -135,7 +140,7 @@ async function main() {
       title:       'ThyFollow',
       description: "Application de suivi thyroïdien inspirée de Clue. Journal quotidien (énergie, humeur, symptômes), suivi des analyses sanguines avec graphiques d'évolution (TSH, FT4, FT3), gestion des médicaments et agenda médical.",
       techStack:   'React 18, TypeScript, Express, PostgreSQL, Prisma, Zustand, TanStack Query, Recharts, Railway',
-      imageUrl:    'https://picsum.photos/seed/thyfollow/800/400',
+      imageUrl:    'https://opengraph.githubassets.com/1/Alithiel31/ThyFollow',
       githubUrl:   'https://github.com/Alithiel31/ThyFollow',
       demoUrl:     null,
       featured:    false,
@@ -146,7 +151,7 @@ async function main() {
       title:       'TheMachine',
       description: "Projet personnel fan-made : reproduction de l'interface de \"La Machine\" de la série Person of Interest, connectée à l'API Bluesky pour une surveillance en temps réel du réseau social.",
       techStack:   'JavaScript',
-      imageUrl:    'https://picsum.photos/seed/themachine/800/400',
+      imageUrl:    'https://opengraph.githubassets.com/1/Alithiel31/TheMachine',
       githubUrl:   'https://github.com/Alithiel31/TheMachine',
       demoUrl:     null,
       featured:    false,
