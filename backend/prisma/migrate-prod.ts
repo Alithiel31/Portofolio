@@ -21,18 +21,32 @@ async function main() {
 
   // ── Corrections des skills existants ────────────────────────────────────────
 
-  // PHP → LEARNING dans Langages
+  // PHP → LEARNING dans Langages (order 3 — JS, TS, PHP)
   const php = await prisma.skill.findFirst({ where: { name: 'PHP' } })
   if (php) {
-    await prisma.skill.update({ where: { id: php.id }, data: { type: SkillType.LEARNING, categoryId: catLang.id, order: 7 } })
-    console.log('✅ PHP mis à jour : LEARNING dans Langages')
+    await prisma.skill.update({ where: { id: php.id }, data: { type: SkillType.LEARNING, categoryId: catLang.id, order: 3 } })
+    console.log('✅ PHP mis à jour : LEARNING dans Langages (order 3)')
   }
 
-  // Sequelize → MAIN dans Langages (était FRAMEWORK dans Backend)
+  // Python → Backend
+  const python = await prisma.skill.findFirst({ where: { name: 'Python' } })
+  if (python) {
+    await prisma.skill.update({ where: { id: python.id }, data: { categoryId: catBack.id, order: 5 } })
+    console.log('✅ Python déplacé : Backend (order 5)')
+  }
+
+  // SQL → Backend
+  const sql = await prisma.skill.findFirst({ where: { name: 'SQL' } })
+  if (sql) {
+    await prisma.skill.update({ where: { id: sql.id }, data: { categoryId: catBack.id, order: 6 } })
+    console.log('✅ SQL déplacé : Backend (order 6)')
+  }
+
+  // Sequelize → MAIN dans Backend
   const sequelize = await prisma.skill.findFirst({ where: { name: 'Sequelize' } })
   if (sequelize) {
-    await prisma.skill.update({ where: { id: sequelize.id }, data: { type: SkillType.MAIN, categoryId: catLang.id, parent: null, order: 5 } })
-    console.log('✅ Sequelize mis à jour : MAIN dans Langages')
+    await prisma.skill.update({ where: { id: sequelize.id }, data: { type: SkillType.MAIN, categoryId: catBack.id, parent: null, order: 7 } })
+    console.log('✅ Sequelize mis à jour : MAIN dans Backend (order 7)')
   }
 
   // Suppression de Redis
@@ -47,9 +61,9 @@ async function main() {
   // ── Skills manquants ────────────────────────────────────────────────────────
 
   const skillsToAdd = [
-    { name: 'Prisma', type: SkillType.MAIN,      order: 6, categoryId: catLang.id },
-    { name: 'HTML',   type: SkillType.MAIN,      order: 6, categoryId: catFront.id },
-    { name: 'YAML',   type: SkillType.MAIN,      order: 5, categoryId: catOps.id },
+    { name: 'Prisma', type: SkillType.MAIN, order: 8, categoryId: catBack.id },
+    { name: 'HTML',   type: SkillType.MAIN, order: 6, categoryId: catFront.id },
+    { name: 'YAML',   type: SkillType.MAIN, order: 5, categoryId: catOps.id },
   ]
 
   console.log('')
@@ -175,7 +189,7 @@ async function main() {
     'SCSS / CSS': `${D}/sass/sass-original.svg`,
     'HTML':       `${D}/html5/html5-original.svg`,
     'Docker':     `${D}/docker/docker-original.svg`,
-    'Railway':    null,
+    'Railway':    'https://cdn.simpleicons.org/railway/ffffff',
     'Git / GitHub': `${D}/git/git-original.svg`,
     'CI/CD':      `${D}/githubactions/githubactions-original.svg`,
     'YAML':       null,
