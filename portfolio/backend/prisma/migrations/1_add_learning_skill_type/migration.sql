@@ -1,0 +1,1 @@
+ALTER TYPE "SkillType" ADD VALUE 'LEARNING';

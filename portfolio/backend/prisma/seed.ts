@@ -53,13 +53,14 @@ async function main() {
       { name: 'TypeScript',  type: SkillType.MAIN,      order: 2, categoryId: catLang.id },
       { name: 'Python',      type: SkillType.MAIN,      order: 3, categoryId: catLang.id },
       { name: 'SQL',         type: SkillType.MAIN,      order: 4, categoryId: catLang.id },
+      { name: 'Sequelize',   type: SkillType.MAIN,      order: 5, categoryId: catLang.id },
+      { name: 'Prisma',      type: SkillType.MAIN,      order: 6, categoryId: catLang.id },
+      { name: 'PHP',         type: SkillType.LEARNING,  order: 7, categoryId: catLang.id },
 
       { name: 'Node.js',     type: SkillType.MAIN,      order: 1, categoryId: catBack.id },
       { name: 'Express',     type: SkillType.FRAMEWORK, parent: 'Node.js', order: 2, categoryId: catBack.id },
       { name: 'Fastify',     type: SkillType.FRAMEWORK, parent: 'Node.js', order: 3, categoryId: catBack.id },
       { name: 'PostgreSQL',  type: SkillType.MAIN,      order: 4, categoryId: catBack.id },
-      { name: 'Prisma',      type: SkillType.FRAMEWORK, parent: 'PostgreSQL', order: 5, categoryId: catBack.id },
-      { name: 'Redis',       type: SkillType.MAIN,      order: 6, categoryId: catBack.id },
 
       { name: 'Svelte',      type: SkillType.MAIN,      order: 1, categoryId: catFront.id },
       { name: 'SvelteKit',   type: SkillType.FRAMEWORK, parent: 'Svelte', order: 2, categoryId: catFront.id },
