@@ -3,15 +3,23 @@
 
   let activeId = $state(sections[0]?.id ?? '')
 
-  $effect(() => {
-    // Pour les cartes sticky, on cherche laquelle est collée en haut du viewport
-    // plutôt que d'utiliser IntersectionObserver (qui ne marche pas bien avec sticky)
-    function onScroll() {
-      const STICKY_TOP = 24 // 1.5rem en px
-      let newActiveId = sections[0]?.id ?? ''
+  const STICKY_TOP = 24 // 1.5rem en px
 
-      // With stacking sticky cards, multiple cards share top ≈ STICKY_TOP.
-      // The visible (topmost) card is the last one that has reached sticky position.
+  $effect(() => {
+    function onScroll() {
+      // Si on est en bas de page, activer la dernière section
+      // (la dernière carte peut ne pas atteindre sa position sticky faute de hauteur)
+      const atBottom =
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4
+
+      if (atBottom) {
+        activeId = sections[sections.length - 1]?.id ?? activeId
+        return
+      }
+
+      // Avec les cartes sticky empilées, plusieurs partagent top ≈ STICKY_TOP.
+      // La carte visible est la dernière à avoir atteint sa position sticky.
+      let newActiveId = sections[0]?.id ?? ''
       for (const { id } of sections) {
         const el = document.getElementById(id)
         if (!el) continue
@@ -28,7 +36,17 @@
   })
 
   function scrollTo(id) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const el = document.getElementById(id)
+    if (!el) return
+    // scrollIntoView ne fonctionne pas correctement sur les éléments sticky.
+    // On remonte la chaîne offsetParent pour obtenir la position naturelle dans le document.
+    let top = 0
+    let node = el
+    while (node) {
+      top += node.offsetTop
+      node = node.offsetParent
+    }
+    window.scrollTo({ top: Math.max(0, top - STICKY_TOP), behavior: 'smooth' })
   }
 </script>
 

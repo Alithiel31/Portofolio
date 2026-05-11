@@ -116,7 +116,7 @@
     list-style: none;
     display: grid;
     grid-template-rows: repeat(var(--card-count), 90vh);
-    padding-bottom: 4rem;
+    padding-bottom: max(10vh, 4rem);
   }
 
   .card {
