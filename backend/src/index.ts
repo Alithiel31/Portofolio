@@ -122,6 +122,9 @@ app.post('/api/contact', async (req, res) => {
   }
 })
 
+// ── Static screenshots ────────────────────────────────────────────────────────
+app.use('/screenshots', express.static(path.join(__dirname, '../public/screenshots')))
+
 // ── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/profile',     profileRouter)
 app.use('/api/experiences', experienceRouter)
