@@ -3,6 +3,21 @@ import { PrismaClient, ExperienceType, SkillType, ProjectStatus } from '@prisma/
 const prisma = new PrismaClient()
 
 async function main() {
+  // Déduplication : supprimer les projets en double (même titre, garder le plus récent)
+  const allProjects = await prisma.project.findMany({ orderBy: { id: 'asc' } })
+  const seen = new Map<string, number>()
+  const toDelete: number[] = []
+  for (const p of allProjects) {
+    if (seen.has(p.title)) {
+      toDelete.push(seen.get(p.title)!)
+    }
+    seen.set(p.title, p.id)
+  }
+  if (toDelete.length > 0) {
+    await prisma.project.deleteMany({ where: { id: { in: toDelete } } })
+    console.log(`🧹 ${toDelete.length} projet(s) en double supprimé(s)`)
+  }
+
   const existing = await prisma.profile.count()
   if (existing > 0) {
     console.log('✅ Base de données déjà initialisée, seed ignoré.')
