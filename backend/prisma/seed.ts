@@ -29,6 +29,25 @@ async function main() {
     }
   }
 
+  // Ajout de formations manquantes (idempotent)
+  const dutExists = await prisma.experience.findFirst({
+    where: { title: 'DUT Génie chimique, génie des procédés' }
+  })
+  if (!dutExists) {
+    const maxOrder = await prisma.experience.aggregate({ _max: { order: true } })
+    await prisma.experience.create({
+      data: {
+        year:        '2013 - 2016',
+        title:       'DUT Génie chimique, génie des procédés',
+        company:     'Université Claude Bernard Lyon 1',
+        description: 'Formation aux procédés industriels : filtration, dissolution et fabrication. Maîtrise des techniques de laboratoire et des méthodes 5S appliquées au génie des procédés chimiques.',
+        type:        ExperienceType.EDUCATION,
+        order:       (maxOrder._max.order ?? 0) + 1,
+      }
+    })
+    console.log('✅ DUT Génie chimique ajouté')
+  }
+
   const existing = await prisma.profile.count()
   if (existing > 0) {
     console.log('✅ Base de données déjà initialisée, seed ignoré.')
