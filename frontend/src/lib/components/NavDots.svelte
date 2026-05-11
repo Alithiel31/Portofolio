@@ -8,19 +8,18 @@
     // plutôt que d'utiliser IntersectionObserver (qui ne marche pas bien avec sticky)
     function onScroll() {
       const STICKY_TOP = 24 // 1.5rem en px
-      let closestId = sections[0]?.id ?? ''
-      let closestDist = Infinity
+      let newActiveId = sections[0]?.id ?? ''
 
+      // With stacking sticky cards, multiple cards share top ≈ STICKY_TOP.
+      // The visible (topmost) card is the last one that has reached sticky position.
       for (const { id } of sections) {
         const el = document.getElementById(id)
         if (!el) continue
-        const dist = Math.abs(el.getBoundingClientRect().top - STICKY_TOP)
-        if (dist < closestDist) {
-          closestDist = dist
-          closestId = id
+        if (el.getBoundingClientRect().top <= STICKY_TOP + 1) {
+          newActiveId = id
         }
       }
-      activeId = closestId
+      activeId = newActiveId
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
