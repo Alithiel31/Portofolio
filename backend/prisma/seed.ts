@@ -18,6 +18,17 @@ async function main() {
     console.log(`🧹 ${toDelete.length} projet(s) en double supprimé(s)`)
   }
 
+  // Correction des titleFr / descriptionFr corrompus :
+  // si titleFr d'un projet vaut le titre d'un autre projet, on le vide.
+  const freshProjects = await prisma.project.findMany()
+  const allTitles = new Set(freshProjects.map(p => p.title))
+  for (const p of freshProjects) {
+    if (p.titleFr && allTitles.has(p.titleFr) && p.titleFr !== p.title) {
+      await prisma.project.update({ where: { id: p.id }, data: { titleFr: null, descriptionFr: null } })
+      console.log(`🔧 titleFr corrigé pour "${p.title}" (valeur erronée : "${p.titleFr}")`)
+    }
+  }
+
   const existing = await prisma.profile.count()
   if (existing > 0) {
     console.log('✅ Base de données déjà initialisée, seed ignoré.')
