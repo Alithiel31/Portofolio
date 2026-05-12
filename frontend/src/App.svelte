@@ -17,6 +17,20 @@
   const projects    = createApiStore('/projects')
   const services    = createApiStore('/services')
 
+  const API_BASE = import.meta.env.VITE_API_URL ?? ''
+  let geoLocation = $state(null)
+
+  $effect(() => {
+    fetch(`${API_BASE}/api/location`)
+      .then(r => r.json())
+      .then(d => { geoLocation = d.location })
+      .catch(() => {})
+  })
+
+  const profileData = $derived(
+    profile.data ? { ...profile.data, location: geoLocation ?? profile.data.location } : null
+  )
+
   const sections = $derived([
     { id: 'hero',       label: t('nav.about') },
     { id: 'skills',     label: t('nav.expertise') },
@@ -47,7 +61,7 @@
   {:else}
     <ul class="stacking-cards" style="--card-count: {sections.length}">
       <li class="card" id="hero">
-        <HeroSection data={profile.data} />
+        <HeroSection data={profileData} />
       </li>
 
       <li class="card" id="skills">
@@ -67,7 +81,7 @@
       </li>
 
       <li class="card" id="contact">
-        <ContactSection profile={profile.data} />
+        <ContactSection profile={profileData} />
       </li>
     </ul>
   {/if}
