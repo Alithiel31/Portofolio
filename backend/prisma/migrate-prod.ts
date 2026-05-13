@@ -5,6 +5,21 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🔄 Migration de production démarrée...\n')
 
+  // ── Table PageView (idempotent) ─────────────────────────────────────────────
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS "PageView" (
+      "id"        SERIAL PRIMARY KEY,
+      "page"      TEXT NOT NULL,
+      "country"   TEXT,
+      "region"    TEXT,
+      "city"      TEXT,
+      "zone"      TEXT,
+      "referer"   TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+  console.log('✅ Table PageView vérifiée\n')
+
   // ── Enum LEARNING (idempotent) ──────────────────────────────────────────────
   await prisma.$executeRawUnsafe(`ALTER TYPE "SkillType" ADD VALUE IF NOT EXISTS 'LEARNING'`)
   console.log('✅ Enum LEARNING vérifié\n')

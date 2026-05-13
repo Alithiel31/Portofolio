@@ -112,3 +112,14 @@ model Service {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model PageView {
+  id        Int      @id @default(autoincrement())
+  page      String
+  country   String?
+  region    String?
+  city      String?
+  zone      String?  // "Canada", "Europe", "Autre"
+  referer   String?
+  createdAt DateTime @default(now())
+}

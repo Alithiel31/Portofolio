@@ -6,12 +6,26 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { Resend } from 'resend'
 import geoip from 'geoip-lite'
+import prisma from './prisma.js'
 
 import profileRouter     from './routes/profile.js'
 import experienceRouter from './routes/experiences.js'
 import skillsRouter     from './routes/skills.js'
 import projectsRouter   from './routes/projects.js'
 import servicesRouter   from './routes/services.js'
+
+const EU_COUNTRIES = new Set([
+  'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU',
+  'IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE',
+  'CH','NO','IS','GB','UA','RS','BA','AL','MK','ME','MD','BY',
+])
+
+function deriveZone(country?: string | null): string {
+  if (!country) return 'Autre'
+  if (country === 'CA') return 'Canada'
+  if (EU_COUNTRIES.has(country)) return 'Europe'
+  return 'Autre'
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
@@ -83,6 +97,49 @@ app.get('/api/location', (req, res) => {
   const geo = geoip.lookup(ip)
   const isCanada = geo?.country === 'CA'
   res.json({ location: isCanada ? 'Montréal, QC' : 'France' })
+})
+
+// ── Visitor tracking ─────────────────────────────────────────────────────────
+app.post('/api/track', async (req, res) => {
+  try {
+    const ip  = req.ip ?? ''
+    const geo = geoip.lookup(ip)
+    const page    = typeof req.body.page    === 'string' ? req.body.page.slice(0, 200)    : '/'
+    const referer = typeof req.body.referer === 'string' ? req.body.referer.slice(0, 500) : null
+
+    await prisma.pageView.create({
+      data: {
+        page,
+        country: geo?.country ?? null,
+        region:  geo?.region  ?? null,
+        city:    geo?.city    ?? null,
+        zone:    deriveZone(geo?.country),
+        referer,
+      },
+    })
+    res.json({ ok: true })
+  } catch {
+    res.json({ ok: false })
+  }
+})
+
+app.get('/api/stats', async (_req, res) => {
+  const [total, byZone, byCountry, byPage, recent] = await Promise.all([
+    prisma.pageView.count(),
+    prisma.pageView.groupBy({ by: ['zone'],    _count: true, orderBy: { _count: { zone: 'desc' } } }),
+    prisma.pageView.groupBy({ by: ['country'], _count: true, orderBy: { _count: { country: 'desc' } } }),
+    prisma.pageView.groupBy({ by: ['page'],    _count: true, orderBy: { _count: { page: 'desc' } } }),
+    prisma.pageView.findMany({ orderBy: { createdAt: 'desc' }, take: 10,
+      select: { createdAt: true, country: true, city: true, zone: true, referer: true } }),
+  ])
+
+  res.json({
+    total,
+    byZone:    Object.fromEntries(byZone.map(r    => [r.zone    ?? 'Autre', r._count])),
+    byCountry: Object.fromEntries(byCountry.map(r => [r.country ?? '?',     r._count])),
+    byPage:    Object.fromEntries(byPage.map(r    => [r.page,                r._count])),
+    recent,
+  })
 })
 
 // ── Healthcheck ───────────────────────────────────────────────────────────────
