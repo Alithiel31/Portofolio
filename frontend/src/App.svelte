@@ -25,6 +25,19 @@
       .then(r => r.json())
       .then(d => { geoLocation = d.location })
       .catch(() => {})
+
+    // Une seule visite loguée par session navigateur
+    if (!sessionStorage.getItem('tracked')) {
+      sessionStorage.setItem('tracked', '1')
+      fetch(`${API_BASE}/api/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          page:    '/',
+          referer: document.referrer || null,
+        }),
+      }).catch(() => {})
+    }
   })
 
   const profileData = $derived(
