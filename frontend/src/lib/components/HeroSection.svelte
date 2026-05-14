@@ -1,6 +1,17 @@
 <script>
   import { t } from '../i18n/t.svelte.js'
+  import { locale } from '../stores/locale.svelte.js'
   let { data } = $props()
+
+  const cvUrls = {
+    fr: '/cv-fr.pdf',
+    en: '/cv-en.pdf',
+  }
+
+  const cvFilenames = {
+    fr: 'CV-FR-Jacques-Duchamplecheval.pdf',
+    en: 'CV-EN-Jacques-Duchamplecheval.pdf',
+  }
 </script>
 
 <div class="card-inner">
@@ -35,7 +46,11 @@
 
         <div class="hero-cta">
           {#if data?.cvUrl}
-            <a href={data.cvUrl} class="btn btn-primary" download>
+            <a
+              href={cvUrls[locale.current] ?? data.cvUrl}
+              download={cvFilenames[locale.current]}
+              class="btn btn-primary"
+            >
               <i class="bx bx-download"></i> {t('hero.downloadCv')}
             </a>
           {/if}
