@@ -11,7 +11,11 @@ router.get('/', async (_req, res) => {
       include: { skills: { orderBy: { order: 'asc' } } },
       orderBy: { order: 'asc' },
     })
-    res.json(categories.map(c => localizeFields(c, locale, ['name'])))
+    res.json(categories.map(c => ({
+      ...c,
+      name: locale === 'fr' && c.nameFr ? c.nameFr : c.name,
+      nameFr: undefined,
+    })))
   } catch (e) {
     console.error(e)
     res.status(500).json({ error: 'Erreur serveur' })

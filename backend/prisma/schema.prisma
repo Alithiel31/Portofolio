@@ -10,14 +10,15 @@ datasource db {
 model Profile {
   id          Int      @id @default(autoincrement())
   name        String
-  title       String
+  titleEn     String
   titleFr     String?
-  bio         String   @db.Text
+  bioEn       String   @db.Text
   bioFr       String?  @db.Text
   photoUrl    String?
   email       String?
   location    String?
-  cvUrl       String?
+  cvEn        String?
+  cvFr        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -35,17 +36,17 @@ model SocialLink {
 }
 
 model Experience {
-  id            Int      @id @default(autoincrement())
-  year          String
-  title         String
-  titleFr       String?
-  company       String
-  description   String   @db.Text
-  descriptionFr String?  @db.Text
-  type          ExperienceType @default(WORK)
-  order         Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             Int            @id @default(autoincrement())
+  year           String
+  titleEn        String
+  titleFr        String?
+  company        String
+  descriptionEn  String         @db.Text
+  descriptionFr  String?        @db.Text
+  type           ExperienceType @default(WORK)
+  order          Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 enum ExperienceType {
@@ -81,9 +82,9 @@ enum SkillType {
 
 model Project {
   id            Int           @id @default(autoincrement())
-  title         String
+  titleEn       String
   titleFr       String?
-  description   String        @db.Text
+  descriptionEn String        @db.Text
   descriptionFr String?       @db.Text
   techStack     String
   imageUrl      String?
@@ -103,9 +104,9 @@ enum ProjectStatus {
 
 model Service {
   id            Int      @id @default(autoincrement())
-  title         String
+  titleEn       String
   titleFr       String?
-  description   String   @db.Text
+  descriptionEn String   @db.Text
   descriptionFr String?  @db.Text
   icon          String
   order         Int      @default(0)

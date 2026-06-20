@@ -55,9 +55,19 @@
 </script>
 
 <div class="lang-switcher">
-  <button class:active={locale.current === 'fr'} onclick={() => locale.set('fr')}>FR</button>
-  <span>|</span>
-  <button class:active={locale.current === 'en'} onclick={() => locale.set('en')}>EN</button>
+  <button
+    class:active={locale.current === 'fr'}
+    onclick={() => locale.set('fr')}
+    aria-label="Passer en français"
+    aria-pressed={locale.current === 'fr'}
+  >FR</button>
+  <span aria-hidden="true">|</span>
+  <button
+    class:active={locale.current === 'en'}
+    onclick={() => locale.set('en')}
+    aria-label="Switch to English"
+    aria-pressed={locale.current === 'en'}
+  >EN</button>
 </div>
 
 <NavDots {sections} />
@@ -170,7 +180,7 @@
   }
 
   // Replace unsupported sibling-index() with explicit nth-child + CSS custom property
-  @for $i from 1 through 6 {
+  @for $i from 1 through 12 {
     .card:nth-child(#{$i}) {
       --si: #{$i};
       padding-top: calc(#{$i} * 8px);

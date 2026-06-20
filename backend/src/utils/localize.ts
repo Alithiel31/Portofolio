@@ -11,10 +11,10 @@ export function localizeFields<T extends Record<string, unknown>>(
 ): Record<string, unknown> {
   const result: Record<string, unknown> = { ...obj }
   for (const field of fields) {
+    const enKey = `${field}En`
     const frKey = `${field}Fr`
-    if (locale === 'fr' && result[frKey] != null) {
-      result[field] = result[frKey]
-    }
+    result[field] = (locale === 'fr' && result[frKey] != null) ? result[frKey] : result[enKey]
+    delete result[enKey]
     delete result[frKey]
   }
   return result

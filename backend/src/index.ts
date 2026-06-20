@@ -73,9 +73,9 @@ app.use(helmet({
     directives: {
       defaultSrc:  ["'self'"],
       scriptSrc:   ["'self'"],
-      styleSrc:    ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://unpkg.com'],
-      fontSrc:     ["'self'", 'https://fonts.gstatic.com', 'https://unpkg.com', 'data:'],
-      imgSrc:      ["'self'", 'data:', 'https:'],
+      styleSrc:    ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc:     ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      imgSrc:      ["'self'", 'data:', 'https://cdn.jsdelivr.net'],
       connectSrc:  ["'self'"],
       baseUri:     ["'self'"],
       formAction:  ["'self'"],
@@ -205,18 +205,6 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: 'Erreur interne du serveur' })
 })
 
-// ── Serve Svelte build en production ──────────────────────────────────────────
-if (isProd) {
-  const distPath = path.join(__dirname, '../../frontend/dist')
-  console.log(`[Production] Serving static files from: ${distPath}`)
-  app.use(express.static(distPath))
-  app.get('*', (req, res) => {
-    if (req.path.startsWith('/api')) {
-      return res.status(404).json({ error: 'API route not found' })
-    }
-    res.sendFile(path.join(distPath, 'index.html'))
-  })
-}
 
 // ── Lancement du serveur ──────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {

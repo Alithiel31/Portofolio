@@ -21,3 +21,6 @@ npm-debug.log*
 
 # Docker volumes
 postgres_data/
+
+.claude
+.clone

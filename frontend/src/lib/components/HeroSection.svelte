@@ -3,11 +3,6 @@
   import { locale } from '../stores/locale.svelte.js'
   let { data } = $props()
 
-  const cvUrls = {
-    fr: '/cv-fr.pdf',
-    en: '/cv-en.pdf',
-  }
-
   const cvFilenames = {
     fr: 'CV-FR-Jacques-Duchamplecheval.pdf',
     en: 'CV-EN-Jacques-Duchamplecheval.pdf',
@@ -45,9 +40,9 @@
         {/if}
 
         <div class="hero-cta">
-          {#if data?.cvUrl}
+          {#if data?.cvEn || data?.cvFr}
             <a
-              href={cvUrls[locale.current] ?? data.cvUrl}
+              href={locale.current === 'fr' ? (data.cvFr ?? data.cvEn) : (data.cvEn ?? data.cvFr)}
               download={cvFilenames[locale.current]}
               class="btn btn-primary"
             >

@@ -5,7 +5,7 @@ const API_BASE = import.meta.env.VITE_API_URL ?? ''
 
 async function apiFetch(endpoint) {
   const url = `${API_BASE}/api${endpoint}?locale=${locale.current}`
-  console.log(`[API Call]: ${url}`)
+  if (import.meta.env.DEV) console.log(`[API Call]: ${url}`)
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Erreur API ${res.status} sur ${endpoint}`)
   return res.json()
