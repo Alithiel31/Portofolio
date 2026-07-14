@@ -1,6 +1,6 @@
 <script>
-  import { t } from '../i18n/t.svelte.js'
-  let { data, loading } = $props()
+  import { t } from '../i18n/t.svelte.js';
+  let { data, loading } = $props();
 </script>
 
 <div class="card-inner">
@@ -12,13 +12,13 @@
 
     {#if loading}
       <div class="services-grid">
-        {#each Array(4) as _}
+        {#each Array(4) as _, i (i)}
           <div class="skeleton-card"></div>
         {/each}
       </div>
     {:else if data}
       <div class="services-grid">
-        {#each data as service, i}
+        {#each data as service, i (service.id)}
           <div class="service-card" style="animation-delay: {i * 0.08}s">
             <div class="service-icon">
               <i class="bx {service.icon}"></i>
@@ -58,7 +58,9 @@
 
       .service-icon {
         background: var(--accent);
-        i { color: #fff; }
+        i {
+          color: #fff;
+        }
       }
     }
 
@@ -76,8 +78,14 @@
   }
 
   @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .service-icon {
@@ -107,7 +115,12 @@
   }
 
   @keyframes shimmer {
-    0%, 100% { opacity: 0.5; }
-    50%       { opacity: 1; }
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 </style>

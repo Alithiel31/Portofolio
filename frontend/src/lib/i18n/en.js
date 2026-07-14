@@ -57,4 +57,4 @@ export const en = {
     load: 'Impossible to load the portfolio. Please check your connection to the server.',
     retry: 'Try Again',
   },
-}
+};

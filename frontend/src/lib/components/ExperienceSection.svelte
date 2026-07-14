@@ -1,12 +1,10 @@
 <script>
-  import { t } from '../i18n/t.svelte.js'
-  let { data, loading } = $props()
+  import { t } from '../i18n/t.svelte.js';
+  let { data, loading } = $props();
 
-  let activeTab = $state('WORK')
+  let activeTab = $state('WORK');
 
-  const filtered = $derived(
-    data ? data.filter(e => e.type === activeTab) : []
-  )
+  const filtered = $derived(data ? data.filter((e) => e.type === activeTab) : []);
 </script>
 
 <div class="card-inner">
@@ -17,34 +15,35 @@
     </div>
 
     <div class="tabs">
-      <button
-        class="tab" class:active={activeTab === 'WORK'}
-        onclick={() => activeTab = 'WORK'}
-      >
-        <i class="bx bx-briefcase"></i> {t('experience.tabWork')}
+      <button class="tab" class:active={activeTab === 'WORK'} onclick={() => (activeTab = 'WORK')}>
+        <i class="bx bx-briefcase"></i>
+        {t('experience.tabWork')}
       </button>
       <button
-        class="tab" class:active={activeTab === 'EDUCATION'}
-        onclick={() => activeTab = 'EDUCATION'}
+        class="tab"
+        class:active={activeTab === 'EDUCATION'}
+        onclick={() => (activeTab = 'EDUCATION')}
       >
-        <i class="bx bx-book-open"></i> {t('experience.tabEducation')}
+        <i class="bx bx-book-open"></i>
+        {t('experience.tabEducation')}
       </button>
     </div>
 
     {#if loading}
       <div class="timeline-skeleton">
-        {#each Array(3) as _}
+        {#each Array(3) as _, i (i)}
           <div class="skeleton-item"></div>
         {/each}
       </div>
     {:else}
       <div class="timeline">
-        {#each filtered as exp, i}
+        {#each filtered as exp, i (exp.id)}
           <div class="timeline-item" style="animation-delay: {i * 0.1}s">
             <div class="timeline-dot"></div>
             <div class="timeline-content">
               <span class="timeline-year">
-                <i class="bx bxs-calendar"></i> {exp.year}
+                <i class="bx bxs-calendar"></i>
+                {exp.year}
               </span>
               <h3>{exp.title}</h3>
               <p class="timeline-company">{exp.company}</p>
@@ -79,9 +78,12 @@
     cursor: pointer;
     transition: var(--transition);
 
-    i { font-size: 1rem; }
+    i {
+      font-size: 1rem;
+    }
 
-    &.active, &:hover {
+    &.active,
+    &:hover {
       background: var(--accent-dim);
       color: var(--accent);
       border-color: var(--accent);
@@ -108,8 +110,14 @@
   }
 
   @keyframes fade-in-left {
-    from { opacity: 0; transform: translateX(-12px); }
-    to   { opacity: 1; transform: translateX(0); }
+    from {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .timeline-dot {
@@ -178,7 +186,12 @@
   }
 
   @keyframes shimmer {
-    0%, 100% { opacity: 0.5; }
-    50%       { opacity: 1;   }
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 </style>

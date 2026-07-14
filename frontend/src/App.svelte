@@ -1,57 +1,59 @@
 <script>
-  import { createApiStore } from './lib/stores/api.svelte.js'
-  import { locale } from './lib/stores/locale.svelte.js'
-  import { t } from './lib/i18n/t.svelte.js'
-  import HeroSection       from './lib/components/HeroSection.svelte'
-  import SkillsSection     from './lib/components/SkillsSection.svelte'
-  import ExperienceSection from './lib/components/ExperienceSection.svelte'
-  import ProjectsSection   from './lib/components/ProjectsSection.svelte'
-  import ServicesSection   from './lib/components/ServicesSection.svelte'
-  import ContactSection    from './lib/components/ContactSection.svelte'
-  import NavDots           from './lib/components/NavDots.svelte'
-  import LoadingSpinner    from './lib/components/LoadingSpinner.svelte'
+  import { createApiStore } from './lib/stores/api.svelte.js';
+  import { locale } from './lib/stores/locale.svelte.js';
+  import { t } from './lib/i18n/t.svelte.js';
+  import HeroSection from './lib/components/HeroSection.svelte';
+  import SkillsSection from './lib/components/SkillsSection.svelte';
+  import ExperienceSection from './lib/components/ExperienceSection.svelte';
+  import ProjectsSection from './lib/components/ProjectsSection.svelte';
+  import ServicesSection from './lib/components/ServicesSection.svelte';
+  import ContactSection from './lib/components/ContactSection.svelte';
+  import NavDots from './lib/components/NavDots.svelte';
+  import LoadingSpinner from './lib/components/LoadingSpinner.svelte';
 
-  const profile     = createApiStore('/profile')
-  const experiences = createApiStore('/experiences')
-  const skills      = createApiStore('/skills')
-  const projects    = createApiStore('/projects')
-  const services    = createApiStore('/services')
+  const profile = createApiStore('/profile');
+  const experiences = createApiStore('/experiences');
+  const skills = createApiStore('/skills');
+  const projects = createApiStore('/projects');
+  const services = createApiStore('/services');
 
-  const API_BASE = import.meta.env.VITE_API_URL ?? ''
-  let geoLocation = $state(null)
+  const API_BASE = import.meta.env.VITE_API_URL ?? '';
+  let geoLocation = $state(null);
 
   $effect(() => {
     fetch(`${API_BASE}/api/location`)
-      .then(r => r.json())
-      .then(d => { geoLocation = d.location })
-      .catch(() => {})
+      .then((r) => r.json())
+      .then((d) => {
+        geoLocation = d.location;
+      })
+      .catch(() => {});
 
     // Une seule visite loguée par session navigateur
     if (!sessionStorage.getItem('tracked')) {
-      sessionStorage.setItem('tracked', '1')
+      sessionStorage.setItem('tracked', '1');
       fetch(`${API_BASE}/api/track`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          page:    '/',
+          page: '/',
           referer: document.referrer || null,
         }),
-      }).catch(() => {})
+      }).catch(() => {});
     }
-  })
+  });
 
   const profileData = $derived(
-    profile.data ? { ...profile.data, location: geoLocation ?? profile.data.location } : null
-  )
+    profile.data ? { ...profile.data, location: geoLocation ?? profile.data.location } : null,
+  );
 
   const sections = $derived([
-    { id: 'hero',       label: t('nav.about') },
-    { id: 'skills',     label: t('nav.expertise') },
+    { id: 'hero', label: t('nav.about') },
+    { id: 'skills', label: t('nav.expertise') },
     { id: 'experience', label: t('nav.experience') },
-    { id: 'projects',   label: t('nav.works') },
-    { id: 'services',   label: t('nav.competencies') },
-    { id: 'contact',    label: t('nav.contact') },
-  ])
+    { id: 'projects', label: t('nav.works') },
+    { id: 'services', label: t('nav.competencies') },
+    { id: 'contact', label: t('nav.contact') },
+  ]);
 </script>
 
 <div class="lang-switcher">
@@ -59,15 +61,15 @@
     class:active={locale.current === 'fr'}
     onclick={() => locale.set('fr')}
     aria-label="Passer en français"
-    aria-pressed={locale.current === 'fr'}
-  >FR</button>
+    aria-pressed={locale.current === 'fr'}>FR</button
+  >
   <span aria-hidden="true">|</span>
   <button
     class:active={locale.current === 'en'}
     onclick={() => locale.set('en')}
     aria-label="Switch to English"
-    aria-pressed={locale.current === 'en'}
-  >EN</button>
+    aria-pressed={locale.current === 'en'}>EN</button
+  >
 </div>
 
 <NavDots {sections} />
@@ -111,7 +113,6 @@
 </main>
 
 <style lang="scss">
-
   :global(*) {
     margin: 0;
     padding: 0;
@@ -121,16 +122,16 @@
   }
 
   :global(:root) {
-    --bg:         #0f1923;
-    --surface:    #1a2635;
-    --surface-2:  #213040;
-    --accent:     #00abf0;
+    --bg: #0f1923;
+    --surface: #1a2635;
+    --surface-2: #213040;
+    --accent: #00abf0;
     --accent-dim: rgba(0, 171, 240, 0.12);
-    --text:       #e8edf2;
+    --text: #e8edf2;
     --text-muted: #7a9bb5;
-    --border:     rgba(0, 171, 240, 0.2);
-    --radius:     1rem;
-    --shadow:     0 8px 32px rgba(0,0,0,0.4);
+    --border: rgba(0, 171, 240, 0.2);
+    --radius: 1rem;
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -142,7 +143,9 @@
     overflow-x: hidden;
   }
 
-  :global(a) { color: var(--accent); }
+  :global(a) {
+    color: var(--accent);
+  }
 
   .scroll-container {
     min-height: 100vh;
@@ -222,8 +225,12 @@
       font-family: inherit;
       transition: var(--transition);
 
-      &.active { color: var(--accent); }
-      &:hover  { color: var(--text); }
+      &.active {
+        color: var(--accent);
+      }
+      &:hover {
+        color: var(--text);
+      }
     }
   }
 
@@ -255,7 +262,9 @@
       font-size: 1rem;
       transition: opacity var(--transition);
 
-      &:hover { opacity: 0.85; }
+      &:hover {
+        opacity: 0.85;
+      }
     }
   }
 

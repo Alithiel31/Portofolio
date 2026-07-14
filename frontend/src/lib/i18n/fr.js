@@ -8,7 +8,7 @@ export const fr = {
     contact: 'Contact',
   },
   hero: {
-    greeting: "Bonjour ! Je suis",
+    greeting: 'Bonjour ! Je suis',
     downloadCv: 'Télécharger le CV',
     contactMe: 'Me contacter',
   },
@@ -57,4 +57,4 @@ export const fr = {
     load: 'Impossible de charger le portfolio. Vérifiez votre connexion au serveur.',
     retry: 'Réessayer',
   },
-}
+};

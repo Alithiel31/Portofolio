@@ -1,5 +1,5 @@
 <script>
-  let { message = 'Chargement du portfolio…' } = $props()
+  let { message = 'Chargement du portfolio…' } = $props();
 </script>
 
 <div class="spinner-wrap" role="status" aria-live="polite" aria-label={message}>
@@ -45,6 +45,8 @@
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>

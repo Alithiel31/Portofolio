@@ -1,34 +1,34 @@
 <script>
-  import { t } from '../i18n/t.svelte.js'
+  import { t } from '../i18n/t.svelte.js';
 
-  const API_BASE = import.meta.env.VITE_API_URL ?? ''
-  let { profile } = $props()
+  const API_BASE = import.meta.env.VITE_API_URL ?? '';
+  let { profile } = $props();
 
-  let name    = $state('')
-  let email   = $state('')
-  let message = $state('')
-  let status  = $state(null) // 'sending' | 'success' | 'error'
+  let name = $state('');
+  let email = $state('');
+  let message = $state('');
+  let status = $state(null); // 'sending' | 'success' | 'error'
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    status = 'sending'
+    e.preventDefault();
+    status = 'sending';
 
     try {
       const response = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message })
-      })
+        body: JSON.stringify({ name, email, message }),
+      });
 
       if (response.ok) {
-        status = 'success'
-        name = email = message = ''
+        status = 'success';
+        name = email = message = '';
       } else {
-        status = 'error'
+        status = 'error';
       }
     } catch (err) {
-      status = 'error'
-      console.error(err)
+      status = 'error';
+      console.error(err);
     }
   }
 </script>
@@ -64,8 +64,14 @@
 
         {#if profile?.socialLinks?.length}
           <div class="social-row">
-            {#each profile.socialLinks as link}
-              <a href={link.url} target="_blank" rel="noopener noreferrer" class="social-btn" aria-label={link.platform}>
+            {#each profile.socialLinks as link (link.id)}
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social-btn"
+                aria-label={link.platform}
+              >
                 <i class="bx {link.icon}"></i>
               </a>
             {/each}
@@ -78,15 +84,21 @@
           <div class="field">
             <label for="name">{t('contact.name')}</label>
             <input
-              id="name" type="text" bind:value={name}
-              placeholder={t('contact.namePlaceholder')} required
+              id="name"
+              type="text"
+              bind:value={name}
+              placeholder={t('contact.namePlaceholder')}
+              required
             />
           </div>
           <div class="field">
             <label for="email">{t('contact.email')}</label>
             <input
-              id="email" type="email" bind:value={email}
-              placeholder={t('contact.emailPlaceholder')} required
+              id="email"
+              type="email"
+              bind:value={email}
+              placeholder={t('contact.emailPlaceholder')}
+              required
             />
           </div>
         </div>
@@ -94,9 +106,11 @@
         <div class="field">
           <label for="message">{t('contact.message')}</label>
           <textarea
-            id="message" bind:value={message}
-            placeholder={t('contact.messagePlaceholder')} rows="5" required
-          ></textarea>
+            id="message"
+            bind:value={message}
+            placeholder={t('contact.messagePlaceholder')}
+            rows="5"
+            required></textarea>
         </div>
 
         {#if status === 'success'}
@@ -244,7 +258,8 @@
     }
   }
 
-  input, textarea {
+  input,
+  textarea {
     background: var(--surface-2);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
@@ -255,7 +270,9 @@
     transition: var(--transition);
     resize: none;
 
-    &::placeholder { color: var(--text-muted); }
+    &::placeholder {
+      color: var(--text-muted);
+    }
 
     &:focus {
       border-color: var(--accent);
@@ -277,7 +294,9 @@
     font-size: 0.88rem;
     font-weight: 600;
 
-    i { font-size: 1.1rem; }
+    i {
+      font-size: 1.1rem;
+    }
 
     &.success {
       background: rgba(0, 200, 100, 0.1);
@@ -308,7 +327,9 @@
     transition: var(--transition);
     align-self: flex-start;
 
-    i { font-size: 1rem; }
+    i {
+      font-size: 1rem;
+    }
 
     &:hover:not(:disabled) {
       opacity: 0.85;

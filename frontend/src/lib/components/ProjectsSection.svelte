@@ -1,10 +1,10 @@
 <script>
-  import { t } from '../i18n/t.svelte.js'
-  let { data, loading } = $props()
+  import { t } from '../i18n/t.svelte.js';
+  let { data, loading } = $props();
 </script>
 
 <div class="card-inner">
-  <section class="section">
+  <section class="section section-wide">
     <div class="section-header">
       <span class="section-tag">{t('projects.tag')}</span>
       <h2>{t('projects.title')} <span class="accent">{t('projects.titleAccent')}</span></h2>
@@ -12,21 +12,27 @@
 
     {#if loading}
       <div class="projects-grid">
-        {#each Array(3) as _}
+        {#each Array(3) as _, i (i)}
           <div class="skeleton-card"></div>
         {/each}
       </div>
     {:else if data}
       <div class="projects-grid">
-        {#each data as project}
-          <article class="project-card" class:featured={project.featured} class:in-progress={project.status === 'IN_PROGRESS'}>
+        {#each data as project (project.id)}
+          <article
+            class="project-card"
+            class:featured={project.featured}
+            class:in-progress={project.status === 'IN_PROGRESS'}
+          >
             {#if project.status === 'IN_PROGRESS'}
               <span class="in-progress-badge">
-                <i class="bx bx-loader-circle"></i> {t('projects.inProgress')}
+                <i class="bx bx-loader-circle"></i>
+                {t('projects.inProgress')}
               </span>
             {:else if project.featured}
               <span class="featured-badge">
-                <i class="bx bx-star"></i> {t('projects.featured')}
+                <i class="bx bx-star"></i>
+                {t('projects.featured')}
               </span>
             {/if}
 
@@ -44,7 +50,7 @@
               <h3>{project.title}</h3>
               <p class="project-desc">{project.description}</p>
               <div class="tech-tags">
-                {#each project.techStack.split(',') as tech}
+                {#each project.techStack.split(',') as tech, i (i)}
                   <span class="tag">{tech.trim()}</span>
                 {/each}
               </div>
@@ -53,12 +59,14 @@
             <div class="project-links">
               {#if project.githubUrl}
                 <a href={project.githubUrl} target="_blank" rel="noopener" class="link-btn">
-                  <i class="bx bxl-github"></i> {t('projects.code')}
+                  <i class="bx bxl-github"></i>
+                  {t('projects.code')}
                 </a>
               {/if}
               {#if project.demoUrl}
                 <a href={project.demoUrl} target="_blank" rel="noopener" class="link-btn primary">
-                  <i class="bx bx-link-external"></i> {t('projects.demo')}
+                  <i class="bx bx-link-external"></i>
+                  {t('projects.demo')}
                 </a>
               {/if}
             </div>
@@ -72,15 +80,39 @@
 <style lang="scss">
   @use '../../styles/section' as *;
 
+  // Cette section profite d'un peu plus de largeur que les autres sur grand écran,
+  // pour laisser respirer les cartes de projets.
+  .section-wide {
+    max-width: 900px;
+
+    @media (min-width: 1100px) {
+      max-width: 1020px;
+    }
+
+    @media (min-width: 1400px) {
+      max-width: 1180px;
+    }
+  }
+
   .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1.25rem;
     margin-top: 1.5rem;
     max-height: 420px;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
+
+    @media (min-width: 1400px) {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-height: 460px;
+    }
+
+    @media (max-width: 1024px) and (min-width: 641px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   .project-card {
@@ -123,7 +155,9 @@
     gap: 0.3rem;
     z-index: 1;
 
-    i { font-size: 0.8rem; }
+    i {
+      font-size: 0.8rem;
+    }
   }
 
   .featured-badge {
@@ -141,7 +175,9 @@
     gap: 0.3rem;
     z-index: 1;
 
-    i { font-size: 0.8rem; }
+    i {
+      font-size: 0.8rem;
+    }
   }
 
   .project-img {
@@ -156,7 +192,9 @@
       transition: transform 0.5s ease;
     }
 
-    &:hover img { transform: scale(1.05); }
+    &:hover img {
+      transform: scale(1.05);
+    }
   }
 
   .img-placeholder {
@@ -226,7 +264,9 @@
     color: var(--text-muted);
     transition: var(--transition);
 
-    i { font-size: 0.95rem; }
+    i {
+      font-size: 0.95rem;
+    }
 
     &:hover {
       border-color: var(--accent);
@@ -238,7 +278,9 @@
       color: #fff;
       border-color: var(--accent);
 
-      &:hover { opacity: 0.85; }
+      &:hover {
+        opacity: 0.85;
+      }
     }
   }
 
@@ -250,15 +292,65 @@
   }
 
   @keyframes shimmer {
-    0%, 100% { opacity: 0.5; }
-    50%       { opacity: 1; }
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .projects-grid {
       grid-template-columns: 1fr;
+      gap: 1rem;
       max-height: none;
       overflow-y: visible;
+    }
+
+    .project-img {
+      height: 130px;
+    }
+
+    .project-body {
+      padding: 0.85rem;
+
+      h3 {
+        font-size: 0.95rem;
+      }
+    }
+
+    .project-desc {
+      font-size: 0.78rem;
+      -webkit-line-clamp: 2;
+    }
+
+    .tag {
+      font-size: 0.68rem;
+      padding: 0.18rem 0.5rem;
+    }
+
+    .project-links {
+      padding: 0.6rem 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .link-btn {
+      font-size: 0.78rem;
+      padding: 0.35rem 0.75rem;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .project-img {
+      height: 110px;
+    }
+
+    .in-progress-badge,
+    .featured-badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.5rem;
     }
   }
 </style>

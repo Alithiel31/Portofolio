@@ -1,46 +1,84 @@
-import express from 'express'
-import cors from 'cors'
-import helmet from 'helmet'
-import compression from 'compression'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { Resend } from 'resend'
-import geoip from 'geoip-lite'
-import prisma from './prisma.js'
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { Resend } from 'resend';
+import geoip from 'geoip-lite';
+import prisma from './prisma.js';
 
-import profileRouter     from './routes/profile.js'
-import experienceRouter from './routes/experiences.js'
-import skillsRouter     from './routes/skills.js'
-import projectsRouter   from './routes/projects.js'
-import servicesRouter   from './routes/services.js'
+import profileRouter from './routes/profile.js';
+import experienceRouter from './routes/experiences.js';
+import skillsRouter from './routes/skills.js';
+import projectsRouter from './routes/projects.js';
+import servicesRouter from './routes/services.js';
 
 const EU_COUNTRIES = new Set([
-  'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU',
-  'IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE',
-  'CH','NO','IS','GB','UA','RS','BA','AL','MK','ME','MD','BY',
-])
+  'AT',
+  'BE',
+  'BG',
+  'HR',
+  'CY',
+  'CZ',
+  'DK',
+  'EE',
+  'FI',
+  'FR',
+  'DE',
+  'GR',
+  'HU',
+  'IE',
+  'IT',
+  'LV',
+  'LT',
+  'LU',
+  'MT',
+  'NL',
+  'PL',
+  'PT',
+  'RO',
+  'SK',
+  'SI',
+  'ES',
+  'SE',
+  'CH',
+  'NO',
+  'IS',
+  'GB',
+  'UA',
+  'RS',
+  'BA',
+  'AL',
+  'MK',
+  'ME',
+  'MD',
+  'BY',
+]);
 
 function deriveZone(country?: string | null): string {
-  if (!country) return 'Autre'
-  if (country === 'CA') return 'Canada'
-  if (EU_COUNTRIES.has(country)) return 'Europe'
-  return 'Autre'
+  if (!country) return 'Autre';
+  if (country === 'CA') return 'Canada';
+  if (EU_COUNTRIES.has(country)) return 'Europe';
+  return 'Autre';
 }
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const app = express()
-app.set('trust proxy', 1)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const app = express();
+app.set('trust proxy', 1);
 
-const PORT = Number(process.env.PORT) || 3000
-const isProd = process.env.NODE_ENV === 'production'
+const PORT = Number(process.env.PORT) || 3000;
+const isProd = process.env.NODE_ENV === 'production';
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY
-const CONTACT_EMAIL  = process.env.CONTACT_EMAIL
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL;
 
-if (!RESEND_API_KEY) console.warn('[WARN] RESEND_API_KEY non défini — le formulaire de contact ne fonctionnera pas')
-if (!CONTACT_EMAIL)  console.warn('[WARN] CONTACT_EMAIL non défini — le formulaire de contact ne fonctionnera pas')
+if (!RESEND_API_KEY)
+  console.warn('[WARN] RESEND_API_KEY non défini — le formulaire de contact ne fonctionnera pas');
+if (!CONTACT_EMAIL)
+  console.warn('[WARN] CONTACT_EMAIL non défini — le formulaire de contact ne fonctionnera pas');
 
-const resend = new Resend(RESEND_API_KEY)
+const resend = new Resend(RESEND_API_KEY);
 
 function escapeHtml(str: string): string {
   return String(str)
@@ -48,99 +86,110 @@ function escapeHtml(str: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
+    .replace(/'/g, '&#039;');
 }
 
 // Rate limiter: max 5 requêtes par IP par 15 minutes
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 function checkRateLimit(ip: string): boolean {
-  const now      = Date.now()
-  const windowMs = 15 * 60 * 1000
-  const max      = 5
-  const entry    = rateLimitMap.get(ip)
+  const now = Date.now();
+  const windowMs = 15 * 60 * 1000;
+  const max = 5;
+  const entry = rateLimitMap.get(ip);
   if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs })
-    return true
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return true;
   }
-  if (entry.count >= max) return false
-  entry.count++
-  return true
+  if (entry.count >= max) return false;
+  entry.count++;
+  return true;
 }
 
 // ── Middleware ────────────────────────────────────────────────────────────────
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc:  ["'self'"],
-      scriptSrc:   ["'self'"],
-      styleSrc:    ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc:     ["'self'", 'https://fonts.gstatic.com', 'data:'],
-      imgSrc:      ["'self'", 'data:', 'https://cdn.jsdelivr.net'],
-      connectSrc:  ["'self'"],
-      baseUri:     ["'self'"],
-      formAction:  ["'self'"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+        imgSrc: ["'self'", 'data:', 'https://cdn.jsdelivr.net'],
+        connectSrc: ["'self'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
     },
-  },
-}))
-app.use(compression())
+  }),
+);
+app.use(compression());
 
-app.use(cors({
-  origin: isProd ? (process.env.FRONTEND_URL || false) : 'http://localhost:5173',
-  methods: ['GET', 'POST'],
-}))
+app.use(
+  cors({
+    origin: isProd ? process.env.FRONTEND_URL || false : 'http://localhost:5173',
+    methods: ['GET', 'POST'],
+  }),
+);
 
-app.use(express.json({ limit: '10kb' }))
+app.use(express.json({ limit: '10kb' }));
 
 // ── Geolocation ───────────────────────────────────────────────────────────────
 app.get('/api/location', (req, res) => {
-  const ip = req.ip ?? ''
-  const geo = geoip.lookup(ip)
-  const isCanada = geo?.country === 'CA'
-  res.json({ location: isCanada ? 'Montréal, QC' : 'France' })
-})
+  const ip = req.ip ?? '';
+  const geo = geoip.lookup(ip);
+  const isCanada = geo?.country === 'CA';
+  res.json({ location: isCanada ? 'Montréal, QC' : 'France' });
+});
 
 // ── Visitor tracking ─────────────────────────────────────────────────────────
 app.post('/api/track', async (req, res) => {
   try {
-    const ip  = req.ip ?? ''
-    const geo = geoip.lookup(ip)
-    const page    = typeof req.body.page    === 'string' ? req.body.page.slice(0, 200)    : '/'
-    const referer = typeof req.body.referer === 'string' ? req.body.referer.slice(0, 500) : null
+    const ip = req.ip ?? '';
+    const geo = geoip.lookup(ip);
+    const page = typeof req.body.page === 'string' ? req.body.page.slice(0, 200) : '/';
+    const referer = typeof req.body.referer === 'string' ? req.body.referer.slice(0, 500) : null;
 
     await prisma.pageView.create({
       data: {
         page,
         country: geo?.country ?? null,
-        region:  geo?.region  ?? null,
-        city:    geo?.city    ?? null,
-        zone:    deriveZone(geo?.country),
+        region: geo?.region ?? null,
+        city: geo?.city ?? null,
+        zone: deriveZone(geo?.country),
         referer,
       },
-    })
-    res.json({ ok: true })
+    });
+    res.json({ ok: true });
   } catch {
-    res.json({ ok: false })
+    res.json({ ok: false });
   }
-})
+});
 
 app.get('/api/stats', async (_req, res) => {
   const [total, byZone, byCountry, byPage, recent] = await Promise.all([
     prisma.pageView.count(),
-    prisma.pageView.groupBy({ by: ['zone'],    _count: true, orderBy: { _count: { zone: 'desc' } } }),
-    prisma.pageView.groupBy({ by: ['country'], _count: true, orderBy: { _count: { country: 'desc' } } }),
-    prisma.pageView.groupBy({ by: ['page'],    _count: true, orderBy: { _count: { page: 'desc' } } }),
-    prisma.pageView.findMany({ orderBy: { createdAt: 'desc' }, take: 10,
-      select: { createdAt: true, country: true, city: true, zone: true, referer: true } }),
-  ])
+    prisma.pageView.groupBy({ by: ['zone'], _count: true, orderBy: { _count: { zone: 'desc' } } }),
+    prisma.pageView.groupBy({
+      by: ['country'],
+      _count: true,
+      orderBy: { _count: { country: 'desc' } },
+    }),
+    prisma.pageView.groupBy({ by: ['page'], _count: true, orderBy: { _count: { page: 'desc' } } }),
+    prisma.pageView.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      select: { createdAt: true, country: true, city: true, zone: true, referer: true },
+    }),
+  ]);
 
   res.json({
     total,
-    byZone:    Object.fromEntries(byZone.map(r    => [r.zone    ?? 'Autre', r._count])),
-    byCountry: Object.fromEntries(byCountry.map(r => [r.country ?? '?',     r._count])),
-    byPage:    Object.fromEntries(byPage.map(r    => [r.page,                r._count])),
+    byZone: Object.fromEntries(byZone.map((r) => [r.zone ?? 'Autre', r._count])),
+    byCountry: Object.fromEntries(byCountry.map((r) => [r.country ?? '?', r._count])),
+    byPage: Object.fromEntries(byPage.map((r) => [r.page, r._count])),
     recent,
-  })
-})
+  });
+});
 
 // ── Healthcheck ───────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
@@ -148,70 +197,73 @@ app.get('/api/health', (_req, res) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
-  })
-})
+  });
+});
 
 // ── Mail service ──────────────────────────────────────────────────────────────
 app.post('/api/contact', async (req, res) => {
-  const ip = req.ip ?? 'unknown'
+  const ip = req.ip ?? 'unknown';
   if (!checkRateLimit(ip)) {
-    return res.status(429).json({ error: 'Trop de requêtes. Réessayez dans 15 minutes.' })
+    return res.status(429).json({ error: 'Trop de requêtes. Réessayez dans 15 minutes.' });
   }
 
-  const { name, email, message } = req.body
+  const { name, email, message } = req.body;
   if (
-    !name || !email || !message ||
-    typeof name !== 'string' || typeof email !== 'string' || typeof message !== 'string'
+    !name ||
+    !email ||
+    !message ||
+    typeof name !== 'string' ||
+    typeof email !== 'string' ||
+    typeof message !== 'string'
   ) {
-    return res.status(400).json({ error: 'Champs invalides.' })
+    return res.status(400).json({ error: 'Champs invalides.' });
   }
   if (name.length > 100 || email.length > 200 || message.length > 2000) {
-    return res.status(400).json({ error: 'Données trop longues.' })
+    return res.status(400).json({ error: 'Données trop longues.' });
   }
 
   if (!RESEND_API_KEY || !CONTACT_EMAIL) {
-    return res.status(503).json({ error: 'Service de contact non configuré.' })
+    return res.status(503).json({ error: 'Service de contact non configuré.' });
   }
 
   try {
     await resend.emails.send({
-      from:    'Portfolio <contact@alithiel31.dev>',
-      to:      CONTACT_EMAIL,
+      from: 'Portfolio <contact@alithiel31.dev>',
+      to: CONTACT_EMAIL,
       subject: `Nouveau message de ${escapeHtml(name)}`,
       html: `<p><strong>Nom:</strong> ${escapeHtml(name)}</p>
              <p><strong>Email:</strong> ${escapeHtml(email)}</p>
              <p><strong>Message:</strong> ${escapeHtml(message)}</p>`,
-    })
-    res.status(200).json({ success: true })
+    });
+    res.status(200).json({ success: true });
   } catch (error) {
-    console.error('Resend Error:', error)
-    res.status(500).json({ error: "Erreur lors de l'envoi" })
+    console.error('Resend Error:', error);
+    res.status(500).json({ error: "Erreur lors de l'envoi" });
   }
-})
+});
 
 // ── Static screenshots ────────────────────────────────────────────────────────
-app.use('/screenshots', express.static(path.join(__dirname, '../public/screenshots')))
+app.use('/screenshots', express.static(path.join(__dirname, '../public/screenshots')));
 
 // ── API Routes ────────────────────────────────────────────────────────────────
-app.use('/api/profile',     profileRouter)
-app.use('/api/experiences', experienceRouter)
-app.use('/api/skills',      skillsRouter)
-app.use('/api/projects',    projectsRouter)
-app.use('/api/services',    servicesRouter)
+app.use('/api/profile', profileRouter);
+app.use('/api/experiences', experienceRouter);
+app.use('/api/skills', skillsRouter);
+app.use('/api/projects', projectsRouter);
+app.use('/api/services', servicesRouter);
 
 // ── Global error handler ──────────────────────────────────────────────────────
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error(err)
-  res.status(500).json({ error: 'Erreur interne du serveur' })
-})
-
+  console.error(err);
+  res.status(500).json({ error: 'Erreur interne du serveur' });
+});
 
 // ── Lancement du serveur ──────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
-  console.log('------------------------------------------------------------')
-  console.log(`🚀 SERVER IS LIVE!`)
-  console.log(`📡 Port: ${PORT}`)
-  console.log(`🌍 Mode: ${isProd ? 'PRODUCTION' : 'DEVELOPMENT'}`)
-  console.log(`🔗 Healthcheck: http://localhost:${PORT}/api/health`)
-  console.log('------------------------------------------------------------')
-})
+  console.log('------------------------------------------------------------');
+  console.log(`🚀 SERVER IS LIVE!`);
+  console.log(`📡 Port: ${PORT}`);
+  console.log(`🌍 Mode: ${isProd ? 'PRODUCTION' : 'DEVELOPMENT'}`);
+  console.log(`🔗 Healthcheck: http://localhost:${PORT}/api/health`);
+  console.log('------------------------------------------------------------');
+});

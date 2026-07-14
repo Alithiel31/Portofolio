@@ -1,57 +1,57 @@
 <script>
-  let { sections } = $props()
+  let { sections } = $props();
 
-  let activeId = $state(sections[0]?.id ?? '')
+  let activeId = $state(sections[0]?.id ?? '');
 
-  const STICKY_TOP = 24 // 1.5rem en px
+  const STICKY_TOP = 24; // 1.5rem en px
 
   $effect(() => {
     function onScroll() {
       // Si on est en bas de page, activer la dernière section
       // (la dernière carte peut ne pas atteindre sa position sticky faute de hauteur)
       const atBottom =
-        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4;
 
       if (atBottom) {
-        activeId = sections[sections.length - 1]?.id ?? activeId
-        return
+        activeId = sections[sections.length - 1]?.id ?? activeId;
+        return;
       }
 
       // Avec les cartes sticky empilées, plusieurs partagent top ≈ STICKY_TOP.
       // La carte visible est la dernière à avoir atteint sa position sticky.
-      let newActiveId = sections[0]?.id ?? ''
+      let newActiveId = sections[0]?.id ?? '';
       for (const { id } of sections) {
-        const el = document.getElementById(id)
-        if (!el) continue
+        const el = document.getElementById(id);
+        if (!el) continue;
         if (el.getBoundingClientRect().top <= STICKY_TOP + 1) {
-          newActiveId = id
+          newActiveId = id;
         }
       }
-      activeId = newActiveId
+      activeId = newActiveId;
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
-  })
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  });
 
   function scrollTo(id) {
-    const el = document.getElementById(id)
-    if (!el) return
+    const el = document.getElementById(id);
+    if (!el) return;
     // scrollIntoView ne fonctionne pas correctement sur les éléments sticky.
     // On remonte la chaîne offsetParent pour obtenir la position naturelle dans le document.
-    let top = 0
-    let node = el
+    let top = 0;
+    let node = el;
     while (node) {
-      top += node.offsetTop
-      node = node.offsetParent
+      top += node.offsetTop;
+      node = node.offsetParent;
     }
-    window.scrollTo({ top: Math.max(0, top - STICKY_TOP), behavior: 'smooth' })
+    window.scrollTo({ top: Math.max(0, top - STICKY_TOP), behavior: 'smooth' });
   }
 </script>
 
 <nav class="nav-dots" aria-label="Navigation sections">
-  {#each sections as section}
+  {#each sections as section (section.id)}
     <button
       class="dot"
       class:active={activeId === section.id}
@@ -99,7 +99,8 @@
       border-radius: 50%;
     }
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       background: var(--accent);
       transform: scale(1.3);
 

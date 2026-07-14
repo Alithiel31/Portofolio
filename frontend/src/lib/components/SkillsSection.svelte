@@ -1,9 +1,15 @@
 <script>
-  import { t } from '../i18n/t.svelte.js'
-  let { data, loading } = $props()
+  import { t } from '../i18n/t.svelte.js';
+  let { data, loading } = $props();
 
   function needsInvert(iconUrl) {
-    return iconUrl && (iconUrl.includes('express') || iconUrl.includes('nextjs') || iconUrl.includes('fastify') || iconUrl.includes('prisma'))
+    return (
+      iconUrl &&
+      (iconUrl.includes('express') ||
+        iconUrl.includes('nextjs') ||
+        iconUrl.includes('fastify') ||
+        iconUrl.includes('prisma'))
+    );
   }
 </script>
 
@@ -16,21 +22,25 @@
 
     {#if loading}
       <div class="skeleton-grid">
-        {#each Array(4) as _}
+        {#each Array(4) as _, i (i)}
           <div class="skeleton-card"></div>
         {/each}
       </div>
     {:else if data}
       <div class="skills-grid">
-        {#each data as category}
+        {#each data as category (category.id)}
           <div class="skill-category">
             <h3>
               {#if category.icon}<i class="bx {category.icon}"></i>{/if}
               {category.name}
             </h3>
             <ul class="skill-list">
-              {#each category.skills as skill}
-                <li class="skill-item" class:framework={skill.type === 'FRAMEWORK'} class:learning={skill.type === 'LEARNING'}>
+              {#each category.skills as skill (skill.id)}
+                <li
+                  class="skill-item"
+                  class:framework={skill.type === 'FRAMEWORK'}
+                  class:learning={skill.type === 'LEARNING'}
+                >
                   {#if skill.iconUrl}
                     <img
                       src={skill.iconUrl}
@@ -81,7 +91,9 @@
       align-items: center;
       gap: 0.5rem;
 
-      i { font-size: 1.2rem; }
+      i {
+        font-size: 1.2rem;
+      }
     }
   }
 
@@ -104,7 +116,11 @@
       color: var(--text-muted);
       font-size: 0.85rem;
 
-      .skill-icon { width: 16px; height: 16px; opacity: 0.75; }
+      .skill-icon {
+        width: 16px;
+        height: 16px;
+        opacity: 0.75;
+      }
     }
 
     &.learning {
@@ -131,7 +147,9 @@
     object-fit: contain;
     flex-shrink: 0;
 
-    &.invert { filter: invert(1) brightness(2); }
+    &.invert {
+      filter: invert(1) brightness(2);
+    }
   }
 
   .skill-icon-placeholder {
@@ -161,7 +179,12 @@
   }
 
   @keyframes shimmer {
-    0%, 100% { opacity: 0.5; }
-    50%       { opacity: 1;   }
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 </style>

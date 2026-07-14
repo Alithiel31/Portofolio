@@ -1,0 +1,25 @@
+name: Deploy (RPi)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to RPi
+    runs-on: [self-hosted, rpi]
+    steps:
+      - name: Pull latest code
+        run: |
+          cd ~/Portofolio
+          git fetch origin main
+          git reset --hard origin/main
+
+      - name: Rebuild and restart containers
+        run: |
+          cd ~/Portofolio
+          docker compose up --build -d
+
+      - name: Prune old images
+        run: docker image prune -f

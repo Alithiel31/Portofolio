@@ -1,12 +1,12 @@
 <script>
-  import { t } from '../i18n/t.svelte.js'
-  import { locale } from '../stores/locale.svelte.js'
-  let { data } = $props()
+  import { t } from '../i18n/t.svelte.js';
+  import { locale } from '../stores/locale.svelte.js';
+  let { data } = $props();
 
   const cvFilenames = {
     fr: 'CV-FR-Jacques-Duchamplecheval.pdf',
     en: 'CV-EN-Jacques-Duchamplecheval.pdf',
-  }
+  };
 </script>
 
 <div class="card-inner">
@@ -31,8 +31,13 @@
 
         {#if data?.socialLinks?.length}
           <div class="social-links">
-            {#each data.socialLinks as link}
-              <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.platform}>
+            {#each data.socialLinks as link (link.id)}
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.platform}
+              >
                 <i class="bx {link.icon}"></i>
               </a>
             {/each}
@@ -46,11 +51,13 @@
               download={cvFilenames[locale.current]}
               class="btn btn-primary"
             >
-              <i class="bx bx-download"></i> {t('hero.downloadCv')}
+              <i class="bx bx-download"></i>
+              {t('hero.downloadCv')}
             </a>
           {/if}
           <a href="#contact" class="btn btn-outline">
-            <i class="bx bx-envelope"></i> {t('hero.contactMe')}
+            <i class="bx bx-envelope"></i>
+            {t('hero.contactMe')}
           </a>
         </div>
       </div>
@@ -135,8 +142,15 @@
   }
 
   @keyframes ring-pulse {
-    0%, 100% { opacity: 0.4; transform: scale(1); }
-    50%       { opacity: 1;   transform: scale(1.04); }
+    0%,
+    100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.04);
+    }
   }
 
   .hero-greeting {
@@ -214,14 +228,19 @@
     cursor: pointer;
     transition: var(--transition);
 
-    i { font-size: 1.1rem; }
+    i {
+      font-size: 1.1rem;
+    }
 
     &.btn-primary {
       background: var(--accent);
       color: #fff;
       border: none;
 
-      &:hover { opacity: 0.85; transform: translateY(-1px); }
+      &:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+      }
     }
 
     &.btn-outline {
@@ -248,13 +267,19 @@
       display: flex;
       align-items: center;
       gap: 0.35rem;
-      i { color: var(--accent); }
+      i {
+        color: var(--accent);
+      }
     }
   }
 
   @media (max-width: 768px) {
-    .card-inner { padding: 1.5rem 1rem; }
+    .card-inner {
+      padding: 1.5rem 1rem;
+    }
 
-    h1 { font-size: 2rem; }
+    h1 {
+      font-size: 2rem;
+    }
   }
 </style>
