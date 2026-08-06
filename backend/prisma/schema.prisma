@@ -114,13 +114,17 @@ model Service {
   updatedAt     DateTime @updatedAt
 }
 
+/// Analytique de visite volontairement minimale : aucune IP n'est stockée, et l'origine se
+/// limite au pays et à la zone dérivée. Les colonnes `region`/`city`, trop identifiantes,
+/// ont été supprimées (migration `20260806_pageview_minimize`).
 model PageView {
   id        Int      @id @default(autoincrement())
   page      String
   country   String?
-  region    String?
-  city      String?
   zone      String?  // "Canada", "Europe", "Autre"
   referer   String?
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([zone])
 }

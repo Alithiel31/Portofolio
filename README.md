@@ -4,9 +4,9 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Svelte](https://img.shields.io/badge/Svelte-5-orange?logo=svelte)](https://svelte.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue?logo=docker)](https://www.docker.com/)
-[![Railway](https://img.shields.io/badge/Déployé-Railway-blueviolet?logo=railway)](https://railway.app/)
+[![Nginx](https://img.shields.io/badge/Reverse%20proxy-Nginx-009639?logo=nginx)](https://nginx.org/)
 
-Portfolio personnel fullstack avec interface bilingue (FR/EN), sections animées en stacking cards, formulaire de contact et tracking visiteurs par géolocalisation IP.
+Portfolio personnel fullstack avec interface bilingue (FR/EN), sections animées en stacking cards, formulaire de contact et statistiques de visite par zone géographique.
 
 ---
 
@@ -17,23 +17,36 @@ Portfolio personnel fullstack avec interface bilingue (FR/EN), sections animées
 | 🌐 Bilingue FR/EN | Bascule de langue, contenu localisé depuis la BDD |
 | 🃏 Stacking cards | Navigation par sections animées |
 | 📬 Formulaire de contact | Envoi par email via Resend (rate limit : 5 req/IP/15 min) |
-| 📍 Géolocalisation IP | Affiche Montréal ou France selon l'IP du visiteur |
-| 📊 Tracking visiteurs | Enregistrement par page, pays, zone (Canada / Europe / Autre) |
+| 📍 Géolocalisation | Affiche Montréal ou France selon la zone du visiteur |
+| 📊 Statistiques de visite | Enregistrement par page, pays et zone (Canada / Europe / Autre) |
 | 📄 CV téléchargeable | PDF servi selon la langue active (FR ou EN) |
-| 🔒 Sécurité | Helmet, CORS restreint, sanitisation HTML, rate limiter maison |
+| 🔒 Sécurité | En-têtes CSP/HSTS via nginx, CORS restreint, sanitisation HTML, rate limiter à clé hashée |
+
+### Données visiteurs — ce qui est réellement conservé
+
+L'adresse IP **n'est jamais stockée**. Elle est résolue le temps d'une requête, en mémoire, pour
+en dériver un pays via `geoip-lite`, puis abandonnée : elle n'apparaît ni en base ni dans les logs.
+Le rate limiter lui-même n'indexe qu'un hash SHA-256 salé.
+
+La table `PageView` ne contient que `page`, `country`, `zone`, `referer` et `createdAt` — pas de
+colonne IP, et volontairement ni ville ni région, trop identifiantes pour l'usage visé.
 
 ---
 
 ## Démarrage local (Docker)
 
-C'est la méthode recommandée. Le `docker-compose.yml` lance PostgreSQL, le backend et le frontend en mode dev avec rechargement automatique.
+Le `docker-compose.yml` build les images **de production** : PostgreSQL, le backend compilé, et le
+frontend servi par nginx. C'est la façon la plus fidèle de reproduire la prod ; pour du
+développement au quotidien avec rechargement automatique, voir la section suivante.
 
 **1. Configurer l'environnement**
 
 ```bash
 cp backend/.env.example backend/.env
-# Renseigner au minimum DATABASE_URL, NODE_ENV, PORT
 ```
+
+Le fichier d'exemple est fonctionnel tel quel — aucune édition n'est nécessaire pour démarrer.
+Renseigner `RESEND_API_KEY` / `CONTACT_EMAIL` uniquement pour activer le formulaire de contact.
 
 **2. Lancer**
 
@@ -41,15 +54,18 @@ cp backend/.env.example backend/.env
 docker compose up --build
 ```
 
-Docker va automatiquement :
+Docker va :
 
-1. Démarrer PostgreSQL sur le port `5434`
-2. Pousser le schéma Prisma (`db push`)
-3. Seeder la BDD avec les données initiales (idempotent)
-4. Lancer le backend sur `http://localhost:3001`
-5. Lancer le frontend Vite sur `http://localhost:5173`
+1. Démarrer PostgreSQL (non exposé sur l'hôte, joignable par les autres services)
+2. Appliquer les migrations Prisma (`prisma migrate deploy`) au démarrage du backend
+3. Lancer le backend sur le port `3001` du réseau interne, avec healthcheck sur `/api/health`
+4. Lancer nginx une fois le backend sain → **http://localhost:8080**
 
-> **Note Windows** : le backend est exposé sur `3001` pour éviter les conflits. Le proxy Vite redirige `/api` vers lui automatiquement.
+Le seed n'est pas automatique. Pour peupler la base :
+
+```bash
+docker compose exec backend npx prisma db seed
+```
 
 **3. Prisma Studio (interface BDD visuelle)**
 
@@ -58,14 +74,20 @@ cd backend && npx prisma studio
 # → http://localhost:5555
 ```
 
+> Prisma Studio tourne sur l'hôte : le `DATABASE_URL` doit alors pointer sur `localhost`, pas sur
+> `postgres`. Voir la variante commentée dans `.env.example`.
+
 ---
 
 ## Développement sans Docker
+
+Nécessite un PostgreSQL joignable et un `DATABASE_URL` pointant dessus.
 
 ### Backend (port 3001)
 
 ```bash
 cd backend && npm install
+npx prisma migrate deploy && npx prisma db seed
 npm run dev        # rechargement auto (tsx --watch)
 ```
 
@@ -73,21 +95,40 @@ npm run dev        # rechargement auto (tsx --watch)
 
 ```bash
 cd frontend && npm install
-npm run dev
+npm run dev        # le proxy Vite redirige /api vers http://localhost:3001
 ```
+
+### Qualité
+
+```bash
+npm run lint       # ESLint (dans backend/ comme dans frontend/)
+npm run format     # Prettier
+```
+
+Ces deux commandes tournent aussi en CI (`.github/workflows/ci.yml`), avec en plus
+`prisma validate`, le build TypeScript et un build des images Docker de production.
 
 ---
 
 ## Variables d'environnement
 
+Toutes ces variables vivent dans `backend/.env` (voir `backend/.env.example`, fonctionnel tel quel).
+`docker-compose.yml` alimente **aussi** le service PostgreSQL depuis ce fichier.
+
 | Variable | Obligatoire | Défaut | Description |
 |---|---|---|---|
 | `DATABASE_URL` | ✅ | — | URL de connexion PostgreSQL |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | ✅ (Docker) | — | Identifiants du conteneur PostgreSQL — doivent correspondre à `DATABASE_URL` |
 | `NODE_ENV` | ❌ | `development` | Environnement (`production` en prod) |
-| `PORT` | ❌ | `3000` | Port du backend |
+| `PORT` | ❌ | `3001` | Port du backend — attendu tel quel par nginx et par le proxy Vite |
 | `FRONTEND_URL` | ❌ (prod) | — | URL du frontend pour le CORS |
 | `RESEND_API_KEY` | ❌ | — | Clé Resend — requis pour le formulaire de contact |
 | `CONTACT_EMAIL` | ❌ | — | Email de destination des messages de contact |
+| `STATS_TOKEN` | ❌ | — | Secret de lecture de `/api/stats`. Non défini ⇒ la route répond 404 |
+| `RATE_LIMIT_SALT` | ❌ | aléatoire | Sel du hachage des clés du rate limiter |
+
+Côté frontend, `VITE_API_URL` (voir `frontend/.env.example`) n'est utile que si l'API vit sur une
+autre origine ; en dev comme en prod, le proxy s'en charge.
 
 > Sans `RESEND_API_KEY` et `CONTACT_EMAIL`, le formulaire retourne une erreur 503 — le reste du portfolio fonctionne normalement.
 
@@ -108,52 +149,66 @@ npm run dev
 | `GET /api/projects/:id` | Un projet par ID |
 | `GET /api/services` | Services proposés |
 | `GET /api/location` | Zone géographique du visiteur (Canada / France) |
-| `GET /api/stats` | Stats visiteurs agrégées |
-| `POST /api/contact` | Envoi du formulaire de contact |
-| `POST /api/track` | Enregistrement d'une vue de page |
+| `GET /api/stats` | Stats agrégées — **privé**, requiert l'en-tête `X-Stats-Token` |
+| `POST /api/contact` | Envoi du formulaire de contact (5 req/IP/15 min) |
+| `POST /api/track` | Enregistrement d'une vue de page (20 req/IP/min) |
 
-Tous les endpoints acceptent un paramètre `?lang=fr` ou `?lang=en` pour la localisation du contenu.
+Tous les endpoints acceptent un paramètre `?locale=fr` ou `?locale=en` pour la localisation du contenu.
+
+Lecture des statistiques :
+
+```bash
+curl -H "X-Stats-Token: $STATS_TOKEN" https://votre-domaine.dev/api/stats
+```
 
 ---
 
-## Déploiement Railway
+## Déploiement (Raspberry Pi)
 
-### 1. Initialiser Railway
+L'hébergement est auto-géré : un Raspberry Pi fait tourner la stack Docker Compose, derrière
+Cloudflare pour le TLS et le CDN.
+
+### Chaîne de requête
+
+```
+Visiteur → Cloudflare → nginx (hôte) → nginx (conteneur frontend) ─┬─ /            → SPA statique
+                                                                   ├─ /api/        → backend:3001
+                                                                   └─ /screenshots/→ backend:3001
+```
+
+Les proxies propagent `X-Forwarded-For` et `CF-Connecting-IP` ; sans eux, le backend ne verrait
+que l'IP interne du conteneur nginx (géolocalisation inopérante, rate limiter partagé par tout le
+trafic).
+
+### Déploiement automatique
+
+`.github/workflows/deploy.yml` tourne sur un runner self-hosted taggé `[self-hosted, rpi]`.
+À chaque push sur `main`, il fait sur le Pi :
 
 ```bash
-npm install -g @railway/cli
-railway login && railway init
+git fetch origin main && git reset --hard origin/main
+docker compose up --build -d
+docker image prune -f
 ```
 
-### 2. Ajouter PostgreSQL
-
-Dans le dashboard Railway : **New → Database → PostgreSQL**
-Railway injecte automatiquement `DATABASE_URL` dans le service.
-
-### 3. Variables d'environnement
-
-Dans **Settings → Variables** du service backend :
-
-```env
-NODE_ENV=production
-FRONTEND_URL=https://votre-portfolio.up.railway.app
-RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
-CONTACT_EMAIL=votre@email.com
-```
-
-### 4. Déployer
+### Mise en place initiale sur le Pi
 
 ```bash
-railway up
+git clone <repo> ~/Portofolio && cd ~/Portofolio
+cp backend/.env.example backend/.env
 ```
 
-Ou connecter le repo GitHub pour un déploiement automatique à chaque push sur `main`.
-
-### 5. Seeder la BDD (première fois)
+Puis, dans `backend/.env` : `NODE_ENV=production`, `FRONTEND_URL=https://votre-domaine.dev`,
+des identifiants PostgreSQL propres, `RESEND_API_KEY`, `CONTACT_EMAIL`, et de préférence
+`STATS_TOKEN` + `RATE_LIMIT_SALT` (`openssl rand -base64 32`).
 
 ```bash
-railway run npm run db:seed
+docker compose up --build -d
+docker compose exec backend npx prisma db seed   # première fois seulement
 ```
+
+Les migrations Prisma s'appliquent automatiquement au démarrage du backend
+(`prisma migrate deploy`, dans le `CMD` du Dockerfile).
 
 ---
 
@@ -162,35 +217,47 @@ railway run npm run db:seed
 ```
 portfolio/
 ├── docker-compose.yml
+├── LICENSE
+├── .github/
+│   ├── dependabot.yml
+│   └── workflows/                  # ci · codeql · deploy (RPi)
 ├── backend/
-│   ├── Dockerfile                  # Multi-stage : dev · prod
+│   ├── Dockerfile                  # Multi-stage : deps · dev · build · prod
 │   ├── .env.example
+│   ├── public/screenshots/         # Images des projets, servies sur /screenshots
 │   ├── prisma/
 │   │   ├── schema.prisma           # Modèles BDD
+│   │   ├── migrations/             # Source de vérité du schéma (migrate deploy)
 │   │   ├── seed.ts                 # Données initiales (idempotent)
-│   │   └── migrate-prod.ts         # Migration production
+│   │   ├── add-projects.ts         # Script d'ajout ponctuel
+│   │   └── migrate-prod.ts         # Réparation de dérive — hérité, à retirer
 │   └── src/
-│       ├── index.ts                # Point d'entrée Express
+│       ├── index.ts                # Express : middlewares, location, track, stats, contact
 │       ├── prisma.ts               # Client Prisma singleton
-│       └── routes/
-│           ├── profile.ts
-│           ├── experiences.ts
-│           ├── skills.ts
-│           ├── projects.ts
-│           └── services.ts
+│       ├── utils/
+│       │   ├── client-ip.ts        # Résolution d'IP éphémère (jamais persistée)
+│       │   ├── rate-limit.ts       # Rate limiter en mémoire, clés hashées
+│       │   ├── async-handler.ts    # Rebranche les rejets async sur next()
+│       │   └── localize.ts         # Sélection des champs En/Fr
+│       └── routes/                 # profile · experiences · skills · projects · services
 └── frontend/
-    ├── Dockerfile                  # Multi-stage : dev · prod (nginx)
+    ├── Dockerfile                  # Multi-stage : dev · build · prod (nginx)
+    ├── nginx.conf                  # SPA, cache, proxys /api et /screenshots
+    ├── security-headers.conf       # CSP, HSTS & co — inclus par nginx.conf
+    ├── .env.example
     ├── index.html
+    ├── public/                     # CV PDF, boxicons, icônes
     └── src/
         ├── App.svelte              # Stacking cards + navigation
         ├── main.js
         └── lib/
             ├── stores/
-            │   └── api.svelte.js   # Fetch store réactif
+            │   ├── api.svelte.js   # Fetch store réactif
+            │   └── locale.svelte.js # Langue courante (localStorage + navigator)
             ├── i18n/
             │   ├── en.js
             │   ├── fr.js
-            │   └── t.svelte.js     # Store de langue
+            │   └── t.svelte.js     # Fonction de traduction réactive
             ├── components/
             │   ├── HeroSection.svelte
             │   ├── SkillsSection.svelte
@@ -214,7 +281,12 @@ portfolio/
 cd backend && npx prisma studio
 ```
 
-**En production** — via Railway Dashboard → service PostgreSQL → onglet **Data**, ou en pointant `DATABASE_URL` vers la prod et en lançant Prisma Studio localement.
+**En production** — en pointant `DATABASE_URL` vers la base du Pi (via un tunnel SSH) et en lançant
+Prisma Studio localement, ou directement sur le Pi :
+
+```bash
+docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+```
 
 ---
 
@@ -229,10 +301,11 @@ cd backend && npx prisma studio
 | Email | Resend |
 | Géolocalisation | geoip-lite |
 | Infra | Docker · Nginx (prod frontend) |
-| Hébergement | Railway |
+| CI/CD | GitHub Actions · CodeQL · Dependabot |
+| Hébergement | Raspberry Pi auto-hébergé, derrière Cloudflare |
 
 ---
 
 ## License
 
-MIT
+MIT — voir [LICENSE](./LICENSE).
