@@ -10,7 +10,7 @@ FROM deps AS development
 COPY . .
 RUN npx prisma generate
 ENV NODE_ENV=development
-EXPOSE 3000
+EXPOSE 3001
 CMD ["npm", "run", "dev"]
 
 # ── build : compile TypeScript → dist/ ────────────────────────────────────────
@@ -28,5 +28,6 @@ COPY --from=build /app/prisma ./prisma
 RUN npx prisma generate
 COPY --from=build /app/dist ./dist
 ENV NODE_ENV=production
-EXPOSE 3000
+# 3001 : port attendu par le proxy nginx (frontend/nginx.conf) et par le proxy Vite en dev.
+EXPOSE 3001
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
