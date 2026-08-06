@@ -53,6 +53,18 @@ export const fr = {
     success: 'Message envoyé ! Je vous répondrai dès que possible.',
     error: "Une erreur s'est produite. Veuillez réessayer ou me contacter directement par email.",
   },
+  legal: {
+    notice: 'Mentions légales',
+    privacy: 'Politique de confidentialité',
+    terms: "Conditions d'utilisation",
+    navLabel: 'Liens légaux',
+    back: "Retour à l'accueil",
+    updated: 'Dernière mise à jour',
+    optOutOn: "La mesure d'audience est désactivée sur ce navigateur.",
+    optOutOff: "La mesure d'audience est active sur ce navigateur.",
+    optOutEnable: "M'opposer à la mesure d'audience",
+    optOutDisable: "Réactiver la mesure d'audience",
+  },
   error: {
     load: 'Impossible de charger le portfolio. Vérifiez votre connexion au serveur.',
     retry: 'Réessayer',
