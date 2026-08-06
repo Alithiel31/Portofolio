@@ -11,6 +11,7 @@ import prisma from './prisma.js';
 import { getClientIp } from './utils/client-ip.js';
 import { asyncHandler } from './utils/async-handler.js';
 import { createRateLimiter } from './utils/rate-limit.js';
+import { startRetentionJob } from './utils/retention.js';
 
 import profileRouter from './routes/profile.js';
 import experienceRouter from './routes/experiences.js';
@@ -59,6 +60,23 @@ const EU_COUNTRIES = new Set([
   'MD',
   'BY',
 ]);
+
+/**
+ * Réduit un referer à son seul domaine d'origine.
+ *
+ * L'URL complète transmise par le navigateur peut porter un chemin ou des paramètres
+ * identifiants (recherche, campagne, jeton de partage) qui n'apportent rien à une statistique
+ * de provenance. Même logique de minimisation que la suppression des colonnes ville et région.
+ */
+function originOf(value: unknown): string | null {
+  if (typeof value !== 'string' || !value) return null;
+  try {
+    const { protocol, origin } = new URL(value);
+    return protocol === 'http:' || protocol === 'https:' ? origin.slice(0, 200) : null;
+  } catch {
+    return null;
+  }
+}
 
 function deriveZone(country?: string | null): string {
   if (!country) return 'Autre';
@@ -124,8 +142,8 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        fontSrc: ["'self'", 'data:'],
         imgSrc: ["'self'", 'data:', 'https://cdn.jsdelivr.net'],
         connectSrc: ["'self'"],
         baseUri: ["'self'"],
@@ -164,7 +182,7 @@ app.post(
 
     const geo = geoip.lookup(getClientIp(req));
     const page = typeof req.body.page === 'string' ? req.body.page.slice(0, 200) : '/';
-    const referer = typeof req.body.referer === 'string' ? req.body.referer.slice(0, 500) : null;
+    const referer = originOf(req.body.referer);
 
     await prisma.pageView.create({
       data: {
@@ -303,6 +321,10 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔗 Healthcheck: http://localhost:${PORT}/api/health`);
   console.log('------------------------------------------------------------');
 });
+
+// Purge des PageView au-delà de 25 mois : condition de la dispense de consentement annoncée
+// dans la politique de confidentialité.
+startRetentionJob();
 
 // ── Arrêt gracieux ────────────────────────────────────────────────────────────
 // `deploy.yml` recrée les conteneurs à chaque push sur main : on ferme proprement les connexions
