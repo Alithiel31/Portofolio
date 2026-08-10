@@ -7,6 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Ce workflow ne fait aucun appel à l'API GitHub (le déploiement passe par git/docker en
+# direct sur le runner self-hosted) : aucune permission sur GITHUB_TOKEN n'est nécessaire.
+permissions: {}
+
 jobs:
   deploy:
     name: Deploy to RPi
@@ -20,13 +24,34 @@ jobs:
       - name: Pull latest code
         run: |
           cd ~/Portofolio
+          echo "Previous commit (rollback reference): $(git rev-parse HEAD)"
           git fetch origin main
           git reset --hard origin/main
+          echo "Deployed commit: $(git rev-parse HEAD)"
 
       - name: Rebuild and restart containers
         run: |
           cd ~/Portofolio
           docker compose up --build -d
+
+      - name: Verify deployment health
+        run: |
+          cd ~/Portofolio
+          ok=""
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8080/api/health >/dev/null && curl -fsS http://localhost:8080/ >/dev/null; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          if [ -z "$ok" ]; then
+            echo "::error::Le site ne répond pas correctement après déploiement (backend et/ou frontend)."
+            docker compose ps
+            docker compose logs --tail=200 backend frontend
+            exit 1
+          fi
+          echo "Déploiement vérifié : backend et frontend répondent."
 
       - name: Prune old images
         run: docker image prune -f

@@ -13,7 +13,9 @@ import type { Request } from 'express';
  *
  * Note : `CF-Connecting-IP` n'est digne de confiance que si l'origine n'est joignable qu'à
  * travers Cloudflare. Si le RPi est exposé en direct, restreindre l'accès aux plages d'IP
- * Cloudflare au niveau du pare-feu.
+ * Cloudflare (https://www.cloudflare.com/ips/) au niveau du pare-feu de l'hôte — sans cette
+ * restriction, n'importe quel client atteignant l'origine peut forger cet en-tête et
+ * contourner le rate limiter de /api/contact et /api/track (voir README, section Déploiement).
  */
 
 const IPV4 = /^(\d{1,3}\.){3}\d{1,3}$/;

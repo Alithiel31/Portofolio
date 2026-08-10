@@ -87,13 +87,21 @@ export function deriveZone(country?: string | null): string {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const app = express();
 
-// Chaîne de proxy : Cloudflare → nginx (hôte) → nginx (conteneur) → Express.
-// Le nombre de sauts varie selon l'environnement (docker compose local vs prod) ; on fait donc
-// confiance à toute la chaîne, l'origine n'étant joignable qu'à travers les reverse proxies.
-// L'IP ainsi résolue reste éphémère — voir utils/client-ip.ts.
-app.set('trust proxy', true);
-
 const isProd = process.env.NODE_ENV === 'production';
+
+// Chaîne de proxy : Cloudflare → nginx (hôte) → nginx (conteneur) → Express.
+// On ne fait confiance qu'au nombre de sauts réellement présents dans chaque environnement
+// (2 en production : nginx hôte + nginx conteneur ; 1 en local docker-compose, où seul le
+// nginx du conteneur frontend est devant Express) plutôt qu'à `true`, qui accepterait
+// n'importe quel nombre de sauts revendiqués dans X-Forwarded-For.
+//
+// Ceci ne couvre que le fallback `req.ip` (voir utils/client-ip.ts) : l'en-tête
+// CF-Connecting-IP, lui, reste posé par le nginx du conteneur sans validation de son origine
+// réelle. Il n'est digne de confiance que si le pare-feu de l'hôte restreint le trafic entrant
+// aux plages IP publiées par Cloudflare (https://www.cloudflare.com/ips/) — voir le README,
+// section Déploiement. Sans cette restriction, CF-Connecting-IP peut être forgé par n'importe
+// quel client atteignant directement l'origine, ce qui contournerait le rate limiter.
+app.set('trust proxy', isProd ? 2 : 1);
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL;
@@ -117,6 +125,17 @@ function escapeHtml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+// Volontairement permissive (pas de validation RFC 5322 complète) : on rejette juste les
+// entrées manifestement mal formées avant de les transmettre à Resend.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// `name`/`email` finissent dans le sujet et l'en-tête `to` de l'email envoyé via l'API Resend.
+// Aucun saut de ligne n'y a sa place : on le rejette plutôt que de le neutraliser en silence.
+function hasControlChars(value: string): boolean {
+  // eslint-disable-next-line no-control-regex -- détection volontaire des caractères de contrôle
+  return /[\x00-\x1f\x7f]/.test(value);
 }
 
 // Formulaire de contact : 5 envois par IP par tranche de 15 minutes.
@@ -271,6 +290,12 @@ app.post(
     }
     if (name.length > 100 || email.length > 200 || message.length > 2000) {
       return res.status(400).json({ error: 'Données trop longues.' });
+    }
+    if (hasControlChars(name) || hasControlChars(email)) {
+      return res.status(400).json({ error: 'Champs invalides.' });
+    }
+    if (!EMAIL_RE.test(email)) {
+      return res.status(400).json({ error: 'Adresse email invalide.' });
     }
 
     if (!resend || !CONTACT_EMAIL) {

@@ -27,6 +27,10 @@ RUN npm ci --omit=dev
 COPY --from=build /app/prisma ./prisma
 RUN npx prisma generate
 COPY --from=build /app/dist ./dist
+# node:22-alpine fournit déjà un utilisateur `node` (uid 1000) : on l'utilise plutôt que
+# de tourner en root, qui est l'utilisateur par défaut sinon.
+RUN chown -R node:node /app
+USER node
 ENV NODE_ENV=production
 # 3001 : port attendu par le proxy nginx (frontend/nginx.conf) et par le proxy Vite en dev.
 EXPOSE 3001

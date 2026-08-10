@@ -16,11 +16,14 @@ COPY . .
 RUN npm run build
 
 # ── production : nginx sert les fichiers statiques ────────────────────────────
-FROM nginx:alpine AS production
+# Image maintenue par l'équipe nginx elle-même (mêmes tags que nginx:alpine), qui tourne
+# entièrement en non-root sur le port 8080 — nginx:alpine classique garde le master
+# process en root pour pouvoir se lier au port 80.
+FROM nginxinc/nginx-unprivileged:alpine AS production
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Snippet `include` par nginx.conf dans chaque bloc qui pose ses propres en-têtes.
 # Hors de conf.d/ : nginx y auto-inclut tout *.conf au niveau http, ce qui appliquerait
 # aussi ces en-têtes globalement et rendrait la configuration ambiguë.
 COPY security-headers.conf /etc/nginx/snippets/security-headers.conf
-EXPOSE 80
+EXPOSE 8080
