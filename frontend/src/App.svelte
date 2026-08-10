@@ -1,7 +1,13 @@
 <script>
+  import { untrack } from 'svelte';
   import { createApiStore } from './lib/stores/api.svelte.js';
   import { locale } from './lib/stores/locale.svelte.js';
+  import { route } from './lib/stores/route.svelte.js';
+  import { analytics } from './lib/stores/analytics.svelte.js';
+  import { legalDoc, DOC_BY_ROUTE } from './lib/legal/index.svelte.js';
   import { t } from './lib/i18n/t.svelte.js';
+  import LegalPage from './lib/components/LegalPage.svelte';
+  import SiteFooter from './lib/components/SiteFooter.svelte';
   import HeroSection from './lib/components/HeroSection.svelte';
   import SkillsSection from './lib/components/SkillsSection.svelte';
   import ExperienceSection from './lib/components/ExperienceSection.svelte';
@@ -18,7 +24,17 @@
   const services = createApiStore('/services');
 
   const API_BASE = import.meta.env.VITE_API_URL ?? '';
+  const BASE_TITLE = document.title;
   let geoLocation = $state(null);
+
+  // Document juridique correspondant à la route courante, null sur l'accueil.
+  const legalDocument = $derived(
+    DOC_BY_ROUTE[route.path] ? legalDoc(DOC_BY_ROUTE[route.path]) : null,
+  );
+
+  $effect(() => {
+    document.title = legalDocument ? `${legalDocument.title} — ${BASE_TITLE}` : BASE_TITLE;
+  });
 
   $effect(() => {
     fetch(`${API_BASE}/api/location`)
@@ -28,18 +44,20 @@
       })
       .catch(() => {});
 
-    // Une seule visite loguée par session navigateur
-    if (!sessionStorage.getItem('tracked')) {
+    // untrack : l'opt-out et la route ne doivent pas relancer cet effet — la visite se
+    // compte une seule fois par session navigateur, au premier rendu.
+    untrack(() => {
+      if (analytics.optedOut || sessionStorage.getItem('tracked')) return;
       sessionStorage.setItem('tracked', '1');
       fetch(`${API_BASE}/api/track`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          page: '/',
+          page: window.location.pathname,
           referer: document.referrer || null,
         }),
       }).catch(() => {});
-    }
+    });
   });
 
   const profileData = $derived(
@@ -72,45 +90,53 @@
   >
 </div>
 
-<NavDots {sections} />
+{#if legalDocument}
+  <main class="scroll-container">
+    <LegalPage doc={legalDocument} />
+  </main>
+{:else}
+  <NavDots {sections} />
 
-<main class="scroll-container">
-  {#if profile.loading}
-    <LoadingSpinner />
-  {:else if profile.error}
-    <div class="api-error">
-      <i class="bx bx-error-circle"></i>
-      <p>{t('error.load')}</p>
-      <button onclick={profile.reload}>{t('error.retry')}</button>
-    </div>
-  {:else}
-    <ul class="stacking-cards" style="--card-count: {sections.length}">
-      <li class="card" id="hero">
-        <HeroSection data={profileData} />
-      </li>
+  <main class="scroll-container">
+    {#if profile.loading}
+      <LoadingSpinner />
+    {:else if profile.error}
+      <div class="api-error">
+        <i class="bx bx-error-circle"></i>
+        <p>{t('error.load')}</p>
+        <button onclick={profile.reload}>{t('error.retry')}</button>
+      </div>
+    {:else}
+      <ul class="stacking-cards" style="--card-count: {sections.length}">
+        <li class="card" id="hero">
+          <HeroSection data={profileData} />
+        </li>
 
-      <li class="card" id="skills">
-        <SkillsSection data={skills.data} loading={skills.loading} />
-      </li>
+        <li class="card" id="skills">
+          <SkillsSection data={skills.data} loading={skills.loading} />
+        </li>
 
-      <li class="card" id="experience">
-        <ExperienceSection data={experiences.data} loading={experiences.loading} />
-      </li>
+        <li class="card" id="experience">
+          <ExperienceSection data={experiences.data} loading={experiences.loading} />
+        </li>
 
-      <li class="card" id="projects">
-        <ProjectsSection data={projects.data} loading={projects.loading} />
-      </li>
+        <li class="card" id="projects">
+          <ProjectsSection data={projects.data} loading={projects.loading} />
+        </li>
 
-      <li class="card" id="services">
-        <ServicesSection data={services.data} loading={services.loading} />
-      </li>
+        <li class="card" id="services">
+          <ServicesSection data={services.data} loading={services.loading} />
+        </li>
 
-      <li class="card" id="contact">
-        <ContactSection profile={profileData} />
-      </li>
-    </ul>
-  {/if}
-</main>
+        <li class="card" id="contact">
+          <ContactSection profile={profileData} />
+        </li>
+      </ul>
+    {/if}
+  </main>
+{/if}
+
+<SiteFooter name={profileData?.name ?? ''} />
 
 <style lang="scss">
   :global(*) {

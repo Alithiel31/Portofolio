@@ -6,18 +6,20 @@ async function main() {
   console.log('🔄 Migration de production démarrée...\n');
 
   // ── Table PageView (idempotent) ─────────────────────────────────────────────
+  // Pas de colonne `region`/`city` : l'origine conservée se limite au pays et à la zone.
+  // Doit rester aligné sur `prisma/migrations/20260806_pageview_minimize`.
   await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS "PageView" (
       "id"        SERIAL PRIMARY KEY,
       "page"      TEXT NOT NULL,
       "country"   TEXT,
-      "region"    TEXT,
-      "city"      TEXT,
       "zone"      TEXT,
       "referer"   TEXT,
       "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `);
+  await prisma.$executeRawUnsafe(`ALTER TABLE "PageView" DROP COLUMN IF EXISTS "region"`);
+  await prisma.$executeRawUnsafe(`ALTER TABLE "PageView" DROP COLUMN IF EXISTS "city"`);
   console.log('✅ Table PageView vérifiée\n');
 
   // ── Enum LEARNING (idempotent) ──────────────────────────────────────────────

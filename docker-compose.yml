@@ -22,6 +22,20 @@ services:
       postgres:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      # node:22-alpine embarque fetch ; pas besoin d'ajouter curl à l'image.
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3001/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      # Laisse le temps à `prisma migrate deploy` de s'exécuter avant le premier test.
+      start_period: 40s
 
   frontend:
     build:
@@ -30,7 +44,8 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

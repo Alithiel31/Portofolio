@@ -1,13 +1,20 @@
 name: Deploy (RPi)
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
 jobs:
   deploy:
     name: Deploy to RPi
+    # Ne déploie que si la CI (lint + tests + build + docker-build) a réussi sur main,
+    # ou si le déclenchement est manuel (workflow_dispatch).
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: [self-hosted, rpi]
     steps:
       - name: Pull latest code
