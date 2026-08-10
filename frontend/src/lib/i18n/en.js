@@ -53,6 +53,18 @@ export const en = {
     success: "Message sent! I'll get back to you soon.",
     error: 'Something went wrong. Please try again or contact me directly by email.',
   },
+  legal: {
+    notice: 'Legal notice',
+    privacy: 'Privacy policy',
+    terms: 'Terms of use',
+    navLabel: 'Legal links',
+    back: 'Back to home',
+    updated: 'Last updated',
+    optOutOn: 'Audience measurement is disabled in this browser.',
+    optOutOff: 'Audience measurement is enabled in this browser.',
+    optOutEnable: 'Opt out of audience measurement',
+    optOutDisable: 'Opt back in',
+  },
   error: {
     load: 'Impossible to load the portfolio. Please check your connection to the server.',
     retry: 'Try Again',

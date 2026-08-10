@@ -12,7 +12,8 @@
     "db:migrate-prod": "tsx prisma/migrate-prod.ts",
     "db:add-projects": "tsx prisma/add-projects.ts",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "vitest run"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -30,14 +31,17 @@
     "@types/express": "^4.17.21",
     "@types/geoip-lite": "^1.4.4",
     "@types/node": "^22.19.21",
+    "@types/supertest": "^7.2.1",
     "eslint": "^10.7.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.7.0",
     "prettier": "^3.9.5",
     "prisma": "^5.22.0",
+    "supertest": "^7.2.2",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.64.0"
+    "typescript-eslint": "^8.64.0",
+    "vitest": "^4.1.10"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
