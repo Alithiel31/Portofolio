@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://votre-domaine.dev/sitemap.xml
+Sitemap: https://alithiel31.dev/sitemap.xml
