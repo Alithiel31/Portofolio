@@ -127,9 +127,10 @@ npm run dev        # le proxy Vite redirige /api vers http://localhost:3001
 ```bash
 npm run lint       # ESLint (dans backend/ comme dans frontend/)
 npm run format     # Prettier
+npm test           # Vitest (dans backend/ comme dans frontend/)
 ```
 
-Ces deux commandes tournent aussi en CI (`.github/workflows/ci.yml`), avec en plus
+Ces trois commandes tournent aussi en CI (`.github/workflows/ci.yml`), avec en plus
 `prisma validate`, le build TypeScript et un build des images Docker de production.
 
 ---
@@ -203,6 +204,12 @@ Visiteur → Cloudflare → nginx (hôte) → nginx (conteneur frontend) ─┬�
 Les proxies propagent `X-Forwarded-For` et `CF-Connecting-IP` ; sans eux, le backend ne verrait
 que l'IP interne du conteneur nginx (géolocalisation inopérante, rate limiter partagé par tout le
 trafic).
+
+> ⚠️ **Pré-requis pare-feu** : `CF-Connecting-IP` n'est fiable que si l'origine n'est joignable
+> qu'à travers Cloudflare. Le pare-feu de l'hôte doit donc restreindre le trafic entrant sur les
+> ports 80/443 aux plages IP publiées par Cloudflare (https://www.cloudflare.com/ips/). Sans
+> cette restriction, un client atteignant le Pi directement peut forger cet en-tête et
+> contourner le rate limiter de `/api/contact` et `/api/track`.
 
 ### Déploiement automatique
 

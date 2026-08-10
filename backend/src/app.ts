@@ -87,13 +87,21 @@ export function deriveZone(country?: string | null): string {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const app = express();
 
-// Chaîne de proxy : Cloudflare → nginx (hôte) → nginx (conteneur) → Express.
-// Le nombre de sauts varie selon l'environnement (docker compose local vs prod) ; on fait donc
-// confiance à toute la chaîne, l'origine n'étant joignable qu'à travers les reverse proxies.
-// L'IP ainsi résolue reste éphémère — voir utils/client-ip.ts.
-app.set('trust proxy', true);
-
 const isProd = process.env.NODE_ENV === 'production';
+
+// Chaîne de proxy : Cloudflare → nginx (hôte) → nginx (conteneur) → Express.
+// On ne fait confiance qu'au nombre de sauts réellement présents dans chaque environnement
+// (2 en production : nginx hôte + nginx conteneur ; 1 en local docker-compose, où seul le
+// nginx du conteneur frontend est devant Express) plutôt qu'à `true`, qui accepterait
+// n'importe quel nombre de sauts revendiqués dans X-Forwarded-For.
+//
+// Ceci ne couvre que le fallback `req.ip` (voir utils/client-ip.ts) : l'en-tête
+// CF-Connecting-IP, lui, reste posé par le nginx du conteneur sans validation de son origine
+// réelle. Il n'est digne de confiance que si le pare-feu de l'hôte restreint le trafic entrant
+// aux plages IP publiées par Cloudflare (https://www.cloudflare.com/ips/) — voir le README,
+// section Déploiement. Sans cette restriction, CF-Connecting-IP peut être forgé par n'importe
+// quel client atteignant directement l'origine, ce qui contournerait le rate limiter.
+app.set('trust proxy', isProd ? 2 : 1);
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const CONTACT_EMAIL = process.env.CONTACT_EMAIL;

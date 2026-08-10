@@ -6,9 +6,14 @@ on:
   pull_request:
     branches: [main]
 
+# Least-privilege par défaut : aucun job ci-dessous n'a besoin d'écrire sur le dépôt
+# ou d'appeler l'API GitHub au-delà du checkout.
+permissions:
+  contents: read
+
 jobs:
   frontend:
-    name: Frontend (lint + build)
+    name: Frontend (lint + test + build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,6 +32,9 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Test
+        run: npm test
 
       - name: Build
         run: npm run build
