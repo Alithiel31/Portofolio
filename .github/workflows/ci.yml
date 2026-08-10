@@ -37,6 +37,10 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    env:
+      # `prisma validate`/`generate` n'ont besoin que de la variable présente, pas d'une
+      # base réellement joignable : aucune connexion n'est ouverte par ces commandes.
+      DATABASE_URL: 'postgresql://ci:ci@localhost:5432/ci?schema=public'
     steps:
       - uses: actions/checkout@v4
 
