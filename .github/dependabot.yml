@@ -5,9 +5,12 @@ updates:
     schedule:
       interval: weekly
     groups:
+      # Mineures/patchs groupées dans une seule PR (risque de rupture faible). Les majeures
+      # ne matchent aucun groupe : chacune reste sur sa propre PR, à revoir individuellement.
       frontend-deps:
-        patterns:
-          - "*"
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: npm
     directory: /backend
@@ -15,8 +18,9 @@ updates:
       interval: weekly
     groups:
       backend-deps:
-        patterns:
-          - "*"
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: docker
     directory: /frontend

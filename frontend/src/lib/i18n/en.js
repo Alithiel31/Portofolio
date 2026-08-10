@@ -37,6 +37,7 @@ export const en = {
     tag: 'Skills',
     title: 'Technical',
     titleAccent: 'skills',
+    learning: 'learning',
   },
   contact: {
     title: "Let's work",
@@ -68,5 +69,8 @@ export const en = {
   error: {
     load: 'Impossible to load the portfolio. Please check your connection to the server.',
     retry: 'Try Again',
+  },
+  loading: {
+    portfolio: 'Loading portfolio…',
   },
 };

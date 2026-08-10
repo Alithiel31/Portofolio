@@ -9,7 +9,6 @@
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "db:migrate-prod": "tsx prisma/migrate-prod.ts",
     "db:add-projects": "tsx prisma/add-projects.ts",
     "lint": "eslint .",
     "format": "prettier --write .",

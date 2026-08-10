@@ -32,7 +32,7 @@ describe('GET /api/services', () => {
   it('returns services ordered, localized to English by default', async () => {
     const res = await request(app).get('/api/services');
     expect(res.status).toBe(200);
-    expect(findMany).toHaveBeenCalledWith({ orderBy: { order: 'asc' } });
+    expect(findMany).toHaveBeenCalledWith({ orderBy: { order: 'asc' }, take: 100 });
     expect(res.body[0].title).toBe('Web development');
   });
 

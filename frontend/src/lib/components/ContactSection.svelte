@@ -36,7 +36,7 @@
 <div class="card-inner">
   <section class="section">
     <div class="section-header">
-      <span class="section-tag">Contact</span>
+      <span class="section-tag">{t('nav.contact')}</span>
       <h2>{t('contact.title')} <span class="accent">{t('contact.titleAccent')}</span></h2>
     </div>
 
@@ -46,7 +46,7 @@
           <a href="mailto:{profile.email}" class="contact-item">
             <div class="contact-icon"><i class="bx bx-envelope"></i></div>
             <div>
-              <span class="contact-label">Email</span>
+              <span class="contact-label">{t('contact.email')}</span>
               <span class="contact-value">{profile.email}</span>
             </div>
           </a>
