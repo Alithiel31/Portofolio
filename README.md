@@ -215,11 +215,20 @@ trafic).
 ### Déploiement automatique
 
 `.github/workflows/deploy.yml` tourne sur un runner self-hosted taggé `[self-hosted, rpi]`.
-À chaque push sur `main`, il fait sur le Pi :
+Il se déclenche une fois le workflow **CI** terminé avec succès sur `main` (`workflow_run`), ou
+manuellement (`workflow_dispatch`) — pas directement sur chaque push : un push dont la CI échoue
+ne déploie donc pas. Sur le Pi, il fait :
 
 ```bash
 git fetch origin main && git reset --hard origin/main
 docker compose up --build -d
+```
+
+Puis vérifie la santé du déploiement : poll de `/api/health` et `/` pendant jusqu'à 2 min 30. En
+cas d'échec, le job dump les logs des conteneurs et échoue (sans rollback automatique). Une fois
+la vérification passée :
+
+```bash
 docker image prune -f
 ```
 
@@ -263,7 +272,8 @@ portfolio/
 │   │   ├── seed.ts                 # Données initiales (idempotent)
 │   │   └── add-projects.ts         # Script d'ajout ponctuel
 │   └── src/
-│       ├── index.ts                # Express : middlewares, location, track, stats, contact
+│       ├── app.ts                  # Express : middlewares, location, track, stats, contact
+│       ├── index.ts                # Bootstrap serveur (listen, arrêt gracieux)
 │       ├── prisma.ts               # Client Prisma singleton
 │       ├── utils/
 │       │   ├── client-ip.ts        # Résolution d'IP éphémère (jamais persistée)
@@ -284,11 +294,17 @@ portfolio/
         └── lib/
             ├── stores/
             │   ├── api.svelte.js   # Fetch store réactif
-            │   └── locale.svelte.js # Langue courante (localStorage + navigator)
+            │   ├── locale.svelte.js # Langue courante (localStorage + navigator)
+            │   ├── route.svelte.js # Routeur minimal pour les pages légales
+            │   └── analytics.svelte.js # Opt-out `/api/track` (clé `analytics-opt-out`)
             ├── i18n/
             │   ├── en.js
             │   ├── fr.js
             │   └── t.svelte.js     # Fonction de traduction réactive
+            ├── legal/
+            │   ├── en.js
+            │   ├── fr.js
+            │   └── index.svelte.js # Sélection du document légal actif
             ├── components/
             │   ├── HeroSection.svelte
             │   ├── SkillsSection.svelte
@@ -297,7 +313,9 @@ portfolio/
             │   ├── ServicesSection.svelte
             │   ├── ContactSection.svelte
             │   ├── NavDots.svelte
-            │   └── LoadingSpinner.svelte
+            │   ├── LoadingSpinner.svelte
+            │   ├── LegalPage.svelte # Rendu générique des pages légales
+            │   └── SiteFooter.svelte
             └── styles/
                 ├── global.scss
                 └── _section.scss
