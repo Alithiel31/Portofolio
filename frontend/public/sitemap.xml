@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://votre-domaine.dev/</loc>
+    <loc>https://alithiel31.dev/</loc>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://votre-domaine.dev/mentions-legales</loc>
+    <loc>https://alithiel31.dev/mentions-legales</loc>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://votre-domaine.dev/confidentialite</loc>
+    <loc>https://alithiel31.dev/confidentialite</loc>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://votre-domaine.dev/cgu</loc>
+    <loc>https://alithiel31.dev/cgu</loc>
     <priority>0.2</priority>
   </url>
 </urlset>
