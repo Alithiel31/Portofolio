@@ -261,8 +261,7 @@ portfolio/
 │   │   ├── schema.prisma           # Modèles BDD
 │   │   ├── migrations/             # Source de vérité du schéma (migrate deploy)
 │   │   ├── seed.ts                 # Données initiales (idempotent)
-│   │   ├── add-projects.ts         # Script d'ajout ponctuel
-│   │   └── migrate-prod.ts         # Réparation de dérive — hérité, à retirer
+│   │   └── add-projects.ts         # Script d'ajout ponctuel
 │   └── src/
 │       ├── index.ts                # Express : middlewares, location, track, stats, contact
 │       ├── prisma.ts               # Client Prisma singleton

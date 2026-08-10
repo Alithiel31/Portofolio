@@ -109,18 +109,6 @@
 
   .skeleton-card {
     height: 180px;
-    background: var(--surface-2);
-    border-radius: 0.75rem;
-    animation: shimmer 1.5s ease-in-out infinite;
-  }
-
-  @keyframes shimmer {
-    0%,
-    100% {
-      opacity: 0.5;
-    }
-    50% {
-      opacity: 1;
-    }
+    @extend %skeleton-shimmer;
   }
 </style>

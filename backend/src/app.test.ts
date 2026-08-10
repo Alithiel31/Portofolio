@@ -45,6 +45,11 @@ describe('GET /api/health', () => {
     expect(res.body.status).toBe('ok');
     expect(typeof res.body.timestamp).toBe('string');
   });
+
+  it('does not leak NODE_ENV to an unauthenticated caller', async () => {
+    const res = await request(app).get('/api/health');
+    expect(res.body.env).toBeUndefined();
+  });
 });
 
 describe('POST /api/contact', () => {

@@ -19,6 +19,7 @@ router.get(
     const experiences = await prisma.experience.findMany({
       where: type ? { type: type as 'WORK' | 'EDUCATION' } : undefined,
       orderBy: { order: 'asc' },
+      take: 100,
     });
     res.json(experiences.map((e) => localizeFields(e, locale, ['title', 'description'])));
   }),

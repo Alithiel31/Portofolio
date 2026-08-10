@@ -1,5 +1,7 @@
 <script>
-  let { message = 'Chargement du portfolio…' } = $props();
+  import { t } from '../i18n/t.svelte.js';
+
+  let { message = t('loading.portfolio') } = $props();
 </script>
 
 <div class="spinner-wrap" role="status" aria-live="polite" aria-label={message}>

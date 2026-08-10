@@ -12,6 +12,7 @@ router.get(
     const categories = await prisma.skillCategory.findMany({
       include: { skills: { orderBy: { order: 'asc' } } },
       orderBy: { order: 'asc' },
+      take: 100,
     });
     res.json(
       categories.map((c) => ({

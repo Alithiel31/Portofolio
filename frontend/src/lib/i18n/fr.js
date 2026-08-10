@@ -37,6 +37,7 @@ export const fr = {
     tag: 'Compétences',
     title: 'Compétences',
     titleAccent: 'techniques',
+    learning: 'en cours',
   },
   contact: {
     title: 'Travaillons',
@@ -68,5 +69,8 @@ export const fr = {
   error: {
     load: 'Impossible de charger le portfolio. Vérifiez votre connexion au serveur.',
     retry: 'Réessayer',
+  },
+  loading: {
+    portfolio: 'Chargement du portfolio…',
   },
 };

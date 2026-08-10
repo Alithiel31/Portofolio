@@ -9,7 +9,7 @@ router.get(
   '/',
   asyncHandler(async (req, res) => {
     const locale = getLocale(req.query);
-    const services = await prisma.service.findMany({ orderBy: { order: 'asc' } });
+    const services = await prisma.service.findMany({ orderBy: { order: 'asc' }, take: 100 });
     res.json(services.map((s) => localizeFields(s, locale, ['title', 'description'])));
   }),
 );

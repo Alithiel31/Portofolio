@@ -8,7 +8,11 @@ async function apiFetch(endpoint) {
   if (import.meta.env.DEV) console.log(`[API Call]: ${url}`);
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Erreur API ${res.status} sur ${endpoint}`);
-  return res.json();
+  const data = await res.json();
+  // Un backend qui répond 200 avec un corps vide/malformé ne doit pas se propager tel quel :
+  // les composants s'attendent tous à un objet ou un tableau, jamais à null/undefined.
+  if (data == null) throw new Error(`Réponse vide de l'API sur ${endpoint}`);
+  return data;
 }
 
 export function createApiStore(endpoint) {

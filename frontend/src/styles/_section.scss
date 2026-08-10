@@ -49,3 +49,22 @@ h2 {
     color: var(--accent);
   }
 }
+
+// Placeholder de skeleton-loading, partagé par les sections qui affichent un état de
+// chargement (Projects, Skills, Experience, Services) : chacune ne garde que sa propre
+// hauteur et étend ce placeholder plutôt que de redéfinir background/animation/keyframes.
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+%skeleton-shimmer {
+  background: var(--surface-2);
+  border-radius: 0.75rem;
+  animation: shimmer 1.5s ease-in-out infinite;
+}

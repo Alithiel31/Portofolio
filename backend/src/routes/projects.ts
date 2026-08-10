@@ -13,6 +13,7 @@ router.get(
     const projects = await prisma.project.findMany({
       where: featured === 'true' ? { featured: true } : undefined,
       orderBy: { order: 'asc' },
+      take: 100,
     });
     res.json(projects.map((p) => localizeFields(p, locale, ['title', 'description'])));
   }),
