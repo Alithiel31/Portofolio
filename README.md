@@ -20,6 +20,7 @@ Portfolio personnel fullstack avec interface bilingue (FR/EN), sections animées
 | 📍 Géolocalisation | Affiche Montréal ou France selon la zone du visiteur |
 | 📊 Statistiques de visite | Enregistrement par page, pays et zone (Canada / Europe / Autre) |
 | 📄 CV téléchargeable | PDF servi selon la langue active (FR ou EN) |
+| ⚖️ Pages légales | Mentions légales, politique de confidentialité et CGU, bilingues, sur de vraies URLs |
 | 🔒 Sécurité | En-têtes CSP/HSTS via nginx, CORS restreint, sanitisation HTML, rate limiter à clé hashée |
 
 ### Données visiteurs — ce qui est réellement conservé
@@ -29,7 +30,30 @@ en dériver un pays via `geoip-lite`, puis abandonnée : elle n'apparaît ni en 
 Le rate limiter lui-même n'indexe qu'un hash SHA-256 salé.
 
 La table `PageView` ne contient que `page`, `country`, `zone`, `referer` et `createdAt` — pas de
-colonne IP, et volontairement ni ville ni région, trop identifiantes pour l'usage visé.
+colonne IP, et volontairement ni ville ni région, trop identifiantes pour l'usage visé. Le referer
+est en outre réduit à son seul domaine d'origine : le chemin et les paramètres de l'URL référente
+peuvent porter des identifiants (recherche, campagne, jeton de partage) sans rien apporter à une
+statistique de provenance.
+
+Ces lignes sont **purgées automatiquement au-delà de 25 mois** (`backend/src/utils/retention.ts`,
+lancé au démarrage puis une fois par jour). C'est ce qui permet de rester dans la dispense de
+consentement applicable à la mesure d'audience, et donc de se passer de bandeau. Un visiteur peut
+malgré tout s'y opposer depuis la politique de confidentialité : la clé `analytics-opt-out` du
+stockage local coupe l'appel à `/api/track`.
+
+Aucune ressource n'est chargée depuis Google : la police Nunito est servie depuis
+`frontend/public/fonts/`, au même titre que Boxicons. La CSP ne comporte donc plus aucune origine
+`fonts.googleapis.com` ni `fonts.gstatic.com`.
+
+### Pages légales
+
+Trois documents, rédigés en FR et EN dans `frontend/src/lib/legal/`, rendus par un composant
+générique et servis à `/mentions-legales`, `/confidentialite` et `/cgu`. Le routage est assuré par
+un store minimal (`frontend/src/lib/stores/route.svelte.js`) — le fallback SPA de `nginx.conf`
+rend les accès directs à ces URLs fonctionnels sans configuration supplémentaire.
+
+Le contenu décrit les traitements tels qu'ils sont réellement implémentés ; toute modification du
+formulaire de contact, du tracker ou des ressources tierces doit s'y répercuter.
 
 ---
 
