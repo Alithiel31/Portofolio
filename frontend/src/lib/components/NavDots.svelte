@@ -41,10 +41,11 @@
     // scrollIntoView ne fonctionne pas correctement sur les éléments sticky.
     // On remonte la chaîne offsetParent pour obtenir la position naturelle dans le document.
     let top = 0;
+    /** @type {HTMLElement | null} */
     let node = el;
-    while (node) {
+    while (node instanceof HTMLElement) {
       top += node.offsetTop;
-      node = node.offsetParent;
+      node = /** @type {HTMLElement | null} */ (node.offsetParent);
     }
     window.scrollTo({ top: Math.max(0, top - STICKY_TOP), behavior: 'smooth' });
   }

@@ -127,6 +127,17 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#039;');
 }
 
+// Volontairement permissive (pas de validation RFC 5322 complète) : on rejette juste les
+// entrées manifestement mal formées avant de les transmettre à Resend.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// `name`/`email` finissent dans le sujet et l'en-tête `to` de l'email envoyé via l'API Resend.
+// Aucun saut de ligne n'y a sa place : on le rejette plutôt que de le neutraliser en silence.
+function hasControlChars(value: string): boolean {
+  // eslint-disable-next-line no-control-regex -- détection volontaire des caractères de contrôle
+  return /[\x00-\x1f\x7f]/.test(value);
+}
+
 // Formulaire de contact : 5 envois par IP par tranche de 15 minutes.
 const checkContactRateLimit = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5 });
 
@@ -279,6 +290,12 @@ app.post(
     }
     if (name.length > 100 || email.length > 200 || message.length > 2000) {
       return res.status(400).json({ error: 'Données trop longues.' });
+    }
+    if (hasControlChars(name) || hasControlChars(email)) {
+      return res.status(400).json({ error: 'Champs invalides.' });
+    }
+    if (!EMAIL_RE.test(email)) {
+      return res.status(400).json({ error: 'Adresse email invalide.' });
     }
 
     if (!resend || !CONTACT_EMAIL) {

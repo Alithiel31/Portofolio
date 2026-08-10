@@ -46,6 +46,14 @@ describe('locale store', () => {
     expect(localStorage.getItem('locale')).toBe('fr');
   });
 
+  it('keeps <html lang> in sync with the current locale', async () => {
+    setNavigatorLanguage('fr-FR');
+    const { locale } = await import('./locale.svelte.js');
+    expect(document.documentElement.lang).toBe('fr');
+    locale.set('en');
+    expect(document.documentElement.lang).toBe('en');
+  });
+
   it('set() ignores unsupported locales', async () => {
     setNavigatorLanguage('en-US');
     const { locale } = await import('./locale.svelte.js');

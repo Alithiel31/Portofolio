@@ -2,11 +2,9 @@
   import { untrack } from 'svelte';
   import { createApiStore } from './lib/stores/api.svelte.js';
   import { locale } from './lib/stores/locale.svelte.js';
-  import { route } from './lib/stores/route.svelte.js';
+  import { route, ROUTES } from './lib/stores/route.svelte.js';
   import { analytics } from './lib/stores/analytics.svelte.js';
-  import { legalDoc, DOC_BY_ROUTE } from './lib/legal/index.svelte.js';
   import { t } from './lib/i18n/t.svelte.js';
-  import LegalPage from './lib/components/LegalPage.svelte';
   import SiteFooter from './lib/components/SiteFooter.svelte';
   import HeroSection from './lib/components/HeroSection.svelte';
   import SkillsSection from './lib/components/SkillsSection.svelte';
@@ -27,10 +25,43 @@
   const BASE_TITLE = document.title;
   let geoLocation = $state(null);
 
-  // Document juridique correspondant à la route courante, null sur l'accueil.
-  const legalDocument = $derived(
-    DOC_BY_ROUTE[route.path] ? legalDoc(DOC_BY_ROUTE[route.path]) : null,
-  );
+  // Les pages légales (composant + textes FR/EN, ~30 Ko) ne sont chargées que si un
+  // visiteur y accède réellement — ce n'est jamais le cas sur le chemin d'atterrissage
+  // le plus courant (l'accueil), qui n'a donc pas à en payer le poids au chargement initial.
+  let LegalPageComponent = $state(null);
+  let legalDocument = $state(null);
+  const isLegalRoute = $derived(route.path !== ROUTES.HOME);
+
+  $effect(() => {
+    const path = route.path;
+    // Lecture volontaire : force le re-calcul de legalDocument (sensible à locale.current via
+    // legalDoc()) quand on bascule FR/EN sur une page légale déjà affichée.
+    void locale.current;
+
+    if (path === ROUTES.HOME) {
+      LegalPageComponent = null;
+      legalDocument = null;
+      return;
+    }
+
+    let cancelled = false;
+    Promise.all([import('./lib/components/LegalPage.svelte'), import('./lib/legal/index.svelte.js')])
+      .then(([{ default: LegalPage }, { legalDoc, DOC_BY_ROUTE }]) => {
+        if (cancelled) return;
+        const key = DOC_BY_ROUTE[path];
+        LegalPageComponent = key ? LegalPage : null;
+        legalDocument = key ? legalDoc(key) : null;
+      })
+      .catch(() => {
+        if (cancelled) return;
+        LegalPageComponent = null;
+        legalDocument = null;
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  });
 
   $effect(() => {
     document.title = legalDocument ? `${legalDocument.title} — ${BASE_TITLE}` : BASE_TITLE;
@@ -90,9 +121,13 @@
   >
 </div>
 
-{#if legalDocument}
+{#if isLegalRoute}
   <main class="scroll-container">
-    <LegalPage doc={legalDocument} />
+    {#if LegalPageComponent && legalDocument}
+      <LegalPageComponent doc={legalDocument} />
+    {:else}
+      <LoadingSpinner />
+    {/if}
   </main>
 {:else}
   <NavDots {sections} />

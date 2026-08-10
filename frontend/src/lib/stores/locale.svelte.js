@@ -8,7 +8,9 @@ function detect() {
   return SUPPORTED.includes(lang) ? lang : DEFAULT;
 }
 
-let _locale = $state(detect());
+const initial = detect();
+let _locale = $state(initial);
+document.documentElement.lang = initial;
 
 export const locale = {
   get current() {
@@ -18,5 +20,6 @@ export const locale = {
     if (!SUPPORTED.includes(lang)) return;
     _locale = lang;
     localStorage.setItem('locale', lang);
+    document.documentElement.lang = lang;
   },
 };

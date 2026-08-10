@@ -69,6 +69,33 @@ describe('POST /api/contact', () => {
     expect(res.status).toBe(400);
   });
 
+  it('rejects a malformed email address', async () => {
+    const res = await request(app)
+      .post('/api/contact')
+      .set('X-Forwarded-For', '10.0.1.6')
+      .send({ name: 'Alice', email: 'not-an-email', message: 'Hello there' });
+    expect(res.status).toBe(400);
+    expect(sendMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects a name containing a newline (header injection attempt)', async () => {
+    const res = await request(app)
+      .post('/api/contact')
+      .set('X-Forwarded-For', '10.0.1.7')
+      .send({ name: 'Alice\nBcc: evil@example.com', email: 'alice@example.com', message: 'hi' });
+    expect(res.status).toBe(400);
+    expect(sendMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects an email containing a control character', async () => {
+    const res = await request(app)
+      .post('/api/contact')
+      .set('X-Forwarded-For', '10.0.1.8')
+      .send({ name: 'Alice', email: 'alice@example.com\r\n', message: 'hi' });
+    expect(res.status).toBe(400);
+    expect(sendMock).not.toHaveBeenCalled();
+  });
+
   it('accepts a valid message and calls the email provider', async () => {
     const res = await request(app)
       .post('/api/contact')

@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "check": "svelte-check --tsconfig ./jsconfig.json",
     "lint": "eslint . ",
     "format": "prettier --write ."
   },
@@ -26,7 +27,10 @@
     "sass": "^1.99.0",
     "sass-embedded": "^1.97.3",
     "svelte": "^5.43.8",
+    "svelte-check": "^4.7.5",
+    "typescript": "^5.9.3",
     "vite": "^7.2.4",
+    "vite-plugin-compression2": "^2.5.3",
     "vitest": "^4.1.10"
   }
 }

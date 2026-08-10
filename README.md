@@ -128,9 +128,10 @@ npm run dev        # le proxy Vite redirige /api vers http://localhost:3001
 npm run lint       # ESLint (dans backend/ comme dans frontend/)
 npm run format     # Prettier
 npm test           # Vitest (dans backend/ comme dans frontend/)
+npm run check      # svelte-check — frontend uniquement
 ```
 
-Ces trois commandes tournent aussi en CI (`.github/workflows/ci.yml`), avec en plus
+Ces commandes tournent aussi en CI (`.github/workflows/ci.yml`), avec en plus
 `prisma validate`, le build TypeScript et un build des images Docker de production.
 
 ---
