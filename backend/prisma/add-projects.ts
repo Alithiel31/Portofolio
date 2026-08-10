@@ -40,6 +40,36 @@ const projectsToAdd = [
     status: ProjectStatus.COMPLETED,
     order: 9,
   },
+  {
+    titleEn: 'QualiSite',
+    titleFr: 'QualiSite',
+    descriptionEn:
+      'Showcase site & internal management tool for a company, built during an internship: public showcase, contact form, back-office (projects, services, contacts), PDF invoicing.',
+    descriptionFr:
+      "Site vitrine & outil de gestion interne pour une entreprise, développé en stage : vitrine publique, formulaire de contact, back-office (projets, services, contacts), facturation PDF.",
+    techStack: 'Next.js 16, React 19, TypeScript, Express 5, Prisma, PostgreSQL, Docker',
+    imageUrl: 'https://picsum.photos/seed/qualisite/800/400',
+    githubUrl: 'https://github.com/QualiSite/QualiSiteV1',
+    demoUrl: 'https://qualisite.alithiel31.dev',
+    featured: true,
+    status: ProjectStatus.COMPLETED,
+    order: 10,
+  },
+  {
+    titleEn: 'Minecraft-Serveur',
+    titleFr: 'Minecraft-Serveur',
+    descriptionEn:
+      'Docker Compose deployment of a Minecraft Java vanilla server, exposed publicly via a playit.gg tunnel from a remote host.',
+    descriptionFr:
+      "Déploiement d'un serveur Minecraft Java vanilla via Docker Compose, avec tunnel playit.gg pour l'accès public depuis un hôte distant.",
+    techStack: 'Docker, Docker Compose, playit.gg',
+    imageUrl: 'https://picsum.photos/seed/minecraftserveur/800/400',
+    githubUrl: 'https://github.com/Alithiel31/Minecraft-Serveur',
+    demoUrl: null,
+    featured: false,
+    status: ProjectStatus.COMPLETED,
+    order: 11,
+  },
 ];
 
 async function main() {
