@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import prisma from '../prisma.js';
+import { asyncHandler } from '../utils/async-handler.js';
 import { getLocale } from '../utils/localize.js';
 
 const router = Router();
 
-router.get('/', async (_req, res) => {
-  try {
-    const locale = getLocale(_req.query);
+router.get(
+  '/',
+  asyncHandler(async (req, res) => {
+    const locale = getLocale(req.query);
     const categories = await prisma.skillCategory.findMany({
       include: { skills: { orderBy: { order: 'asc' } } },
       orderBy: { order: 'asc' },
@@ -18,10 +20,7 @@ router.get('/', async (_req, res) => {
         nameFr: undefined,
       })),
     );
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
+  }),
+);
 
 export default router;
