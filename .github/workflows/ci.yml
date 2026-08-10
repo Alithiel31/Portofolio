@@ -37,9 +37,24 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    services:
+      # Base jetable : sert uniquement à vérifier que les migrations s'appliquent proprement
+      # (détecte une dérive entre schema.prisma et l'historique des migrations, ou du SQL
+      # cassé), sans toucher à une base réelle. Recréée à zéro à chaque run.
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      # `prisma validate`/`generate` n'ont besoin que de la variable présente, pas d'une
-      # base réellement joignable : aucune connexion n'est ouverte par ces commandes.
       DATABASE_URL: 'postgresql://ci:ci@localhost:5432/ci?schema=public'
     steps:
       - uses: actions/checkout@v7
@@ -61,6 +76,9 @@ jobs:
 
       - name: Generate Prisma client
         run: npx prisma generate
+
+      - name: Apply migrations to a throwaway database
+        run: npx prisma migrate deploy
 
       - name: Test
         run: npm test
