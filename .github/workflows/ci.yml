@@ -32,7 +32,7 @@ jobs:
         run: npm run build
 
   backend:
-    name: Backend (lint + typecheck + build)
+    name: Backend (lint + test + typecheck + build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -57,6 +57,9 @@ jobs:
 
       - name: Generate Prisma client
         run: npx prisma generate
+
+      - name: Test
+        run: npm test
 
       - name: Build (tsc)
         run: npm run build
