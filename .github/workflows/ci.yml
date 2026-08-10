@@ -32,11 +32,15 @@ jobs:
         run: npm run build
 
   backend:
-    name: Backend (lint + typecheck + build)
+    name: Backend (lint + test + typecheck + build)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
+    env:
+      # `prisma validate`/`generate` n'ont besoin que de la variable présente, pas d'une
+      # base réellement joignable : aucune connexion n'est ouverte par ces commandes.
+      DATABASE_URL: 'postgresql://ci:ci@localhost:5432/ci?schema=public'
     steps:
       - uses: actions/checkout@v4
 
@@ -57,6 +61,9 @@ jobs:
 
       - name: Generate Prisma client
         run: npx prisma generate
+
+      - name: Test
+        run: npm test
 
       - name: Build (tsc)
         run: npm run build
