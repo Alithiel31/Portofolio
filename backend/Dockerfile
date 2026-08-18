@@ -27,6 +27,7 @@ RUN npm ci --omit=dev
 COPY --from=build /app/prisma ./prisma
 RUN npx prisma generate
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/public ./public
 # node:22-alpine fournit déjà un utilisateur `node` (uid 1000) : on l'utilise plutôt que
 # de tourner en root, qui est l'utilisateur par défaut sinon.
 RUN chown -R node:node /app
