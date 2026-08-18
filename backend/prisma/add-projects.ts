@@ -2,100 +2,129 @@ import { PrismaClient, ProjectStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Script idempotent : ajoute uniquement les projets listés ci-dessous s'ils
-// n'existent pas déjà (par titleEn). Utile pour mettre à jour la base de
-// production sans toucher aux projets existants (le seed normal est ignoré
-// une fois la base initialisée).
+// Script idempotent : fait converger la base vers exactement la liste ci-dessous
+// (upsert par titleEn, puis suppression de tout projet en base qui n'y figure pas).
+// Utile pour mettre à jour la base de production sans repasser par le seed complet
+// (celui-ci est ignoré une fois la base initialisée).
+//
+// 2026-08 : sélection resserrée à 6 projets vitrine, choisis pour couvrir des
+// stacks et compétences différentes (SvelteKit, React, Next.js, Python/IA, DevOps
+// pur) plutôt que d'empiler tous les projets réalisés.
 
-const projectsToAdd = [
+const projectsToKeep = [
   {
-    titleEn: 'Le Fournil',
-    titleFr: 'Le Fournil',
+    titleEn: 'WeatherQC',
+    titleFr: 'Météo Québec',
     descriptionEn:
-      'PWA for bakery production management, driven by Excel spreadsheet import. Custom formula engine validates the import (788/788 formulas reproduced), optional AI sheet classification via Claude Haiku, fuzzy matching between recipes/weights and products.',
+      'Weather forecast app for Quebec, built with an MVC architecture — Svelte 5 (PWA) frontend, Express/TypeScript backend. Self-hosted on a Raspberry Pi and published on the Google Play Store as an Android TWA.',
     descriptionFr:
-      "PWA de gestion de production pour fournil, pilotée par injection de tableur Excel. Moteur de formules maison pour valider l'import (788/788 formules reproduites), classification IA optionnelle des feuilles via Claude Haiku, rapprochement flou entre recettes/poids et produits.",
-    techStack:
-      'SvelteKit, Svelte 5, TypeScript, Express, Prisma, PostgreSQL, Docker, Cloudflare Tunnel',
-    imageUrl: 'https://picsum.photos/seed/fournilapp/800/400',
-    githubUrl: 'https://github.com/Alithiel31/FournilApp',
-    demoUrl: 'https://fournilapp.alithiel31.dev',
+      "Application météo pour le Québec en architecture MVC — frontend Svelte 5 (PWA), backend Express/TypeScript. Auto-hébergée sur Raspberry Pi et publiée sur le Google Play Store (TWA Android).",
+    techStack: 'Svelte 5, TypeScript, Express, Node.js, Docker, Nginx, Android/TWA, Google Play',
+    imageUrl: '/screenshots/weatherqc.png',
+    githubUrl: 'https://github.com/Alithiel31/WeatherQC',
+    demoUrl: 'https://qcweather.alithiel31.dev',
     featured: true,
     status: ProjectStatus.COMPLETED,
-    order: 8,
-  },
-  {
-    titleEn: 'J.Moulin Planner',
-    titleFr: 'Planificateur J.Moulin',
-    descriptionEn:
-      'Collaborative planning tool with role-based access (Admin/TeamLead/TeamMate), team management, tasks with deadlines and fixed events on a shared timeline. Demo accounts — Admin: admin / admin123 · TeamLead: teamlead / lead123 · TeamMate: user1 / user123.',
-    descriptionFr:
-      "Outil de planification collaboratif avec gestion des rôles (Admin/TeamLead/TeamMate), gestion d'équipes, tâches avec deadlines et événements fixes sur une frise partagée. Comptes de démo — Admin : admin / admin123 · TeamLead : teamlead / lead123 · TeamMate : user1 / user123.",
-    techStack:
-      'SvelteKit, Svelte 5, Tailwind CSS, TypeScript, Express, Prisma, PostgreSQL, Docker, Nginx',
-    imageUrl: 'https://picsum.photos/seed/jmoulinplanner/800/400',
-    githubUrl: 'https://github.com/Alithiel31/J-Moulin-Planner',
-    demoUrl: 'https://resplanner.alithiel31.dev/',
-    featured: false,
-    status: ProjectStatus.COMPLETED,
-    order: 9,
-  },
-  {
-    titleEn: 'QualiSite',
-    titleFr: 'QualiSite',
-    descriptionEn:
-      'Showcase site & internal management tool for a company, built during an internship: public showcase, contact form, back-office (projects, services, contacts), PDF invoicing.',
-    descriptionFr:
-      "Site vitrine & outil de gestion interne pour une entreprise, développé en stage : vitrine publique, formulaire de contact, back-office (projets, services, contacts), facturation PDF.",
-    techStack: 'Next.js 16, React 19, TypeScript, Express 5, Prisma, PostgreSQL, Docker',
-    imageUrl: 'https://picsum.photos/seed/qualisite/800/400',
-    githubUrl: 'https://github.com/QualiSite/QualiSiteV1',
-    demoUrl: 'https://qualisite.alithiel31.dev',
-    featured: true,
-    status: ProjectStatus.COMPLETED,
-    order: 10,
+    order: 1,
   },
   {
     titleEn: 'Minecraft-Serveur',
     titleFr: 'Minecraft-Serveur',
     descriptionEn:
-      'Docker Compose deployment of a Minecraft Java vanilla server, exposed publicly via a playit.gg tunnel from a remote host.',
+      'Dockerized vanilla Minecraft Java server, exposed publicly through a playit.gg tunnel. Automated CI/CD (GitHub Actions: compose validation, linting, secret scanning) and full documentation (README, troubleshooting, versioned changelog) for a community server.',
     descriptionFr:
-      "Déploiement d'un serveur Minecraft Java vanilla via Docker Compose, avec tunnel playit.gg pour l'accès public depuis un hôte distant.",
-    techStack: 'Docker, Docker Compose, playit.gg',
-    imageUrl: 'https://picsum.photos/seed/minecraftserveur/800/400',
+      "Serveur Minecraft Java vanilla conteneurisé avec Docker, exposé publiquement via un tunnel playit.gg. CI/CD automatisée (GitHub Actions : validation compose, linting, scan de secrets) et documentation complète (README, dépannage, changelog versionné) pour un serveur communautaire.",
+    techStack: 'Docker, Docker Compose, GitHub Actions (CI/CD), playit.gg',
+    imageUrl: '/screenshots/minecraft-serveur.jpg',
     githubUrl: 'https://github.com/Alithiel31/Minecraft-Serveur',
     demoUrl: null,
     featured: false,
     status: ProjectStatus.COMPLETED,
-    order: 11,
+    order: 2,
+  },
+  {
+    titleEn: 'ParseAndCutV2',
+    titleFr: 'ParseAndCutV2',
+    descriptionEn:
+      'AI-powered study assistant that transcribes and structures audio recordings into Markdown notes via the Groq API (Whisper Large V3 + Llama 3.3 70B). Python/FastAPI backend, React + Vite PWA frontend packaged as an Android TWA.',
+    descriptionFr:
+      "Assistant IA de prise de notes : transcrit et structure des enregistrements audio en notes Markdown via l'API Groq (Whisper Large V3 + Llama 3.3 70B). Backend Python/FastAPI, frontend React + Vite en PWA, packagée en TWA Android.",
+    techStack: 'Python, FastAPI, Groq API, React, Vite, PWA, Docker',
+    imageUrl: '/screenshots/parseandcutv2.png',
+    githubUrl: 'https://github.com/Alithiel31/ParseAndCutV2',
+    demoUrl: 'https://parseandcut.alithiel31.dev/',
+    featured: false,
+    status: ProjectStatus.COMPLETED,
+    order: 3,
+  },
+  {
+    titleEn: 'ThyFollow',
+    titleFr: 'ThyFollow',
+    descriptionEn:
+      'Thyroid tracking app inspired by Clue — daily journal, blood test tracking with evolution charts (TSH, FT4, FT3), medication management and medical calendar. React + TypeScript PWA, Express/Prisma/PostgreSQL backend, self-hosted on a Raspberry Pi.',
+    descriptionFr:
+      "Application de suivi thyroïdien inspirée de Clue. Journal quotidien, suivi des analyses sanguines avec graphiques d'évolution (TSH, FT4, FT3), gestion des médicaments et agenda médical. PWA React + TypeScript, backend Express/Prisma/PostgreSQL, auto-hébergée sur Raspberry Pi.",
+    techStack: 'React, TypeScript, Express, Prisma, PostgreSQL, PWA, Docker',
+    imageUrl: '/screenshots/thyfollow.png',
+    githubUrl: 'https://github.com/Alithiel31/ThyFollow',
+    demoUrl: 'https://thyrotrack.alithiel31.dev/',
+    featured: true,
+    status: ProjectStatus.COMPLETED,
+    order: 4,
+  },
+  {
+    titleEn: 'QualiSite',
+    titleFr: 'QualiSite',
+    descriptionEn:
+      'Showcase site & internal management tool for a company, built during an internship: public showcase, contact form, back-office (projects, services, contacts), PDF invoicing. Next.js 16 (React 19) frontend, Express/TypeScript backend, deployed via Docker behind an Nginx reverse proxy.',
+    descriptionFr:
+      "Site vitrine & outil de gestion interne pour une entreprise, développé en stage : vitrine publique, formulaire de contact, back-office (projets, services, contacts), facturation PDF. Frontend Next.js 16 (React 19), backend Express/TypeScript, déployé via Docker derrière un reverse proxy Nginx.",
+    techStack: 'Next.js, React, TypeScript, Express, Prisma, PostgreSQL, Docker, Nginx',
+    imageUrl: '/screenshots/qualisite.png',
+    githubUrl: 'https://github.com/QualiSite/QualiSiteV1',
+    demoUrl: 'https://qualisite.alithiel31.dev',
+    featured: true,
+    status: ProjectStatus.COMPLETED,
+    order: 5,
+  },
+  {
+    titleEn: 'SkillFusion',
+    titleFr: 'SkillFusion',
+    descriptionEn:
+      'End-of-studies project built in a 4-person team using agile sprints. Full 3-tier MVC architecture — SvelteKit frontend, Express/Node.js API, PostgreSQL/Prisma — with 4 user roles and hardened security (Argon2, Zod, Helmet, rate-limiting).',
+    descriptionFr:
+      "Projet de fin d'études réalisé en équipe de 4, en sprints agiles (méthode agile, Titre Professionnel). Architecture 3-tier MVC complète — frontend SvelteKit, API Express/Node.js, PostgreSQL/Prisma — avec 4 rôles utilisateurs et sécurité renforcée (Argon2, Zod, Helmet, rate-limiting).",
+    techStack: 'SvelteKit, TypeScript, Express, Node.js, PostgreSQL, Prisma, Docker',
+    imageUrl: '/screenshots/skillfusion.png',
+    githubUrl: 'https://github.com/Alithiel31/SkillFusion',
+    demoUrl: 'https://skillfusion-client-production.up.railway.app/',
+    featured: true,
+    status: ProjectStatus.COMPLETED,
+    order: 6,
   },
 ];
 
 async function main() {
-  console.log('🔄 Ajout des nouveaux projets...\n');
+  console.log('🔄 Synchronisation des projets...\n');
 
-  for (const project of projectsToAdd) {
+  const keepTitles = projectsToKeep.map((p) => p.titleEn);
+
+  for (const project of projectsToKeep) {
     const existing = await prisma.project.findFirst({ where: { titleEn: project.titleEn } });
     if (existing) {
       await prisma.project.update({ where: { id: existing.id }, data: project });
-      console.log(`🔁 Déjà présent, mis à jour : ${project.titleEn}`);
+      console.log(`🔁 Mis à jour : ${project.titleEn}`);
     } else {
       await prisma.project.create({ data: project });
-      console.log(`✅ Projet ajouté : ${project.titleEn}`);
+      console.log(`✅ Ajouté : ${project.titleEn}`);
     }
   }
 
-  // ── ThyFollow : maintenant opérationnel, mise à jour statut + démo ──────────
-  const thyFollow = await prisma.project.findFirst({ where: { titleEn: 'ThyFollow' } });
-  if (thyFollow) {
-    await prisma.project.update({
-      where: { id: thyFollow.id },
-      data: { status: ProjectStatus.COMPLETED, demoUrl: 'https://thyrotrack.alithiel31.dev/' },
-    });
-    console.log('✅ ThyFollow mis à jour : COMPLETED + demoUrl');
-  } else {
-    console.log('⏭  ThyFollow introuvable en base');
+  const { count } = await prisma.project.deleteMany({
+    where: { titleEn: { notIn: keepTitles } },
+  });
+  if (count > 0) {
+    console.log(`🗑️  Retirés : ${count} ancien(s) projet(s) hors sélection`);
   }
 
   console.log('\n🎉 Terminé !');
