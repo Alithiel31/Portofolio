@@ -342,9 +342,9 @@ async function main() {
         titleEn: 'WeatherQC',
         titleFr: 'Météo Québec',
         descriptionEn:
-          'Weather forecast app for Quebec, built with an MVC architecture — Svelte 5 (PWA) frontend, Express/TypeScript backend. Self-hosted on a Raspberry Pi and published on the Google Play Store as an Android TWA.',
+          'Weather forecast app for Quebec with an MVC architecture: Svelte 5 PWA frontend and Express/TypeScript backend, self-hosted on a Raspberry Pi and published on the Google Play Store.',
         descriptionFr:
-          "Application météo pour le Québec en architecture MVC — frontend Svelte 5 (PWA), backend Express/TypeScript. Auto-hébergée sur Raspberry Pi et publiée sur le Google Play Store (TWA Android).",
+          "Application météo pour le Québec en architecture MVC : frontend Svelte 5 (PWA) et backend Express/TypeScript, auto-hébergée sur Raspberry Pi et publiée sur le Google Play Store.",
         techStack: 'Svelte 5, TypeScript, Express, Node.js, Docker, Nginx, Android/TWA, Google Play',
         imageUrl: '/screenshots/weatherqc.png',
         githubUrl: 'https://github.com/Alithiel31/WeatherQC',
@@ -357,9 +357,9 @@ async function main() {
         titleEn: 'Minecraft-Serveur',
         titleFr: 'Minecraft-Serveur',
         descriptionEn:
-          'Dockerized vanilla Minecraft Java server, exposed publicly through a playit.gg tunnel. Automated CI/CD (GitHub Actions: compose validation, linting, secret scanning) and full documentation (README, troubleshooting, versioned changelog) for a community server.',
+          'Dockerized vanilla Minecraft Java server exposed publicly through a playit.gg tunnel, with automated CI/CD via GitHub Actions and full documentation for a community server.',
         descriptionFr:
-          "Serveur Minecraft Java vanilla conteneurisé avec Docker, exposé publiquement via un tunnel playit.gg. CI/CD automatisée (GitHub Actions : validation compose, linting, scan de secrets) et documentation complète (README, dépannage, changelog versionné) pour un serveur communautaire.",
+          "Serveur Minecraft Java vanilla conteneurisé avec Docker, exposé publiquement via un tunnel playit.gg, avec CI/CD automatisée via GitHub Actions et documentation complète.",
         techStack: 'Docker, Docker Compose, GitHub Actions (CI/CD), playit.gg',
         imageUrl: '/screenshots/minecraft-serveur.jpg',
         githubUrl: 'https://github.com/Alithiel31/Minecraft-Serveur',
@@ -372,9 +372,9 @@ async function main() {
         titleEn: 'ParseAndCutV2',
         titleFr: 'ParseAndCutV2',
         descriptionEn:
-          'AI-powered study assistant that transcribes and structures audio recordings into Markdown notes via the Groq API (Whisper Large V3 + Llama 3.3 70B). Python/FastAPI backend, React + Vite PWA frontend packaged as an Android TWA.',
+          'AI-powered study assistant that transcribes and structures audio recordings into Markdown notes via the Groq API, with a Python/FastAPI backend and a React + Vite PWA frontend.',
         descriptionFr:
-          "Assistant IA de prise de notes : transcrit et structure des enregistrements audio en notes Markdown via l'API Groq (Whisper Large V3 + Llama 3.3 70B). Backend Python/FastAPI, frontend React + Vite en PWA, packagée en TWA Android.",
+          "Assistant IA de prise de notes qui transcrit et structure des enregistrements audio en notes Markdown via l'API Groq, avec un backend Python/FastAPI et un frontend React + Vite en PWA.",
         techStack: 'Python, FastAPI, Groq API, React, Vite, PWA, Docker',
         imageUrl: '/screenshots/parseandcutv2.png',
         githubUrl: 'https://github.com/Alithiel31/ParseAndCutV2',
@@ -387,9 +387,9 @@ async function main() {
         titleEn: 'ThyFollow',
         titleFr: 'ThyFollow',
         descriptionEn:
-          'Thyroid tracking app inspired by Clue — daily journal, blood test tracking with evolution charts (TSH, FT4, FT3), medication management and medical calendar. React + TypeScript PWA, Express/Prisma/PostgreSQL backend, self-hosted on a Raspberry Pi.',
+          'Thyroid tracking app inspired by Clue, with a daily journal, blood test charts and medication management, built as a React + TypeScript PWA self-hosted on a Raspberry Pi.',
         descriptionFr:
-          "Application de suivi thyroïdien inspirée de Clue. Journal quotidien, suivi des analyses sanguines avec graphiques d'évolution (TSH, FT4, FT3), gestion des médicaments et agenda médical. PWA React + TypeScript, backend Express/Prisma/PostgreSQL, auto-hébergée sur Raspberry Pi.",
+          "Application de suivi thyroïdien inspirée de Clue, avec journal quotidien, graphiques d'analyses sanguines et gestion des médicaments, en PWA React + TypeScript auto-hébergée sur Raspberry Pi.",
         techStack: 'React, TypeScript, Express, Prisma, PostgreSQL, PWA, Docker',
         imageUrl: '/screenshots/thyfollow.png',
         githubUrl: 'https://github.com/Alithiel31/ThyFollow',
@@ -402,9 +402,9 @@ async function main() {
         titleEn: 'QualiSite',
         titleFr: 'QualiSite',
         descriptionEn:
-          'Showcase site & internal management tool for a company, built during an internship: public showcase, contact form, back-office (projects, services, contacts), PDF invoicing. Next.js 16 (React 19) frontend, Express/TypeScript backend, deployed via Docker behind an Nginx reverse proxy.',
+          'Showcase site and internal management tool for a company, built during an internship, with a Next.js 16 frontend and an Express/TypeScript backend deployed behind Nginx.',
         descriptionFr:
-          "Site vitrine & outil de gestion interne pour une entreprise, développé en stage : vitrine publique, formulaire de contact, back-office (projets, services, contacts), facturation PDF. Frontend Next.js 16 (React 19), backend Express/TypeScript, déployé via Docker derrière un reverse proxy Nginx.",
+          "Site vitrine et outil de gestion interne pour une entreprise, développé en stage, avec un frontend Next.js 16 et un backend Express/TypeScript déployé derrière Nginx.",
         techStack: 'Next.js, React, TypeScript, Express, Prisma, PostgreSQL, Docker, Nginx',
         imageUrl: '/screenshots/qualisite.png',
         githubUrl: 'https://github.com/QualiSite/QualiSiteV1',
@@ -417,9 +417,9 @@ async function main() {
         titleEn: 'SkillFusion',
         titleFr: 'SkillFusion',
         descriptionEn:
-          'End-of-studies project built in a 4-person team using agile sprints. Full 3-tier MVC architecture — SvelteKit frontend, Express/Node.js API, PostgreSQL/Prisma — with 4 user roles and hardened security (Argon2, Zod, Helmet, rate-limiting).',
+          'End-of-studies project built in a 4-person team using agile sprints: a 3-tier MVC app with a SvelteKit frontend, an Express/Node.js API and PostgreSQL/Prisma.',
         descriptionFr:
-          "Projet de fin d'études réalisé en équipe de 4, en sprints agiles (méthode agile, Titre Professionnel). Architecture 3-tier MVC complète — frontend SvelteKit, API Express/Node.js, PostgreSQL/Prisma — avec 4 rôles utilisateurs et sécurité renforcée (Argon2, Zod, Helmet, rate-limiting).",
+          "Projet de fin d'études réalisé en équipe de 4, en sprints agiles : application 3-tier MVC avec frontend SvelteKit, API Express/Node.js et PostgreSQL/Prisma.",
         techStack: 'SvelteKit, TypeScript, Express, Node.js, PostgreSQL, Prisma, Docker',
         imageUrl: '/screenshots/skillfusion.png',
         githubUrl: 'https://github.com/Alithiel31/SkillFusion',
