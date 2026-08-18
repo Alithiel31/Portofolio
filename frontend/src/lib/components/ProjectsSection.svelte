@@ -108,18 +108,21 @@
       grid-template-columns: repeat(2, 1fr);
     }
 
-    // Vue PC : avec 6 projets ça tient en 2 lignes de 3, plus besoin du scroll
-    // interne ni de la limite de hauteur — seul ce palier change, mobile/tablette
-    // gardent leur comportement actuel.
+    // Vue PC : 3 colonnes fixes (pas auto-fit, qui passait à 4 une fois le
+    // conteneur élargi). Le scroll interne reste nécessaire : chaque .card de
+    // la stacking-cards mechanism (App.svelte) fait 90vh avec overflow: hidden
+    // sur .card-inner — sans ce scroll, tout ce qui dépasse est purement coupé
+    // (c'est ce qui mangeait les boutons Code/Démo de la 2e ligne).
     @media (min-width: 1025px) {
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.75rem;
-      max-height: none;
-      overflow-y: visible;
+      max-height: 62vh;
     }
 
     @media (min-width: 1400px) {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 2rem;
+      max-height: 64vh;
     }
   }
 
