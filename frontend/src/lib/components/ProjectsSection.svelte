@@ -86,11 +86,11 @@
     max-width: 900px;
 
     @media (min-width: 1100px) {
-      max-width: 1020px;
+      max-width: 1080px;
     }
 
     @media (min-width: 1400px) {
-      max-width: 1180px;
+      max-width: 1320px;
     }
   }
 
@@ -104,14 +104,22 @@
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
 
-    @media (min-width: 1400px) {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      max-height: 460px;
-    }
-
     @media (max-width: 1024px) and (min-width: 641px) {
       grid-template-columns: repeat(2, 1fr);
+    }
+
+    // Vue PC : avec 6 projets ça tient en 2 lignes de 3, plus besoin du scroll
+    // interne ni de la limite de hauteur — seul ce palier change, mobile/tablette
+    // gardent leur comportement actuel.
+    @media (min-width: 1025px) {
+      gap: 1.75rem;
+      max-height: none;
+      overflow-y: visible;
+    }
+
+    @media (min-width: 1400px) {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
     }
   }
 
