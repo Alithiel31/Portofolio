@@ -1,5 +1,5 @@
 # ── deps : dépendances complètes (dev + prod) ─────────────────────────────────
-FROM node:22-alpine AS deps
+FROM node:25-alpine AS deps
 RUN apk add --no-cache openssl
 WORKDIR /app
 COPY package*.json ./
@@ -19,7 +19,7 @@ COPY . .
 RUN npx prisma generate && npm run build
 
 # ── production : image minimale ───────────────────────────────────────────────
-FROM node:22-alpine AS production
+FROM node:25-alpine AS production
 RUN apk add --no-cache openssl
 WORKDIR /app
 COPY package*.json ./
