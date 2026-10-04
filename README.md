@@ -59,9 +59,11 @@ formulaire de contact, du tracker ou des ressources tierces doit s'y répercuter
 
 ## Démarrage local (Docker)
 
-Le `docker-compose.yml` build les images **de production** : PostgreSQL, le backend compilé, et le
-frontend servi par nginx. C'est la façon la plus fidèle de reproduire la prod ; pour du
-développement au quotidien avec rechargement automatique, voir la section suivante.
+Le `docker-compose.yml` build les images **de production** : le backend compilé et le frontend servi
+par nginx. En production il se connecte à un PostgreSQL externe (celui du serveur) ; en local,
+le profil Compose `dev` lui ajoute un PostgreSQL jetable. C'est la façon la plus fidèle de
+reproduire la prod ; pour du développement au quotidien avec rechargement automatique, voir la
+section suivante.
 
 **1. Configurer l'environnement**
 
@@ -76,11 +78,12 @@ Renseigner `RESEND_API_KEY` / `CONTACT_EMAIL` uniquement pour activer le formula
 
 ```bash
 docker network create traefik-net   # réseau externe attendu par docker-compose.yml (une seule fois)
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+docker compose --profile dev up --build
 ```
 
-`docker-compose.dev.yml` publie le port 8080 du frontend pour le développement local ; en production
-le frontend n'a aucun port publié et est servi par Traefik.
+Le profil `dev` ajoute un service PostgreSQL local (volume `postgres_data`) et un petit relais
+(`dev-port`) qui publie le frontend sur `127.0.0.1:8080`. En production (pas de profil), la stack n'a
+ni PostgreSQL ni port publié : le trafic arrive par Traefik.
 
 Docker va :
 
@@ -143,12 +146,12 @@ Ces commandes tournent aussi en CI (`.github/workflows/ci.yml`), avec en plus
 ## Variables d'environnement
 
 Toutes ces variables vivent dans `backend/.env` (voir `backend/.env.example`, fonctionnel tel quel).
-`docker-compose.yml` alimente **aussi** le service PostgreSQL depuis ce fichier.
+Avec le profil `dev`, `docker-compose.yml` alimente **aussi** le service PostgreSQL local depuis ce fichier.
 
 | Variable | Obligatoire | Défaut | Description |
 |---|---|---|---|
 | `DATABASE_URL` | ✅ | — | URL de connexion PostgreSQL |
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | ✅ (Docker) | — | Identifiants du conteneur PostgreSQL — doivent correspondre à `DATABASE_URL` |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | ✅ (dev Docker) | — | Identifiants du conteneur PostgreSQL local (profil `dev`) — doivent correspondre à `DATABASE_URL`. Inutiles en production |
 | `NODE_ENV` | ❌ | `development` | Environnement (`production` en prod) |
 | `PORT` | ❌ | `3001` | Port du backend — attendu tel quel par nginx et par le proxy Vite |
 | `FRONTEND_URL` | ❌ (prod) | — | URL du frontend pour le CORS |
@@ -243,8 +246,22 @@ docker network create traefik-net   # si absent (réseau partagé avec Traefik)
 ```
 
 Puis, dans `backend/.env` : `NODE_ENV=production`, `FRONTEND_URL=https://votre-domaine.dev`,
-des identifiants PostgreSQL propres, `RESEND_API_KEY`, `CONTACT_EMAIL`, et de préférence
-`STATS_TOKEN` + `RATE_LIMIT_SALT` (`openssl rand -base64 32`).
+`DATABASE_URL` (voir ci-dessous), `RESEND_API_KEY`, `CONTACT_EMAIL`, et de préférence
+`STATS_TOKEN` + `RATE_LIMIT_SALT` (`openssl rand -base64 32`). Les variables `POSTGRES_*` ne sont
+pas nécessaires en production.
+
+**Base de données** : la stack n'embarque pas de PostgreSQL en production. Elle utilise le
+PostgreSQL installé sur l'hôte, avec un rôle et une base dédiés (`CREATE ROLE ... LOGIN PASSWORD ...`
+puis `CREATE DATABASE portfolio OWNER ...`). Le réseau Docker par défaut du projet a un sous-réseau
+fixe (`172.29.0.0/24`, passerelle `172.29.0.1`) ; le backend joint l'hôte via
+`host.docker.internal` (`extra_hosts`) :
+
+```
+DATABASE_URL="postgresql://ROLE:MOT_DE_PASSE@host.docker.internal:5432/portfolio"
+```
+
+Côté hôte, autoriser ce sous-réseau dans `pg_hba.conf` (`host portfolio ROLE 172.29.0.0/24
+scram-sha-256`) et dans le pare-feu (port 5432 depuis `172.29.0.0/24`), puis recharger PostgreSQL.
 
 ```bash
 docker compose up --build -d
@@ -337,7 +354,7 @@ cd backend && npx prisma studio
 Prisma Studio localement, ou directement sur le Pi :
 
 ```bash
-docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+sudo -u postgres psql -d portfolio   # PostgreSQL de l'hôte ; en dev Docker : docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
 ```
 
 ---

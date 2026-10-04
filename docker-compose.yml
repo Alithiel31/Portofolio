@@ -1,5 +1,8 @@
 services:
+  # PostgreSQL local : profil `dev` uniquement (`docker compose --profile dev up --build`).
+  # En production (sans profil) la stack utilise le PostgreSQL de l'hôte.
   postgres:
+    profiles: ["dev"]
     image: postgres:16-alpine
     labels:
       - "homelab.tier=app"
@@ -14,6 +17,18 @@ services:
       timeout: 3s
       retries: 10
 
+  # Développement local uniquement (profil `dev`) : pas de Traefik, donc ce petit relais publie
+  # http://localhost:8080 vers le frontend. En production il n'existe pas.
+  dev-port:
+    profiles: ["dev"]
+    image: alpine/socat
+    command: tcp-listen:8080,fork,reuseaddr tcp-connect:frontend:8080
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -22,9 +37,15 @@ services:
       - "homelab.tier=app"
     env_file:
       - ./backend/.env
+    # Postgres natif de Caesura (PostgreSQL 17) : on vise la passerelle du réseau
+    # Docker fixe ci-dessous, jamais `host-gateway` (règles ufw / pg_hba par sous-réseau).
+    extra_hosts:
+      - "host.docker.internal:172.29.0.1"
+    # Sans effet hors profil `dev` (le service postgres n'existe pas) ; Compose >= 2.20.
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
     restart: unless-stopped
     healthcheck:
       # node:22-alpine embarque fetch ; pas besoin d'ajouter curl à l'image.
@@ -61,6 +82,11 @@ services:
     restart: unless-stopped
 
 networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.29.0.0/24
+          gateway: 172.29.0.1
   traefik-net:
     external: true
 
