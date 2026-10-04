@@ -45,10 +45,7 @@ services:
     build:
       context: ./frontend
       target: production
-    # Étape 1 : on garde le port direct le temps de valider le routage Traefik ;
-    # étape finale : supprimer ce bloc `ports` une fois cloudflared pointé sur Traefik.
-    ports:
-      - "8080:8080"
+    # Pas de port publié : le frontend est servi via Traefik (réseau traefik-net).
     networks:
       - default
       - traefik-net
