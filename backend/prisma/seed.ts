@@ -342,9 +342,9 @@ async function main() {
         titleEn: 'WeatherQC',
         titleFr: 'Météo Québec',
         descriptionEn:
-          'Weather forecast app for Quebec with an MVC architecture: Svelte 5 PWA frontend and Express/TypeScript backend, self-hosted on a Raspberry Pi and published on the Google Play Store.',
+          'Weather forecast app for Quebec, MVC architecture (Svelte 5 PWA + Express/TypeScript), published on the Google Play Store.',
         descriptionFr:
-          "Application météo pour le Québec en architecture MVC : frontend Svelte 5 (PWA) et backend Express/TypeScript, auto-hébergée sur Raspberry Pi et publiée sur le Google Play Store.",
+          "Application météo pour le Québec, en architecture MVC (Svelte 5 PWA + Express/TypeScript), publiée sur le Google Play Store.",
         techStack: 'Svelte 5, TypeScript, Express, Node.js, Docker, Nginx, Android/TWA, Google Play',
         imageUrl: '/screenshots/weatherqc.png',
         githubUrl: 'https://github.com/Alithiel31/WeatherQC',
@@ -357,9 +357,9 @@ async function main() {
         titleEn: 'Minecraft-Serveur',
         titleFr: 'Minecraft-Serveur',
         descriptionEn:
-          'Dockerized vanilla Minecraft Java server exposed publicly through a playit.gg tunnel, with automated CI/CD via GitHub Actions and full documentation for a community server.',
+          'Dockerized vanilla Minecraft Java server, exposed via a playit.gg tunnel, with automated CI/CD through GitHub Actions.',
         descriptionFr:
-          "Serveur Minecraft Java vanilla conteneurisé avec Docker, exposé publiquement via un tunnel playit.gg, avec CI/CD automatisée via GitHub Actions et documentation complète.",
+          "Serveur Minecraft Java vanilla conteneurisé avec Docker, exposé via un tunnel playit.gg, avec CI/CD GitHub Actions.",
         techStack: 'Docker, Docker Compose, GitHub Actions (CI/CD), playit.gg',
         imageUrl: '/screenshots/minecraft-serveur.jpg',
         githubUrl: 'https://github.com/Alithiel31/Minecraft-Serveur',
@@ -372,9 +372,9 @@ async function main() {
         titleEn: 'ParseAndCutV2',
         titleFr: 'ParseAndCutV2',
         descriptionEn:
-          'AI-powered study assistant that transcribes and structures audio recordings into Markdown notes via the Groq API, with a Python/FastAPI backend and a React + Vite PWA frontend.',
+          'AI assistant that transcribes and structures audio recordings into Markdown notes via the Groq API (Python/FastAPI + React PWA).',
         descriptionFr:
-          "Assistant IA de prise de notes qui transcrit et structure des enregistrements audio en notes Markdown via l'API Groq, avec un backend Python/FastAPI et un frontend React + Vite en PWA.",
+          "Assistant IA qui transcrit et structure des enregistrements audio en notes Markdown via l'API Groq (Python/FastAPI + React PWA).",
         techStack: 'Python, FastAPI, Groq API, React, Vite, PWA, Docker',
         imageUrl: '/screenshots/parseandcutv2.png',
         githubUrl: 'https://github.com/Alithiel31/ParseAndCutV2',
@@ -387,9 +387,9 @@ async function main() {
         titleEn: 'ThyFollow',
         titleFr: 'ThyFollow',
         descriptionEn:
-          'Thyroid tracking app inspired by Clue, with a daily journal, blood test charts and medication management, built as a React + TypeScript PWA self-hosted on a Raspberry Pi.',
+          'Thyroid tracking app inspired by Clue: journal, blood tests and medication tracking, as a self-hosted React PWA.',
         descriptionFr:
-          "Application de suivi thyroïdien inspirée de Clue, avec journal quotidien, graphiques d'analyses sanguines et gestion des médicaments, en PWA React + TypeScript auto-hébergée sur Raspberry Pi.",
+          "Application de suivi thyroïdien inspirée de Clue : journal, analyses sanguines et médicaments, en PWA React auto-hébergée.",
         techStack: 'React, TypeScript, Express, Prisma, PostgreSQL, PWA, Docker',
         imageUrl: '/screenshots/thyfollow.png',
         githubUrl: 'https://github.com/Alithiel31/ThyFollow',
@@ -402,9 +402,9 @@ async function main() {
         titleEn: 'QualiSite',
         titleFr: 'QualiSite',
         descriptionEn:
-          'Showcase site and internal management tool for a company, built during an internship, with a Next.js 16 frontend and an Express/TypeScript backend deployed behind Nginx.',
+          'Showcase site and internal management tool built during an internship, with Next.js 16 and an Express/TypeScript backend.',
         descriptionFr:
-          "Site vitrine et outil de gestion interne pour une entreprise, développé en stage, avec un frontend Next.js 16 et un backend Express/TypeScript déployé derrière Nginx.",
+          "Site vitrine et outil de gestion interne développé en stage, avec Next.js 16 et un backend Express/TypeScript.",
         techStack: 'Next.js, React, TypeScript, Express, Prisma, PostgreSQL, Docker, Nginx',
         imageUrl: '/screenshots/qualisite.png',
         githubUrl: 'https://github.com/QualiSite/QualiSiteV1',
@@ -417,13 +417,13 @@ async function main() {
         titleEn: 'SkillFusion',
         titleFr: 'SkillFusion',
         descriptionEn:
-          'End-of-studies project built in a 4-person team using agile sprints: a 3-tier MVC app with a SvelteKit frontend, an Express/Node.js API and PostgreSQL/Prisma.',
+          'End-of-studies project in a 4-person team, agile sprints: 3-tier app with SvelteKit, Express/Node.js and PostgreSQL.',
         descriptionFr:
-          "Projet de fin d'études réalisé en équipe de 4, en sprints agiles : application 3-tier MVC avec frontend SvelteKit, API Express/Node.js et PostgreSQL/Prisma.",
+          "Projet de fin d'études en équipe de 4, en sprints agiles : app 3-tier avec SvelteKit, Express/Node.js et PostgreSQL.",
         techStack: 'SvelteKit, TypeScript, Express, Node.js, PostgreSQL, Prisma, Docker',
         imageUrl: '/screenshots/skillfusion.png',
         githubUrl: 'https://github.com/Alithiel31/SkillFusion',
-        demoUrl: 'https://skillfusion-client-production.up.railway.app/',
+        demoUrl: 'https://skillfusion.alithiel31.dev',
         featured: true,
         status: ProjectStatus.COMPLETED,
         order: 6,

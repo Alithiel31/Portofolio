@@ -1,6 +1,8 @@
 services:
   postgres:
     image: postgres:16-alpine
+    labels:
+      - "homelab.tier=app"
     env_file:
       - ./backend/.env
     restart: unless-stopped
@@ -16,6 +18,8 @@ services:
     build:
       context: ./backend
       target: production
+    labels:
+      - "homelab.tier=app"
     env_file:
       - ./backend/.env
     depends_on:
@@ -41,12 +45,27 @@ services:
     build:
       context: ./frontend
       target: production
+    # Étape 1 : on garde le port direct le temps de valider le routage Traefik ;
+    # étape finale : supprimer ce bloc `ports` une fois cloudflared pointé sur Traefik.
     ports:
       - "8080:8080"
+    networks:
+      - default
+      - traefik-net
+    labels:
+      - "homelab.tier=app"
+      - "traefik.enable=true"
+      - "traefik.http.routers.portfolio.rule=Host(`alithiel31.dev`)"
+      - "traefik.http.routers.portfolio.entrypoints=web"
+      - "traefik.http.services.portfolio.loadbalancer.server.port=8080"
     depends_on:
       backend:
         condition: service_healthy
     restart: unless-stopped
+
+networks:
+  traefik-net:
+    external: true
 
 volumes:
   postgres_data:
