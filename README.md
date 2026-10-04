@@ -75,8 +75,12 @@ Renseigner `RESEND_API_KEY` / `CONTACT_EMAIL` uniquement pour activer le formula
 **2. Lancer**
 
 ```bash
-docker compose up --build
+docker network create traefik-net   # réseau externe attendu par docker-compose.yml (une seule fois)
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
+
+`docker-compose.dev.yml` publie le port 8080 du frontend pour le développement local ; en production
+le frontend n'a aucun port publié et est servi par Traefik.
 
 Docker va :
 
@@ -197,46 +201,45 @@ Cloudflare pour le TLS et le CDN.
 ### Chaîne de requête
 
 ```
-Visiteur → Cloudflare → nginx (hôte) → nginx (conteneur frontend) ─┬─ /            → SPA statique
-                                                                   ├─ /api/        → backend:3001
-                                                                   └─ /screenshots/→ backend:3001
+Visiteur → Cloudflare → cloudflared → Traefik → nginx (conteneur frontend) ─┬─ /            → SPA statique
+                                                                            ├─ /api/        → backend:3001
+                                                                            └─ /screenshots/→ backend:3001
 ```
 
 Les proxies propagent `X-Forwarded-For` et `CF-Connecting-IP` ; sans eux, le backend ne verrait
 que l'IP interne du conteneur nginx (géolocalisation inopérante, rate limiter partagé par tout le
 trafic).
 
-> ⚠️ **Pré-requis pare-feu** : `CF-Connecting-IP` n'est fiable que si l'origine n'est joignable
-> qu'à travers Cloudflare. Le pare-feu de l'hôte doit donc restreindre le trafic entrant sur les
-> ports 80/443 aux plages IP publiées par Cloudflare (https://www.cloudflare.com/ips/). Sans
-> cette restriction, un client atteignant le Pi directement peut forger cet en-tête et
-> contourner le rate limiter de `/api/contact` et `/api/track`.
+> ℹ️ **Exposition** : l'origine n'est joignable que par le tunnel Cloudflare (`cloudflared`) vers
+> Traefik, sur le port local 8000 ; aucun port 80/443 n'est publié. `CF-Connecting-IP` reste donc
+> fiable tant que le port 8000 n'est pas redirigé vers Internet (aucune redirection de port sur la
+> box). Traefik ne fait confiance qu'à la passerelle du réseau Docker pour `X-Forwarded-For`.
 
-### Déploiement automatique
+### Déploiement
 
-`.github/workflows/deploy.yml` tourne sur un runner self-hosted taggé `[self-hosted, rpi]`.
-Il se déclenche une fois le workflow **CI** terminé avec succès sur `main` (`workflow_run`), ou
-manuellement (`workflow_dispatch`) — pas directement sur chaque push : un push dont la CI échoue
-ne déploie donc pas. Sur le Pi, il fait :
+Le déploiement est **manuel**. Il n'y a pas de workflow de déploiement automatique : depuis
+un poste qui pilote le Docker du Pi (`DOCKER_HOST=ssh://...`) ou directement sur le Pi :
 
 ```bash
-git fetch origin main && git reset --hard origin/main
+git pull
 docker compose up --build -d
 ```
 
-Puis vérifie la santé du déploiement : poll de `/api/health` et `/` pendant jusqu'à 2 min 30. En
-cas d'échec, le job dump les logs des conteneurs et échoue (sans rollback automatique). Une fois
-la vérification passée :
+Puis vérification de la santé (via Traefik) :
 
 ```bash
-docker image prune -f
+curl -fsS -H "Host: votre-domaine.dev" http://localhost:8000/api/health
 ```
+
+Le frontend porte les labels Traefik (`Host(...)`, port interne 8080). Chaque service porte aussi
+le label `homelab.tier=app` utilisé pour ranger les conteneurs du Pi.
 
 ### Mise en place initiale sur le Pi
 
 ```bash
 git clone <repo> ~/Portofolio && cd ~/Portofolio
 cp backend/.env.example backend/.env
+docker network create traefik-net   # si absent (réseau partagé avec Traefik)
 ```
 
 Puis, dans `backend/.env` : `NODE_ENV=production`, `FRONTEND_URL=https://votre-domaine.dev`,
@@ -261,7 +264,7 @@ portfolio/
 ├── LICENSE
 ├── .github/
 │   ├── dependabot.yml
-│   └── workflows/                  # ci · codeql · deploy (RPi)
+│   └── workflows/                  # ci · codeql
 ├── backend/
 │   ├── Dockerfile                  # Multi-stage : deps · dev · build · prod
 │   ├── .env.example
