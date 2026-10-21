@@ -305,7 +305,12 @@ app.post(
       await resend.emails.send({
         from: 'Portfolio <contact@alithiel31.dev>',
         to: CONTACT_EMAIL,
-        subject: `Nouveau message de ${escapeHtml(name)}`,
+        // « Répondre » dans la boîte de réception doit viser le visiteur, pas l'expéditeur
+        // technique `contact@` (adresse déjà validée et sans caractère de contrôle ci-dessus).
+        replyTo: email,
+        // Le sujet est du texte brut : l'échapper afficherait `O&#039;Brien`. Les sauts de ligne
+        // y sont déjà rejetés par hasControlChars.
+        subject: `Nouveau message de ${name}`,
         html: `<p><strong>Nom:</strong> ${escapeHtml(name)}</p>
                <p><strong>Email:</strong> ${escapeHtml(email)}</p>
                <p><strong>Message:</strong> ${escapeHtml(message)}</p>`,

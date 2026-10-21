@@ -111,6 +111,22 @@ describe('POST /api/contact', () => {
     expect(sendMock).toHaveBeenCalledTimes(1);
   });
 
+  it('sets replyTo to the visitor and keeps the subject as plain text', async () => {
+    const res = await request(app)
+      .post('/api/contact')
+      .set('X-Forwarded-For', '10.0.1.9')
+      .send({ name: "O'Brien", email: 'jane@example.com', message: 'Hello <b>there</b>' });
+    expect(res.status).toBe(200);
+    expect(sendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        replyTo: 'jane@example.com',
+        subject: "Nouveau message de O'Brien",
+      }),
+    );
+    // Le corps HTML, lui, reste échappé.
+    expect(sendMock.mock.calls[0][0].html).toContain('Hello &lt;b&gt;there&lt;/b&gt;');
+  });
+
   it('returns 500 when the email provider fails', async () => {
     sendMock.mockRejectedValueOnce(new Error('boom'));
     const res = await request(app)
