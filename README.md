@@ -395,7 +395,7 @@ cd backend && DATABASE_URL="postgresql://…" npm run export:fallback
 |---|---|
 | Frontend | Svelte 5 · Vite · SCSS |
 | Backend | Express · Node.js 22+ · TypeScript 5.6 |
-| ORM | Prisma 5 |
+| ORM | Prisma 6 |
 | Base de données | PostgreSQL 17 (natif sur l'hôte en prod, conteneur en dev et CI) |
 | Email | Resend |
 | Géolocalisation | geoip-lite |
