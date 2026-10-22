@@ -236,17 +236,28 @@ trafic).
 
 ### Déploiement
 
-Le déploiement est **manuel**. Il n'y a pas de workflow de déploiement automatique : depuis
-un poste qui pilote le Docker du Pi (`DOCKER_HOST=ssh://...`) ou directement sur le Pi :
+Le déploiement est **manuel** (pas de workflow automatique), via `scripts/deploy.sh`, sur le Pi
+ou depuis un poste qui pilote son Docker (`DOCKER_HOST=ssh://...`, avec `HEALTH_URL` joignable) :
+
+```bash
+scripts/deploy.sh           # git pull --ff-only, docker compose up --build -d, attente du healthcheck
+scripts/deploy.sh --force   # reconstruit même sans nouveau commit
+```
+
+Le script refuse de tourner sur des modifications locales non commitées, puis attend jusqu'à
+120 s (`HEALTH_TIMEOUT`) que `/api/health` réponde via Traefik (`HEALTH_URL`, par défaut
+`http://localhost:8000/api/health` avec `Host: alithiel31.dev`). S'il n'y parvient pas, il
+revient au commit précédent, relance la stack et sort en erreur (code 1 ; code 2 si le retour
+arrière échoue aussi).
+
+> ⚠️ Le retour arrière ne concerne que le code et les images : une migration Prisma déjà
+> appliquée par la nouvelle version reste en base. Une migration destructive se déploie à part.
+
+Équivalent manuel :
 
 ```bash
 git pull
 docker compose up --build -d
-```
-
-Puis vérification de la santé (via Traefik) :
-
-```bash
 curl -fsS -H "Host: votre-domaine.dev" http://localhost:8000/api/health
 ```
 
@@ -295,6 +306,7 @@ Les migrations Prisma s'appliquent automatiquement au démarrage du backend
 portfolio/
 ├── docker-compose.yml
 ├── LICENSE
+├── scripts/deploy.sh               # Déploiement avec retour arrière automatique
 ├── .github/
 │   ├── dependabot.yml
 │   └── workflows/                  # ci (lint, tests, build, e2e) · codeql
