@@ -140,6 +140,16 @@ function hasControlChars(value: string): boolean {
   return /[\x00-\x1f\x7f]/.test(value);
 }
 
+// Anti-spam sans CAPTCHA : en deçà de ce délai entre l'affichage et l'envoi du formulaire, ce
+// n'est pas un humain. Combiné au champ piège `website`, invisible pour un visiteur.
+const MIN_FILL_MS = 3000;
+
+/** Envoi automatisé : champ piège rempli, ou formulaire soumis trop vite (ou sans délai). */
+function looksLikeBot(website: unknown, elapsedMs: unknown): boolean {
+  if (typeof website === 'string' && website.trim() !== '') return true;
+  return typeof elapsedMs !== 'number' || !Number.isFinite(elapsedMs) || elapsedMs < MIN_FILL_MS;
+}
+
 // Formulaire de contact : 5 envois par IP par tranche de 15 minutes.
 const checkContactRateLimit = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5 });
 
@@ -285,7 +295,7 @@ app.post(
       return res.status(429).json({ error: 'Trop de requêtes. Réessayez dans 15 minutes.' });
     }
 
-    const { name, email, message } = req.body;
+    const { name, email, message, website, elapsedMs } = req.body;
     if (
       !name ||
       !email ||
@@ -304,6 +314,12 @@ app.post(
     }
     if (!EMAIL_RE.test(email)) {
       return res.status(400).json({ error: 'Adresse email invalide.' });
+    }
+
+    // Réponse identique à un succès : rien ne signale au robot qu'il a été détecté.
+    if (looksLikeBot(website, elapsedMs)) {
+      console.info('[contact] envoi ignoré (anti-spam)');
+      return res.status(200).json({ success: true });
     }
 
     if (!resend || !CONTACT_EMAIL) {

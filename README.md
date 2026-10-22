@@ -16,7 +16,7 @@ Portfolio personnel fullstack avec interface bilingue (FR/EN), sections animées
 |---|---|
 | 🌐 Bilingue FR/EN | Bascule de langue, contenu localisé depuis la BDD |
 | 🃏 Stacking cards | Navigation par sections animées |
-| 📬 Formulaire de contact | Envoi par email via Resend (rate limit : 5 req/IP/15 min) |
+| 📬 Formulaire de contact | Envoi par email via Resend (rate limit : 5 req/IP/15 min, champ piège et délai minimal de 3 s contre les robots) |
 | 📍 Géolocalisation | Affiche Montréal ou France selon la zone du visiteur |
 | 📊 Statistiques de visite | Enregistrement par page, pays et zone (Canada / Europe / Autre) |
 | 📄 CV téléchargeable | PDF servi selon la langue active (FR ou EN) |

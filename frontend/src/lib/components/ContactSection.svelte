@@ -7,6 +7,11 @@
   let name = $state('');
   let email = $state('');
   let message = $state('');
+  // Piège à robots : champ invisible pour un humain, que les robots remplissent volontiers.
+  let website = $state('');
+  // Un humain met plusieurs secondes à remplir le formulaire ; le backend ignore les envois
+  // plus rapides que ça (voir MIN_FILL_MS dans backend/src/app.ts).
+  let startedAt = Date.now();
   let status = $state(null); // 'sending' | 'success' | 'error'
 
   async function handleSubmit(e) {
@@ -17,12 +22,13 @@
       const response = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify({ name, email, message, website, elapsedMs: Date.now() - startedAt }),
       });
 
       if (response.ok) {
         status = 'success';
         name = email = message = '';
+        startedAt = Date.now();
       } else {
         status = 'error';
       }
@@ -111,6 +117,12 @@
             placeholder={t('contact.messagePlaceholder')}
             rows="5"
             required></textarea>
+        </div>
+
+        <!-- Hors écran et hors tabulation : seuls les robots qui remplissent tout le voient. -->
+        <div class="hp-field" aria-hidden="true">
+          <label for="website">Website</label>
+          <input id="website" type="text" bind:value={website} tabindex="-1" autocomplete="off" />
         </div>
 
         <!-- Région live toujours présente dans le DOM : un lecteur d'écran n'annonce un message
@@ -287,6 +299,14 @@
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
+  }
+
+  .hp-field {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
   }
 
   // Vide, la région ne doit pas ajouter un espacement de plus dans la colonne du formulaire.

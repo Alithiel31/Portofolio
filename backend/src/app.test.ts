@@ -47,6 +47,9 @@ process.env.CONTACT_EMAIL = 'contact@example.com';
 
 const { app } = await import('./app.js');
 
+/** Délai de remplissage réaliste, au-delà du seuil anti-robot (MIN_FILL_MS). */
+const HUMAN = 8000;
+
 describe('GET /api/health', () => {
   beforeEach(() => {
     queryRaw.mockReset();
@@ -104,7 +107,7 @@ describe('POST /api/contact', () => {
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', '10.0.1.6')
-      .send({ name: 'Alice', email: 'not-an-email', message: 'Hello there' });
+      .send({ name: 'Alice', email: 'not-an-email', message: 'Hello there', elapsedMs: HUMAN });
     expect(res.status).toBe(400);
     expect(sendMock).not.toHaveBeenCalled();
   });
@@ -131,7 +134,12 @@ describe('POST /api/contact', () => {
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', '10.0.1.3')
-      .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there' });
+      .send({
+        name: 'Alice',
+        email: 'alice@example.com',
+        message: 'Hello there',
+        elapsedMs: HUMAN,
+      });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(sendMock).toHaveBeenCalledTimes(1);
@@ -141,7 +149,12 @@ describe('POST /api/contact', () => {
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', '10.0.1.9')
-      .send({ name: "O'Brien", email: 'jane@example.com', message: 'Hello <b>there</b>' });
+      .send({
+        name: "O'Brien",
+        email: 'jane@example.com',
+        message: 'Hello <b>there</b>',
+        elapsedMs: HUMAN,
+      });
     expect(res.status).toBe(200);
     expect(sendMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -153,12 +166,45 @@ describe('POST /api/contact', () => {
     expect(sendMock.mock.calls[0][0].html).toContain('Hello &lt;b&gt;there&lt;/b&gt;');
   });
 
+  it('silently drops a submission whose honeypot field is filled', async () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const res = await request(app).post('/api/contact').set('X-Forwarded-For', '10.0.1.10').send({
+      name: 'Bot',
+      email: 'bot@example.com',
+      message: 'Buy now',
+      website: 'https://spam.example',
+      elapsedMs: HUMAN,
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(sendMock).not.toHaveBeenCalled();
+    infoSpy.mockRestore();
+  });
+
+  it('silently drops a submission filled faster than a human could', async () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    for (const elapsedMs of [500, undefined, 'fast']) {
+      const res = await request(app)
+        .post('/api/contact')
+        .set('X-Forwarded-For', '10.0.1.11')
+        .send({ name: 'Bot', email: 'bot@example.com', message: 'Buy now', elapsedMs });
+      expect(res.status).toBe(200);
+    }
+    expect(sendMock).not.toHaveBeenCalled();
+    infoSpy.mockRestore();
+  });
+
   it('returns 500 when the email provider fails', async () => {
     sendMock.mockRejectedValueOnce(new Error('boom'));
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', '10.0.1.4')
-      .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there' });
+      .send({
+        name: 'Alice',
+        email: 'alice@example.com',
+        message: 'Hello there',
+        elapsedMs: HUMAN,
+      });
     expect(res.status).toBe(500);
   });
 
@@ -168,12 +214,22 @@ describe('POST /api/contact', () => {
       await request(app)
         .post('/api/contact')
         .set('X-Forwarded-For', ip)
-        .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there' });
+        .send({
+          name: 'Alice',
+          email: 'alice@example.com',
+          message: 'Hello there',
+          elapsedMs: HUMAN,
+        });
     }
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', ip)
-      .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there' });
+      .send({
+        name: 'Alice',
+        email: 'alice@example.com',
+        message: 'Hello there',
+        elapsedMs: HUMAN,
+      });
     expect(res.status).toBe(429);
   });
 });
