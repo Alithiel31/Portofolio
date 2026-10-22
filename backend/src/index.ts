@@ -20,7 +20,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 startRetentionJob();
 
 // ── Arrêt gracieux ────────────────────────────────────────────────────────────
-// `deploy.yml` recrée les conteneurs à chaque push sur main : on ferme proprement les connexions
+// Chaque déploiement (`docker compose up --build -d`) recrée le conteneur : on ferme proprement les connexions
 // en cours et le pool Prisma plutôt que de se faire SIGKILL au bout du délai de grâce Docker.
 let shuttingDown = false;
 for (const signal of ['SIGTERM', 'SIGINT'] as const) {

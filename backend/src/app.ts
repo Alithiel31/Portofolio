@@ -89,18 +89,20 @@ export const app = express();
 
 const isProd = process.env.NODE_ENV === 'production';
 
-// Chaîne de proxy : Cloudflare → nginx (hôte) → nginx (conteneur) → Express.
-// On ne fait confiance qu'au nombre de sauts réellement présents dans chaque environnement
-// (2 en production : nginx hôte + nginx conteneur ; 1 en local docker-compose, où seul le
-// nginx du conteneur frontend est devant Express) plutôt qu'à `true`, qui accepterait
-// n'importe quel nombre de sauts revendiqués dans X-Forwarded-For.
+// Chaîne de proxy en production : Cloudflare → cloudflared → Traefik → nginx (conteneur) → Express.
+// On ne fait confiance qu'à un nombre fixe de sauts (2 en production : nginx du conteneur +
+// Traefik ; 1 en local docker-compose, où seul le nginx du conteneur frontend est devant
+// Express) plutôt qu'à `true`, qui accepterait n'importe quel nombre de sauts revendiqués dans
+// X-Forwarded-For. Avec cloudflared en tête de chaîne, ce fallback peut résoudre l'adresse du
+// tunnel plutôt que celle du visiteur : c'est sans conséquence tant que CF-Connecting-IP est
+// présent, ce qui est le cas de tout trafic passé par Cloudflare.
 //
 // Ceci ne couvre que le fallback `req.ip` (voir utils/client-ip.ts) : l'en-tête
-// CF-Connecting-IP, lui, reste posé par le nginx du conteneur sans validation de son origine
-// réelle. Il n'est digne de confiance que si le pare-feu de l'hôte restreint le trafic entrant
-// aux plages IP publiées par Cloudflare (https://www.cloudflare.com/ips/) — voir le README,
-// section Déploiement. Sans cette restriction, CF-Connecting-IP peut être forgé par n'importe
-// quel client atteignant directement l'origine, ce qui contournerait le rate limiter.
+// CF-Connecting-IP, lui, est relayé par le nginx du conteneur sans validation de son origine.
+// Il n'est digne de confiance que parce que l'origine n'est joignable que par le tunnel
+// Cloudflare (aucun port publié sur Internet, voir le README, section Déploiement). Si Traefik
+// devenait joignable en direct, CF-Connecting-IP pourrait être forgé et contourner le rate
+// limiter.
 app.set('trust proxy', isProd ? 2 : 1);
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;

@@ -7,15 +7,16 @@ import type { Request } from 'express';
  * à dériver un pays via geoip-lite ou à indexer le rate limiter (sous forme hashée).
  * Elle n'est jamais persistée en base ni écrite dans les logs.
  *
- * Chaîne de proxy réelle en production : Cloudflare → nginx (hôte) → nginx (conteneur) → Express.
+ * Chaîne de proxy réelle en production :
+ * Cloudflare → cloudflared → Traefik → nginx (conteneur) → Express.
  * `CF-Connecting-IP` est posé par Cloudflare et reste l'en-tête le plus fiable ; on retombe
  * sinon sur `req.ip`, qu'Express dérive de `X-Forwarded-For` (voir `app.set('trust proxy', …)`).
  *
  * Note : `CF-Connecting-IP` n'est digne de confiance que si l'origine n'est joignable qu'à
- * travers Cloudflare. Si le RPi est exposé en direct, restreindre l'accès aux plages d'IP
- * Cloudflare (https://www.cloudflare.com/ips/) au niveau du pare-feu de l'hôte — sans cette
- * restriction, n'importe quel client atteignant l'origine peut forger cet en-tête et
- * contourner le rate limiter de /api/contact et /api/track (voir README, section Déploiement).
+ * travers Cloudflare — c'est le cas aujourd'hui, le seul accès étant le tunnel cloudflared.
+ * Si Traefik devenait joignable en direct (redirection de port), n'importe quel client
+ * pourrait forger cet en-tête et contourner le rate limiter de /api/contact et /api/track
+ * (voir README, section Déploiement).
  */
 
 const IPV4 = /^(\d{1,3}\.){3}\d{1,3}$/;
