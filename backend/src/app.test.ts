@@ -1,18 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
-const { pageViewCreate, pageViewCount, pageViewGroupBy, pageViewFindMany, sendMock, geoLookup } =
-  vi.hoisted(() => ({
-    pageViewCreate: vi.fn(),
-    pageViewCount: vi.fn(),
-    pageViewGroupBy: vi.fn(),
-    pageViewFindMany: vi.fn(),
-    sendMock: vi.fn(),
-    geoLookup: vi.fn(),
-  }));
+const {
+  pageViewCreate,
+  pageViewCount,
+  pageViewGroupBy,
+  pageViewFindMany,
+  queryRaw,
+  sendMock,
+  geoLookup,
+} = vi.hoisted(() => ({
+  pageViewCreate: vi.fn(),
+  pageViewCount: vi.fn(),
+  pageViewGroupBy: vi.fn(),
+  pageViewFindMany: vi.fn(),
+  queryRaw: vi.fn(),
+  sendMock: vi.fn(),
+  geoLookup: vi.fn(),
+}));
 
 vi.mock('./prisma.js', () => ({
   default: {
+    $queryRaw: queryRaw,
     pageView: {
       create: pageViewCreate,
       count: pageViewCount,
@@ -39,11 +48,28 @@ process.env.CONTACT_EMAIL = 'contact@example.com';
 const { app } = await import('./app.js');
 
 describe('GET /api/health', () => {
-  it('returns 200 with an ok status', async () => {
+  beforeEach(() => {
+    queryRaw.mockReset();
+    queryRaw.mockResolvedValue([{ '?column?': 1 }]);
+  });
+
+  it('returns 200 with an ok status when the database answers', async () => {
     const res = await request(app).get('/api/health');
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('ok');
     expect(typeof res.body.timestamp).toBe('string');
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns 503 when the database is unreachable', async () => {
+    queryRaw.mockRejectedValueOnce(new Error("Can't reach database server"));
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const res = await request(app).get('/api/health');
+    expect(res.status).toBe(503);
+    expect(res.body.status).toBe('error');
+    // Le message d'erreur Prisma (hôte, port) ne doit pas fuiter vers l'appelant.
+    expect(JSON.stringify(res.body)).not.toContain('database server');
+    errorSpy.mockRestore();
   });
 
   it('does not leak NODE_ENV to an unauthenticated caller', async () => {

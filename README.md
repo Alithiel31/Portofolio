@@ -171,7 +171,7 @@ autre origine ; en dev comme en prod, le proxy s'en charge.
 
 | Route | Description |
 |---|---|
-| `GET /api/health` | Statut du serveur |
+| `GET /api/health` | Statut du serveur et de la base (503 si PostgreSQL est injoignable) |
 | `GET /api/profile` | Profil + réseaux sociaux |
 | `GET /api/experiences` | Toutes les expériences |
 | `GET /api/experiences?type=WORK` | Filtrer : emplois |

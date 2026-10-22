@@ -261,11 +261,18 @@ app.get(
 );
 
 // ── Healthcheck ───────────────────────────────────────────────────────────────
-app.get('/api/health', (_req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-  });
+// Interroge la base : le PostgreSQL de l'hôte vit hors de la stack Compose, et un healthcheck
+// qui répondait `ok` sans lui laissait passer une coupure inaperçue. Un 503 rend le conteneur
+// `unhealthy` (healthcheck docker-compose basé sur `r.ok`).
+app.get('/api/health', async (_req, res) => {
+  const timestamp = new Date().toISOString();
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({ status: 'ok', timestamp });
+  } catch (error) {
+    console.error('[health] base de données injoignable :', (error as Error).message);
+    res.status(503).json({ status: 'error', timestamp });
+  }
 });
 
 // ── Mail service ──────────────────────────────────────────────────────────────
