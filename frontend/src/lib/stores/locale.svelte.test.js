@@ -54,6 +54,28 @@ describe('locale store', () => {
     expect(document.documentElement.lang).toBe('en');
   });
 
+  it('falls back to the browser language when localStorage is unavailable', async () => {
+    setNavigatorLanguage('fr-FR');
+    const spy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('denied', 'SecurityError');
+    });
+    const { locale } = await import('./locale.svelte.js');
+    expect(locale.current).toBe('fr');
+    spy.mockRestore();
+  });
+
+  it('set() does not throw and still switches when localStorage.setItem throws', async () => {
+    setNavigatorLanguage('en-US');
+    const { locale } = await import('./locale.svelte.js');
+    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('quota', 'QuotaExceededError');
+    });
+    expect(() => locale.set('fr')).not.toThrow();
+    expect(locale.current).toBe('fr');
+    expect(document.documentElement.lang).toBe('fr');
+    spy.mockRestore();
+  });
+
   it('set() ignores unsupported locales', async () => {
     setNavigatorLanguage('en-US');
     const { locale } = await import('./locale.svelte.js');

@@ -1,8 +1,18 @@
 const SUPPORTED = ['fr', 'en'];
 const DEFAULT = 'en';
 
+// Stockage indisponible (mode privé strict, cookies bloqués) : getItem/setItem lèvent. La langue
+// doit rester utilisable pour la session en cours, comme pour analytics.svelte.js.
+function readSaved() {
+  try {
+    return localStorage.getItem('locale');
+  } catch {
+    return null;
+  }
+}
+
 function detect() {
-  const saved = localStorage.getItem('locale');
+  const saved = readSaved();
   if (saved && SUPPORTED.includes(saved)) return saved;
   const lang = navigator.language?.slice(0, 2);
   return SUPPORTED.includes(lang) ? lang : DEFAULT;
@@ -19,7 +29,11 @@ export const locale = {
   set(lang) {
     if (!SUPPORTED.includes(lang)) return;
     _locale = lang;
-    localStorage.setItem('locale', lang);
+    try {
+      localStorage.setItem('locale', lang);
+    } catch {
+      // Rien à persister : la langue choisie vaut pour la session en cours.
+    }
     document.documentElement.lang = lang;
   },
 };
