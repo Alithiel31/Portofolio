@@ -27,7 +27,7 @@ describe('when STATS_TOKEN and RESEND_API_KEY are not configured', () => {
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', '10.0.3.1')
-      .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there' });
+      .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there', elapsedMs: 8000 });
     expect(res.status).toBe(503);
   });
 });

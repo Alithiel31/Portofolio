@@ -9,6 +9,11 @@
     />
     <meta name="theme-color" content="#0f1923" />
     <link rel="canonical" href="https://alithiel31.dev/" />
+    <!-- Une URL par langue (`?lang=`, lue par stores/locale.svelte.js) ; `/` sans paramètre
+         suit la langue du navigateur, d'où x-default. -->
+    <link rel="alternate" hreflang="fr" href="https://alithiel31.dev/?lang=fr" />
+    <link rel="alternate" hreflang="en" href="https://alithiel31.dev/?lang=en" />
+    <link rel="alternate" hreflang="x-default" href="https://alithiel31.dev/" />
     <title>Jacques Duchamplecheval — Développeur Full Stack</title>
 
     <!-- Open Graph / réseaux sociaux -->
@@ -21,9 +26,19 @@
     <meta property="og:url" content="https://alithiel31.dev/" />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:locale:alternate" content="en_US" />
+    <!-- URL absolue exigée par les robots de prévisualisation. Fichier servi avec un cache
+         `immutable` d'un an (nginx) : pour changer l'image, changer aussi son nom. -->
+    <meta property="og:image" content="https://alithiel31.dev/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Jacques Duchamplecheval — Développeur Full Stack — alithiel31.dev"
+    />
 
     <!-- Twitter/X -->
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://alithiel31.dev/og-image.png" />
     <meta name="twitter:title" content="Jacques Duchamplecheval — Développeur Full Stack" />
     <meta
       name="twitter:description"

@@ -2,21 +2,21 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import path from 'path';
 import { timingSafeEqual } from 'node:crypto';
-import { fileURLToPath } from 'url';
 import { Resend } from 'resend';
 import geoip from 'geoip-lite';
 import prisma from './prisma.js';
 import { getClientIp } from './utils/client-ip.js';
 import { asyncHandler } from './utils/async-handler.js';
 import { createRateLimiter } from './utils/rate-limit.js';
+import { displayLocationFor } from './utils/location.js';
 
 import profileRouter from './routes/profile.js';
 import experienceRouter from './routes/experiences.js';
 import skillsRouter from './routes/skills.js';
 import projectsRouter from './routes/projects.js';
 import servicesRouter from './routes/services.js';
+import portfolioRouter from './routes/portfolio.js';
 
 const EU_COUNTRIES = new Set([
   'AT',
@@ -84,23 +84,24 @@ export function deriveZone(country?: string | null): string {
   return 'Autre';
 }
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const app = express();
 
 const isProd = process.env.NODE_ENV === 'production';
 
-// Chaîne de proxy : Cloudflare → nginx (hôte) → nginx (conteneur) → Express.
-// On ne fait confiance qu'au nombre de sauts réellement présents dans chaque environnement
-// (2 en production : nginx hôte + nginx conteneur ; 1 en local docker-compose, où seul le
-// nginx du conteneur frontend est devant Express) plutôt qu'à `true`, qui accepterait
-// n'importe quel nombre de sauts revendiqués dans X-Forwarded-For.
+// Chaîne de proxy en production : Cloudflare → cloudflared → Traefik → nginx (conteneur) → Express.
+// On ne fait confiance qu'à un nombre fixe de sauts (2 en production : nginx du conteneur +
+// Traefik ; 1 en local docker-compose, où seul le nginx du conteneur frontend est devant
+// Express) plutôt qu'à `true`, qui accepterait n'importe quel nombre de sauts revendiqués dans
+// X-Forwarded-For. Avec cloudflared en tête de chaîne, ce fallback peut résoudre l'adresse du
+// tunnel plutôt que celle du visiteur : c'est sans conséquence tant que CF-Connecting-IP est
+// présent, ce qui est le cas de tout trafic passé par Cloudflare.
 //
 // Ceci ne couvre que le fallback `req.ip` (voir utils/client-ip.ts) : l'en-tête
-// CF-Connecting-IP, lui, reste posé par le nginx du conteneur sans validation de son origine
-// réelle. Il n'est digne de confiance que si le pare-feu de l'hôte restreint le trafic entrant
-// aux plages IP publiées par Cloudflare (https://www.cloudflare.com/ips/) — voir le README,
-// section Déploiement. Sans cette restriction, CF-Connecting-IP peut être forgé par n'importe
-// quel client atteignant directement l'origine, ce qui contournerait le rate limiter.
+// CF-Connecting-IP, lui, est relayé par le nginx du conteneur sans validation de son origine.
+// Il n'est digne de confiance que parce que l'origine n'est joignable que par le tunnel
+// Cloudflare (aucun port publié sur Internet, voir le README, section Déploiement). Si Traefik
+// devenait joignable en direct, CF-Connecting-IP pourrait être forgé et contourner le rate
+// limiter.
 app.set('trust proxy', isProd ? 2 : 1);
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -136,6 +137,16 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function hasControlChars(value: string): boolean {
   // eslint-disable-next-line no-control-regex -- détection volontaire des caractères de contrôle
   return /[\x00-\x1f\x7f]/.test(value);
+}
+
+// Anti-spam sans CAPTCHA : en deçà de ce délai entre l'affichage et l'envoi du formulaire, ce
+// n'est pas un humain. Combiné au champ piège `website`, invisible pour un visiteur.
+const MIN_FILL_MS = 3000;
+
+/** Envoi automatisé : champ piège rempli, ou formulaire soumis trop vite (ou sans délai). */
+function looksLikeBot(website: unknown, elapsedMs: unknown): boolean {
+  if (typeof website === 'string' && website.trim() !== '') return true;
+  return typeof elapsedMs !== 'number' || !Number.isFinite(elapsedMs) || elapsedMs < MIN_FILL_MS;
 }
 
 // Formulaire de contact : 5 envois par IP par tranche de 15 minutes.
@@ -183,9 +194,7 @@ app.use(express.json({ limit: '10kb' }));
 // ── Geolocation ───────────────────────────────────────────────────────────────
 // L'IP sert uniquement à la résolution geoip, en mémoire, le temps de la requête.
 app.get('/api/location', (req, res) => {
-  const geo = geoip.lookup(getClientIp(req));
-  const isCanada = geo?.country === 'CA';
-  res.json({ location: isCanada ? 'Montréal, QC' : 'France' });
+  res.json({ location: displayLocationFor(getClientIp(req)) });
 });
 
 // ── Visitor tracking ─────────────────────────────────────────────────────────
@@ -261,11 +270,18 @@ app.get(
 );
 
 // ── Healthcheck ───────────────────────────────────────────────────────────────
-app.get('/api/health', (_req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-  });
+// Interroge la base : le PostgreSQL de l'hôte vit hors de la stack Compose, et un healthcheck
+// qui répondait `ok` sans lui laissait passer une coupure inaperçue. Un 503 rend le conteneur
+// `unhealthy` (healthcheck docker-compose basé sur `r.ok`).
+app.get('/api/health', async (_req, res) => {
+  const timestamp = new Date().toISOString();
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({ status: 'ok', timestamp });
+  } catch (error) {
+    console.error('[health] base de données injoignable :', (error as Error).message);
+    res.status(503).json({ status: 'error', timestamp });
+  }
 });
 
 // ── Mail service ──────────────────────────────────────────────────────────────
@@ -276,7 +292,7 @@ app.post(
       return res.status(429).json({ error: 'Trop de requêtes. Réessayez dans 15 minutes.' });
     }
 
-    const { name, email, message } = req.body;
+    const { name, email, message, website, elapsedMs } = req.body;
     if (
       !name ||
       !email ||
@@ -297,6 +313,12 @@ app.post(
       return res.status(400).json({ error: 'Adresse email invalide.' });
     }
 
+    // Réponse identique à un succès : rien ne signale au robot qu'il a été détecté.
+    if (looksLikeBot(website, elapsedMs)) {
+      console.info('[contact] envoi ignoré (anti-spam)');
+      return res.status(200).json({ success: true });
+    }
+
     if (!resend || !CONTACT_EMAIL) {
       return res.status(503).json({ error: 'Service de contact non configuré.' });
     }
@@ -305,7 +327,12 @@ app.post(
       await resend.emails.send({
         from: 'Portfolio <contact@alithiel31.dev>',
         to: CONTACT_EMAIL,
-        subject: `Nouveau message de ${escapeHtml(name)}`,
+        // « Répondre » dans la boîte de réception doit viser le visiteur, pas l'expéditeur
+        // technique `contact@` (adresse déjà validée et sans caractère de contrôle ci-dessus).
+        replyTo: email,
+        // Le sujet est du texte brut : l'échapper afficherait `O&#039;Brien`. Les sauts de ligne
+        // y sont déjà rejetés par hasControlChars.
+        subject: `Nouveau message de ${name}`,
         html: `<p><strong>Nom:</strong> ${escapeHtml(name)}</p>
                <p><strong>Email:</strong> ${escapeHtml(email)}</p>
                <p><strong>Message:</strong> ${escapeHtml(message)}</p>`,
@@ -318,15 +345,13 @@ app.post(
   }),
 );
 
-// ── Static screenshots ────────────────────────────────────────────────────────
-app.use('/screenshots', express.static(path.join(__dirname, '../public/screenshots')));
-
 // ── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/profile', profileRouter);
 app.use('/api/experiences', experienceRouter);
 app.use('/api/skills', skillsRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/services', servicesRouter);
+app.use('/api/portfolio', portfolioRouter);
 
 // ── Global error handler ──────────────────────────────────────────────────────
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

@@ -16,7 +16,7 @@ Portfolio personnel fullstack avec interface bilingue (FR/EN), sections animées
 |---|---|
 | 🌐 Bilingue FR/EN | Bascule de langue, contenu localisé depuis la BDD |
 | 🃏 Stacking cards | Navigation par sections animées |
-| 📬 Formulaire de contact | Envoi par email via Resend (rate limit : 5 req/IP/15 min) |
+| 📬 Formulaire de contact | Envoi par email via Resend (rate limit : 5 req/IP/15 min, champ piège et délai minimal de 3 s contre les robots) |
 | 📍 Géolocalisation | Affiche Montréal ou France selon la zone du visiteur |
 | 📊 Statistiques de visite | Enregistrement par page, pays et zone (Canada / Europe / Autre) |
 | 📄 CV téléchargeable | PDF servi selon la langue active (FR ou EN) |
@@ -81,6 +81,10 @@ docker network create traefik-net   # réseau externe attendu par docker-compose
 docker compose --profile dev up --build
 ```
 
+> ⚠️ Le profil `dev` est passé de PostgreSQL 16 à 17 (même version que la prod). Un volume
+> `postgres_data` créé en 16 ne démarre pas avec l'image 17 : le recréer avec
+> `docker compose --profile dev down -v` (données de dev perdues, relancer le seed ensuite).
+
 Le profil `dev` ajoute un service PostgreSQL local (volume `postgres_data`) et un petit relais
 (`dev-port`) qui publie le frontend sur `127.0.0.1:8080`. En production (pas de profil), la stack n'a
 ni PostgreSQL ni port publié : le trafic arrive par Traefik.
@@ -141,6 +145,18 @@ npm run check      # svelte-check — frontend uniquement
 Ces commandes tournent aussi en CI (`.github/workflows/ci.yml`), avec en plus
 `prisma validate`, le build TypeScript et un build des images Docker de production.
 
+### Tests de bout en bout (Playwright)
+
+`e2e/` vérifie le site réel servi par la stack de production : accueil chargé en un seul appel
+API, page légale en accès direct, bascule de langue, formulaire de contact (réponse du backend
+simulée) et cache des captures. En CI, le job `e2e` lance la stack Docker, la seede puis exécute
+les tests. En local, stack démarrée et seedée (voir plus haut) :
+
+```bash
+cd e2e && npm ci && npx playwright install chromium
+npx playwright test            # BASE_URL=http://localhost:8080 par défaut
+```
+
 ---
 
 ## Variables d'environnement
@@ -171,7 +187,8 @@ autre origine ; en dev comme en prod, le proxy s'en charge.
 
 | Route | Description |
 |---|---|
-| `GET /api/health` | Statut du serveur |
+| `GET /api/portfolio` | Tout le contenu de l'accueil en une réponse (profil, expériences, compétences, projets, services, lieu affiché) — utilisé par le frontend |
+| `GET /api/health` | Statut du serveur et de la base (503 si PostgreSQL est injoignable) |
 | `GET /api/profile` | Profil + réseaux sociaux |
 | `GET /api/experiences` | Toutes les expériences |
 | `GET /api/experiences?type=WORK` | Filtrer : emplois |
@@ -181,7 +198,7 @@ autre origine ; en dev comme en prod, le proxy s'en charge.
 | `GET /api/projects?featured=true` | Projets mis en avant |
 | `GET /api/projects/:id` | Un projet par ID |
 | `GET /api/services` | Services proposés |
-| `GET /api/location` | Zone géographique du visiteur (Canada / France) |
+| `GET /api/location` | Zone géographique du visiteur (Canada / France) — incluse dans `/api/portfolio`, conservée pour compatibilité |
 | `GET /api/stats` | Stats agrégées — **privé**, requiert l'en-tête `X-Stats-Token` |
 | `POST /api/contact` | Envoi du formulaire de contact (5 req/IP/15 min) |
 | `POST /api/track` | Enregistrement d'une vue de page (20 req/IP/min) |
@@ -204,9 +221,8 @@ Cloudflare pour le TLS et le CDN.
 ### Chaîne de requête
 
 ```
-Visiteur → Cloudflare → cloudflared → Traefik → nginx (conteneur frontend) ─┬─ /            → SPA statique
-                                                                            ├─ /api/        → backend:3001
-                                                                            └─ /screenshots/→ backend:3001
+Visiteur → Cloudflare → cloudflared → Traefik → nginx (conteneur frontend) ─┬─ /     → SPA statique (captures comprises)
+                                                                            └─ /api/ → backend:3001
 ```
 
 Les proxies propagent `X-Forwarded-For` et `CF-Connecting-IP` ; sans eux, le backend ne verrait
@@ -220,17 +236,28 @@ trafic).
 
 ### Déploiement
 
-Le déploiement est **manuel**. Il n'y a pas de workflow de déploiement automatique : depuis
-un poste qui pilote le Docker du Pi (`DOCKER_HOST=ssh://...`) ou directement sur le Pi :
+Le déploiement est **manuel** (pas de workflow automatique), via `scripts/deploy.sh`, sur le Pi
+ou depuis un poste qui pilote son Docker (`DOCKER_HOST=ssh://...`, avec `HEALTH_URL` joignable) :
+
+```bash
+scripts/deploy.sh           # git pull --ff-only, docker compose up --build -d, attente du healthcheck
+scripts/deploy.sh --force   # reconstruit même sans nouveau commit
+```
+
+Le script refuse de tourner sur des modifications locales non commitées, puis attend jusqu'à
+120 s (`HEALTH_TIMEOUT`) que `/api/health` réponde via Traefik (`HEALTH_URL`, par défaut
+`http://localhost:8000/api/health` avec `Host: alithiel31.dev`). S'il n'y parvient pas, il
+revient au commit précédent, relance la stack et sort en erreur (code 1 ; code 2 si le retour
+arrière échoue aussi).
+
+> ⚠️ Le retour arrière ne concerne que le code et les images : une migration Prisma déjà
+> appliquée par la nouvelle version reste en base. Une migration destructive se déploie à part.
+
+Équivalent manuel :
 
 ```bash
 git pull
 docker compose up --build -d
-```
-
-Puis vérification de la santé (via Traefik) :
-
-```bash
 curl -fsS -H "Host: votre-domaine.dev" http://localhost:8000/api/health
 ```
 
@@ -279,13 +306,14 @@ Les migrations Prisma s'appliquent automatiquement au démarrage du backend
 portfolio/
 ├── docker-compose.yml
 ├── LICENSE
+├── scripts/deploy.sh               # Déploiement avec retour arrière automatique
 ├── .github/
 │   ├── dependabot.yml
-│   └── workflows/                  # ci · codeql
+│   └── workflows/                  # ci (lint, tests, build, e2e) · codeql
+├── e2e/                            # Tests Playwright contre la stack de production
 ├── backend/
 │   ├── Dockerfile                  # Multi-stage : deps · dev · build · prod
 │   ├── .env.example
-│   ├── public/screenshots/         # Images des projets, servies sur /screenshots
 │   ├── prisma/
 │   │   ├── schema.prisma           # Modèles BDD
 │   │   ├── migrations/             # Source de vérité du schéma (migrate deploy)
@@ -295,19 +323,20 @@ portfolio/
 │       ├── app.ts                  # Express : middlewares, location, track, stats, contact
 │       ├── index.ts                # Bootstrap serveur (listen, arrêt gracieux)
 │       ├── prisma.ts               # Client Prisma singleton
+│       ├── services/content.ts     # Lecture localisée du contenu, partagée par les routes
 │       ├── utils/
 │       │   ├── client-ip.ts        # Résolution d'IP éphémère (jamais persistée)
 │       │   ├── rate-limit.ts       # Rate limiter en mémoire, clés hashées
 │       │   ├── async-handler.ts    # Rebranche les rejets async sur next()
 │       │   └── localize.ts         # Sélection des champs En/Fr
-│       └── routes/                 # profile · experiences · skills · projects · services
+│       └── routes/                 # portfolio (agrégat) · profile · experiences · skills · projects · services
 └── frontend/
     ├── Dockerfile                  # Multi-stage : dev · build · prod (nginx)
-    ├── nginx.conf                  # SPA, cache, proxys /api et /screenshots
+    ├── nginx.conf                  # SPA, cache, proxy /api
     ├── security-headers.conf       # CSP, HSTS & co — inclus par nginx.conf
     ├── .env.example
     ├── index.html
-    ├── public/                     # CV PDF, boxicons, icônes
+    ├── public/                     # CV PDF, boxicons, icônes, screenshots/ (captures WebP des projets)
     └── src/
         ├── App.svelte              # Stacking cards + navigation
         ├── main.js
@@ -359,14 +388,27 @@ sudo -u postgres psql -d portfolio   # PostgreSQL de l'hôte ; en dev Docker : d
 
 ---
 
+### Contenu de repli (API injoignable)
+
+Si `GET /api/portfolio` échoue, le frontend affiche le contenu figé dans
+`frontend/src/lib/data/fallback.{fr,en}.json` plutôt qu'un écran d'erreur (chargé à la demande,
+absent du bundle principal). Après toute modification du contenu en base, le régénérer puis
+commiter les deux fichiers :
+
+```bash
+cd backend && DATABASE_URL="postgresql://…" npm run export:fallback
+```
+
+---
+
 ## Stack
 
 | Couche | Technologie |
 |---|---|
 | Frontend | Svelte 5 · Vite · SCSS |
 | Backend | Express · Node.js 22+ · TypeScript 5.6 |
-| ORM | Prisma 5 |
-| Base de données | PostgreSQL 16 |
+| ORM | Prisma 6 |
+| Base de données | PostgreSQL 17 (natif sur l'hôte en prod, conteneur en dev et CI) |
 | Email | Resend |
 | Géolocalisation | geoip-lite |
 | Infra | Docker · Nginx (prod frontend) |

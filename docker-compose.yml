@@ -3,7 +3,7 @@ services:
   # En production (sans profil) la stack utilise le PostgreSQL de l'hôte.
   postgres:
     profiles: ["dev"]
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     labels:
       - "homelab.tier=app"
     env_file:

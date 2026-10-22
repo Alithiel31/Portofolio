@@ -24,3 +24,7 @@ postgres_data/
 
 .claude
 .clone
+
+# Playwright
+test-results/
+playwright-report/

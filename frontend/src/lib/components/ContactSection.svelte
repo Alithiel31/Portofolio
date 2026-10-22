@@ -7,6 +7,11 @@
   let name = $state('');
   let email = $state('');
   let message = $state('');
+  // Piège à robots : champ invisible pour un humain, que les robots remplissent volontiers.
+  let website = $state('');
+  // Un humain met plusieurs secondes à remplir le formulaire ; le backend ignore les envois
+  // plus rapides que ça (voir MIN_FILL_MS dans backend/src/app.ts).
+  let startedAt = Date.now();
   let status = $state(null); // 'sending' | 'success' | 'error'
 
   async function handleSubmit(e) {
@@ -17,12 +22,13 @@
       const response = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify({ name, email, message, website, elapsedMs: Date.now() - startedAt }),
       });
 
       if (response.ok) {
         status = 'success';
         name = email = message = '';
+        startedAt = Date.now();
       } else {
         status = 'error';
       }
@@ -113,17 +119,27 @@
             required></textarea>
         </div>
 
-        {#if status === 'success'}
-          <div class="form-feedback success">
-            <i class="bx bx-check-circle"></i>
-            {t('contact.success')}
-          </div>
-        {:else if status === 'error'}
-          <div class="form-feedback error">
-            <i class="bx bx-error-circle"></i>
-            {t('contact.error')}
-          </div>
-        {/if}
+        <!-- Hors écran et hors tabulation : seuls les robots qui remplissent tout le voient. -->
+        <div class="hp-field" aria-hidden="true">
+          <label for="website">Website</label>
+          <input id="website" type="text" bind:value={website} tabindex="-1" autocomplete="off" />
+        </div>
+
+        <!-- Région live toujours présente dans le DOM : un lecteur d'écran n'annonce un message
+             que si la région existait déjà avant l'insertion de son contenu. -->
+        <div class="form-status" role="status" aria-live="polite">
+          {#if status === 'success'}
+            <div class="form-feedback success">
+              <i class="bx bx-check-circle" aria-hidden="true"></i>
+              {t('contact.success')}
+            </div>
+          {:else if status === 'error'}
+            <div class="form-feedback error">
+              <i class="bx bx-error-circle" aria-hidden="true"></i>
+              {t('contact.error')}
+            </div>
+          {/if}
+        </div>
 
         <button type="submit" class="submit-btn" disabled={status === 'sending'}>
           {#if status === 'sending'}
@@ -283,6 +299,20 @@
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
+  }
+
+  .hp-field {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  // Vide, la région ne doit pas ajouter un espacement de plus dans la colonne du formulaire.
+  // (display: none la retirerait de l'arbre d'accessibilité et casserait l'annonce.)
+  .form-status:empty {
+    margin-top: -0.9rem;
   }
 
   .form-feedback {

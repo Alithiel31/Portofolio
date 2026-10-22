@@ -1,18 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 
-const { pageViewCreate, pageViewCount, pageViewGroupBy, pageViewFindMany, sendMock, geoLookup } =
-  vi.hoisted(() => ({
-    pageViewCreate: vi.fn(),
-    pageViewCount: vi.fn(),
-    pageViewGroupBy: vi.fn(),
-    pageViewFindMany: vi.fn(),
-    sendMock: vi.fn(),
-    geoLookup: vi.fn(),
-  }));
+const {
+  pageViewCreate,
+  pageViewCount,
+  pageViewGroupBy,
+  pageViewFindMany,
+  queryRaw,
+  sendMock,
+  geoLookup,
+} = vi.hoisted(() => ({
+  pageViewCreate: vi.fn(),
+  pageViewCount: vi.fn(),
+  pageViewGroupBy: vi.fn(),
+  pageViewFindMany: vi.fn(),
+  queryRaw: vi.fn(),
+  sendMock: vi.fn(),
+  geoLookup: vi.fn(),
+}));
 
 vi.mock('./prisma.js', () => ({
   default: {
+    $queryRaw: queryRaw,
     pageView: {
       create: pageViewCreate,
       count: pageViewCount,
@@ -38,12 +47,32 @@ process.env.CONTACT_EMAIL = 'contact@example.com';
 
 const { app } = await import('./app.js');
 
+/** Délai de remplissage réaliste, au-delà du seuil anti-robot (MIN_FILL_MS). */
+const HUMAN = 8000;
+
 describe('GET /api/health', () => {
-  it('returns 200 with an ok status', async () => {
+  beforeEach(() => {
+    queryRaw.mockReset();
+    queryRaw.mockResolvedValue([{ '?column?': 1 }]);
+  });
+
+  it('returns 200 with an ok status when the database answers', async () => {
     const res = await request(app).get('/api/health');
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('ok');
     expect(typeof res.body.timestamp).toBe('string');
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns 503 when the database is unreachable', async () => {
+    queryRaw.mockRejectedValueOnce(new Error("Can't reach database server"));
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const res = await request(app).get('/api/health');
+    expect(res.status).toBe(503);
+    expect(res.body.status).toBe('error');
+    // Le message d'erreur Prisma (hôte, port) ne doit pas fuiter vers l'appelant.
+    expect(JSON.stringify(res.body)).not.toContain('database server');
+    errorSpy.mockRestore();
   });
 
   it('does not leak NODE_ENV to an unauthenticated caller', async () => {
@@ -78,7 +107,7 @@ describe('POST /api/contact', () => {
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', '10.0.1.6')
-      .send({ name: 'Alice', email: 'not-an-email', message: 'Hello there' });
+      .send({ name: 'Alice', email: 'not-an-email', message: 'Hello there', elapsedMs: HUMAN });
     expect(res.status).toBe(400);
     expect(sendMock).not.toHaveBeenCalled();
   });
@@ -105,10 +134,64 @@ describe('POST /api/contact', () => {
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', '10.0.1.3')
-      .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there' });
+      .send({
+        name: 'Alice',
+        email: 'alice@example.com',
+        message: 'Hello there',
+        elapsedMs: HUMAN,
+      });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(sendMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('sets replyTo to the visitor and keeps the subject as plain text', async () => {
+    const res = await request(app)
+      .post('/api/contact')
+      .set('X-Forwarded-For', '10.0.1.9')
+      .send({
+        name: "O'Brien",
+        email: 'jane@example.com',
+        message: 'Hello <b>there</b>',
+        elapsedMs: HUMAN,
+      });
+    expect(res.status).toBe(200);
+    expect(sendMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        replyTo: 'jane@example.com',
+        subject: "Nouveau message de O'Brien",
+      }),
+    );
+    // Le corps HTML, lui, reste échappé.
+    expect(sendMock.mock.calls[0][0].html).toContain('Hello &lt;b&gt;there&lt;/b&gt;');
+  });
+
+  it('silently drops a submission whose honeypot field is filled', async () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const res = await request(app).post('/api/contact').set('X-Forwarded-For', '10.0.1.10').send({
+      name: 'Bot',
+      email: 'bot@example.com',
+      message: 'Buy now',
+      website: 'https://spam.example',
+      elapsedMs: HUMAN,
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(sendMock).not.toHaveBeenCalled();
+    infoSpy.mockRestore();
+  });
+
+  it('silently drops a submission filled faster than a human could', async () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    for (const elapsedMs of [500, undefined, 'fast']) {
+      const res = await request(app)
+        .post('/api/contact')
+        .set('X-Forwarded-For', '10.0.1.11')
+        .send({ name: 'Bot', email: 'bot@example.com', message: 'Buy now', elapsedMs });
+      expect(res.status).toBe(200);
+    }
+    expect(sendMock).not.toHaveBeenCalled();
+    infoSpy.mockRestore();
   });
 
   it('returns 500 when the email provider fails', async () => {
@@ -116,7 +199,12 @@ describe('POST /api/contact', () => {
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', '10.0.1.4')
-      .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there' });
+      .send({
+        name: 'Alice',
+        email: 'alice@example.com',
+        message: 'Hello there',
+        elapsedMs: HUMAN,
+      });
     expect(res.status).toBe(500);
   });
 
@@ -126,12 +214,22 @@ describe('POST /api/contact', () => {
       await request(app)
         .post('/api/contact')
         .set('X-Forwarded-For', ip)
-        .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there' });
+        .send({
+          name: 'Alice',
+          email: 'alice@example.com',
+          message: 'Hello there',
+          elapsedMs: HUMAN,
+        });
     }
     const res = await request(app)
       .post('/api/contact')
       .set('X-Forwarded-For', ip)
-      .send({ name: 'Alice', email: 'alice@example.com', message: 'Hello there' });
+      .send({
+        name: 'Alice',
+        email: 'alice@example.com',
+        message: 'Hello there',
+        elapsedMs: HUMAN,
+      });
     expect(res.status).toBe(429);
   });
 });

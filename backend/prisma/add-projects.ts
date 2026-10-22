@@ -20,7 +20,7 @@ const projectsToKeep = [
     descriptionFr:
       "Application météo pour le Québec, en architecture MVC (Svelte 5 PWA + Express/TypeScript), publiée sur le Google Play Store.",
     techStack: 'Svelte 5, TypeScript, Express, Node.js, Docker, Nginx, Android/TWA, Google Play',
-    imageUrl: '/screenshots/weatherqc.png',
+    imageUrl: '/screenshots/weatherqc.webp',
     githubUrl: 'https://github.com/Alithiel31/WeatherQC',
     demoUrl: 'https://qcweather.alithiel31.dev',
     featured: true,
@@ -35,7 +35,7 @@ const projectsToKeep = [
     descriptionFr:
       "Serveur Minecraft Java vanilla conteneurisé avec Docker, exposé via un tunnel playit.gg, avec CI/CD GitHub Actions.",
     techStack: 'Docker, Docker Compose, GitHub Actions (CI/CD), playit.gg',
-    imageUrl: '/screenshots/minecraft-serveur.jpg',
+    imageUrl: '/screenshots/minecraft-serveur.webp',
     githubUrl: 'https://github.com/Alithiel31/Minecraft-Serveur',
     demoUrl: null,
     featured: false,
@@ -50,7 +50,7 @@ const projectsToKeep = [
     descriptionFr:
       "Assistant IA qui transcrit et structure des enregistrements audio en notes Markdown via l'API Groq (Python/FastAPI + React PWA).",
     techStack: 'Python, FastAPI, Groq API, React, Vite, PWA, Docker',
-    imageUrl: '/screenshots/parseandcutv2.png',
+    imageUrl: '/screenshots/parseandcutv2.webp',
     githubUrl: 'https://github.com/Alithiel31/ParseAndCutV2',
     demoUrl: 'https://parseandcut.alithiel31.dev/',
     featured: false,
@@ -65,7 +65,7 @@ const projectsToKeep = [
     descriptionFr:
       "Application de suivi thyroïdien inspirée de Clue : journal, analyses sanguines et médicaments, en PWA React auto-hébergée.",
     techStack: 'React, TypeScript, Express, Prisma, PostgreSQL, PWA, Docker',
-    imageUrl: '/screenshots/thyfollow.png',
+    imageUrl: '/screenshots/thyfollow.webp',
     githubUrl: 'https://github.com/Alithiel31/ThyFollow',
     demoUrl: 'https://thyrotrack.alithiel31.dev/',
     featured: true,
@@ -80,7 +80,7 @@ const projectsToKeep = [
     descriptionFr:
       "Site vitrine et outil de gestion interne développé en stage, avec Next.js 16 et un backend Express/TypeScript.",
     techStack: 'Next.js, React, TypeScript, Express, Prisma, PostgreSQL, Docker, Nginx',
-    imageUrl: '/screenshots/qualisite.png',
+    imageUrl: '/screenshots/qualisite.webp',
     githubUrl: 'https://github.com/QualiSite/QualiSiteV1',
     demoUrl: 'https://qualisite.alithiel31.dev',
     featured: true,
@@ -95,7 +95,7 @@ const projectsToKeep = [
     descriptionFr:
       "Projet de fin d'études en équipe de 4, en sprints agiles : app 3-tier avec SvelteKit, Express/Node.js et PostgreSQL.",
     techStack: 'SvelteKit, TypeScript, Express, Node.js, PostgreSQL, Prisma, Docker',
-    imageUrl: '/screenshots/skillfusion.png',
+    imageUrl: '/screenshots/skillfusion.webp',
     githubUrl: 'https://github.com/Alithiel31/SkillFusion',
     demoUrl: 'https://skillfusion.alithiel31.dev',
     featured: true,
