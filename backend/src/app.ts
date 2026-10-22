@@ -9,12 +9,14 @@ import prisma from './prisma.js';
 import { getClientIp } from './utils/client-ip.js';
 import { asyncHandler } from './utils/async-handler.js';
 import { createRateLimiter } from './utils/rate-limit.js';
+import { displayLocationFor } from './utils/location.js';
 
 import profileRouter from './routes/profile.js';
 import experienceRouter from './routes/experiences.js';
 import skillsRouter from './routes/skills.js';
 import projectsRouter from './routes/projects.js';
 import servicesRouter from './routes/services.js';
+import portfolioRouter from './routes/portfolio.js';
 
 const EU_COUNTRIES = new Set([
   'AT',
@@ -192,9 +194,7 @@ app.use(express.json({ limit: '10kb' }));
 // ── Geolocation ───────────────────────────────────────────────────────────────
 // L'IP sert uniquement à la résolution geoip, en mémoire, le temps de la requête.
 app.get('/api/location', (req, res) => {
-  const geo = geoip.lookup(getClientIp(req));
-  const isCanada = geo?.country === 'CA';
-  res.json({ location: isCanada ? 'Montréal, QC' : 'France' });
+  res.json({ location: displayLocationFor(getClientIp(req)) });
 });
 
 // ── Visitor tracking ─────────────────────────────────────────────────────────
@@ -345,13 +345,13 @@ app.post(
   }),
 );
 
-
 // ── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/profile', profileRouter);
 app.use('/api/experiences', experienceRouter);
 app.use('/api/skills', skillsRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/services', servicesRouter);
+app.use('/api/portfolio', portfolioRouter);
 
 // ── Global error handler ──────────────────────────────────────────────────────
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

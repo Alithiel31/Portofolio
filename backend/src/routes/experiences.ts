@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import prisma from '../prisma.js';
 import { asyncHandler } from '../utils/async-handler.js';
-import { getLocale, localizeFields } from '../utils/localize.js';
+import { getLocale } from '../utils/localize.js';
+import { listExperiences } from '../services/content.js';
 
 const router = Router();
 
@@ -15,13 +15,7 @@ router.get(
       return res.status(400).json({ error: 'Type invalide. Valeurs acceptées: WORK, EDUCATION' });
     }
 
-    const locale = getLocale(req.query);
-    const experiences = await prisma.experience.findMany({
-      where: type ? { type: type as 'WORK' | 'EDUCATION' } : undefined,
-      orderBy: { order: 'asc' },
-      take: 100,
-    });
-    res.json(experiences.map((e) => localizeFields(e, locale, ['title', 'description'])));
+    res.json(await listExperiences(getLocale(req.query), type as 'WORK' | 'EDUCATION' | undefined));
   }),
 );
 

@@ -2,20 +2,15 @@ import { Router } from 'express';
 import prisma from '../prisma.js';
 import { asyncHandler } from '../utils/async-handler.js';
 import { getLocale, localizeFields } from '../utils/localize.js';
+import { listProjects } from '../services/content.js';
 
 const router = Router();
 
 router.get(
   '/',
   asyncHandler(async (req, res) => {
-    const locale = getLocale(req.query);
-    const { featured } = req.query;
-    const projects = await prisma.project.findMany({
-      where: featured === 'true' ? { featured: true } : undefined,
-      orderBy: { order: 'asc' },
-      take: 100,
-    });
-    res.json(projects.map((p) => localizeFields(p, locale, ['title', 'description'])));
+    const featured = req.query.featured === 'true';
+    res.json(await listProjects(getLocale(req.query), { featured }));
   }),
 );
 

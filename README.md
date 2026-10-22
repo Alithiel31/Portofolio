@@ -175,6 +175,7 @@ autre origine ; en dev comme en prod, le proxy s'en charge.
 
 | Route | Description |
 |---|---|
+| `GET /api/portfolio` | Tout le contenu de l'accueil en une réponse (profil, expériences, compétences, projets, services, lieu affiché) — utilisé par le frontend |
 | `GET /api/health` | Statut du serveur et de la base (503 si PostgreSQL est injoignable) |
 | `GET /api/profile` | Profil + réseaux sociaux |
 | `GET /api/experiences` | Toutes les expériences |
@@ -297,12 +298,13 @@ portfolio/
 │       ├── app.ts                  # Express : middlewares, location, track, stats, contact
 │       ├── index.ts                # Bootstrap serveur (listen, arrêt gracieux)
 │       ├── prisma.ts               # Client Prisma singleton
+│       ├── services/content.ts     # Lecture localisée du contenu, partagée par les routes
 │       ├── utils/
 │       │   ├── client-ip.ts        # Résolution d'IP éphémère (jamais persistée)
 │       │   ├── rate-limit.ts       # Rate limiter en mémoire, clés hashées
 │       │   ├── async-handler.ts    # Rebranche les rejets async sur next()
 │       │   └── localize.ts         # Sélection des champs En/Fr
-│       └── routes/                 # profile · experiences · skills · projects · services
+│       └── routes/                 # portfolio (agrégat) · profile · experiences · skills · projects · services
 └── frontend/
     ├── Dockerfile                  # Multi-stage : dev · build · prod (nginx)
     ├── nginx.conf                  # SPA, cache, proxy /api

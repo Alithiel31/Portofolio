@@ -1,19 +1,16 @@
 import { Router } from 'express';
-import prisma from '../prisma.js';
 import { asyncHandler } from '../utils/async-handler.js';
-import { getLocale, localizeFields } from '../utils/localize.js';
+import { getLocale } from '../utils/localize.js';
+import { getProfile } from '../services/content.js';
 
 const router = Router();
 
 router.get(
   '/',
   asyncHandler(async (req, res) => {
-    const locale = getLocale(req.query);
-    const profile = await prisma.profile.findFirst({
-      include: { socialLinks: { orderBy: { order: 'asc' } } },
-    });
+    const profile = await getProfile(getLocale(req.query));
     if (!profile) return res.status(404).json({ error: 'Profil non trouvé' });
-    res.json(localizeFields(profile, locale, ['title', 'bio']));
+    res.json(profile);
   }),
 );
 
