@@ -81,6 +81,10 @@ docker network create traefik-net   # réseau externe attendu par docker-compose
 docker compose --profile dev up --build
 ```
 
+> ⚠️ Le profil `dev` est passé de PostgreSQL 16 à 17 (même version que la prod). Un volume
+> `postgres_data` créé en 16 ne démarre pas avec l'image 17 : le recréer avec
+> `docker compose --profile dev down -v` (données de dev perdues, relancer le seed ensuite).
+
 Le profil `dev` ajoute un service PostgreSQL local (volume `postgres_data`) et un petit relais
 (`dev-port`) qui publie le frontend sur `127.0.0.1:8080`. En production (pas de profil), la stack n'a
 ni PostgreSQL ni port publié : le trafic arrive par Traefik.
@@ -366,7 +370,7 @@ sudo -u postgres psql -d portfolio   # PostgreSQL de l'hôte ; en dev Docker : d
 | Frontend | Svelte 5 · Vite · SCSS |
 | Backend | Express · Node.js 22+ · TypeScript 5.6 |
 | ORM | Prisma 5 |
-| Base de données | PostgreSQL 16 |
+| Base de données | PostgreSQL 17 (natif sur l'hôte en prod, conteneur en dev et CI) |
 | Email | Resend |
 | Géolocalisation | geoip-lite |
 | Infra | Docker · Nginx (prod frontend) |
