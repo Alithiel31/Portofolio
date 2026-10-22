@@ -2,9 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import path from 'path';
 import { timingSafeEqual } from 'node:crypto';
-import { fileURLToPath } from 'url';
 import { Resend } from 'resend';
 import geoip from 'geoip-lite';
 import prisma from './prisma.js';
@@ -84,7 +82,6 @@ export function deriveZone(country?: string | null): string {
   return 'Autre';
 }
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const app = express();
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -348,8 +345,6 @@ app.post(
   }),
 );
 
-// ── Static screenshots ────────────────────────────────────────────────────────
-app.use('/screenshots', express.static(path.join(__dirname, '../public/screenshots')));
 
 // ── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api/profile', profileRouter);

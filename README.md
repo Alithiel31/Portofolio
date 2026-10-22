@@ -208,9 +208,8 @@ Cloudflare pour le TLS et le CDN.
 ### Chaîne de requête
 
 ```
-Visiteur → Cloudflare → cloudflared → Traefik → nginx (conteneur frontend) ─┬─ /            → SPA statique
-                                                                            ├─ /api/        → backend:3001
-                                                                            └─ /screenshots/→ backend:3001
+Visiteur → Cloudflare → cloudflared → Traefik → nginx (conteneur frontend) ─┬─ /     → SPA statique (captures comprises)
+                                                                            └─ /api/ → backend:3001
 ```
 
 Les proxies propagent `X-Forwarded-For` et `CF-Connecting-IP` ; sans eux, le backend ne verrait
@@ -289,7 +288,6 @@ portfolio/
 ├── backend/
 │   ├── Dockerfile                  # Multi-stage : deps · dev · build · prod
 │   ├── .env.example
-│   ├── public/screenshots/         # Images des projets, servies sur /screenshots
 │   ├── prisma/
 │   │   ├── schema.prisma           # Modèles BDD
 │   │   ├── migrations/             # Source de vérité du schéma (migrate deploy)
@@ -307,11 +305,11 @@ portfolio/
 │       └── routes/                 # profile · experiences · skills · projects · services
 └── frontend/
     ├── Dockerfile                  # Multi-stage : dev · build · prod (nginx)
-    ├── nginx.conf                  # SPA, cache, proxys /api et /screenshots
+    ├── nginx.conf                  # SPA, cache, proxy /api
     ├── security-headers.conf       # CSP, HSTS & co — inclus par nginx.conf
     ├── .env.example
     ├── index.html
-    ├── public/                     # CV PDF, boxicons, icônes
+    ├── public/                     # CV PDF, boxicons, icônes, screenshots/ (captures WebP des projets)
     └── src/
         ├── App.svelte              # Stacking cards + navigation
         ├── main.js
