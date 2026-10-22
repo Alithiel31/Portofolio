@@ -10,6 +10,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:add-projects": "tsx prisma/add-projects.ts",
+    "export:fallback": "tsx scripts/export-fallback.ts",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run"

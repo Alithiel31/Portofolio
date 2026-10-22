@@ -1,0 +1,468 @@
+{
+  "profile": {
+    "id": 1,
+    "name": "Jacques Duchamplecheval",
+    "photoUrl": "https://github.com/Alithiel31.png",
+    "email": "jacques.duchamplecheval@gmail.com",
+    "location": "France",
+    "cvEn": "/cv-en.pdf",
+    "cvFr": "/cv-fr.pdf",
+    "createdAt": "2026-10-22T00:44:46.223Z",
+    "updatedAt": "2026-10-22T00:44:46.223Z",
+    "socialLinks": [
+      {
+        "id": 1,
+        "platform": "GitHub",
+        "url": "https://github.com/Alithiel31",
+        "icon": "bxl-github",
+        "order": 1,
+        "profileId": 1
+      },
+      {
+        "id": 2,
+        "platform": "LinkedIn",
+        "url": "https://linkedin.com/in/jacques-duchamplecheval",
+        "icon": "bxl-linkedin",
+        "order": 2,
+        "profileId": 1
+      }
+    ],
+    "title": "Full Stack Developer",
+    "bio": "I'm passionate about crafting modern interfaces and scalable architectures. I thrive on turning complex ideas into intuitive, elegant user experiences."
+  },
+  "experiences": [
+    {
+      "id": 1,
+      "year": "2022 - Present",
+      "company": "Delpharm Gaillard",
+      "type": "WORK",
+      "order": 1,
+      "createdAt": "2026-10-22T00:44:46.230Z",
+      "updatedAt": "2026-10-22T00:44:46.230Z",
+      "title": "Pharmaceutical Production Technician (Granulation & Coating)",
+      "description": "Managed production batches via EBR, oversaw granulation (supervisory control) and coating workshops, and performed level 1 maintenance. Certified MEWP operator for working at heights."
+    },
+    {
+      "id": 2,
+      "year": "2019 - 2022",
+      "company": "E.N.I.L.V.",
+      "type": "WORK",
+      "order": 2,
+      "createdAt": "2026-10-22T00:44:46.230Z",
+      "updatedAt": "2026-10-22T00:44:46.230Z",
+      "title": "Butter Production Team Lead & Technical Instructor",
+      "description": "Expert in overseeing industrial-scale butter lines (Buttermaker) and cream ripening processes. I lead teams of up to 10 people, manage client/supplier quality standards, and coordinate bacteriological monitoring. As a dedicated technical mentor, I also supervise production consumables and lead the training and tutoring of apprentices and interns."
+    },
+    {
+      "id": 3,
+      "year": "2016 - 2019",
+      "company": "Optim Industries",
+      "type": "WORK",
+      "order": 3,
+      "createdAt": "2026-10-22T00:44:46.230Z",
+      "updatedAt": "2026-10-22T00:44:46.230Z",
+      "title": "Engineering Assistant – Nuclear Division",
+      "description": "Updating spare parts master data for the French nuclear fleet (NTAQ 07403), I collaborate with EDF project managers to ensure data compliance via SAP and SDIN. Additionally, I have served as the lead mentor for new hires for over a year."
+    },
+    {
+      "id": 4,
+      "year": "2025 - 2026",
+      "company": "O'Clock school",
+      "type": "EDUCATION",
+      "order": 4,
+      "createdAt": "2026-10-22T00:44:46.230Z",
+      "updatedAt": "2026-10-22T00:44:46.230Z",
+      "title": "Attestation of Professional Studies (AEC) – Web Development & Web App Conception",
+      "description": "Completed an intensive professional program focused on full-stack web development and application design, mastering modern technologies through hands-on project experience and agile methodologies."
+    },
+    {
+      "id": 5,
+      "year": "2015 - 2016",
+      "company": "Université Claude Bernard Lyon 1",
+      "type": "EDUCATION",
+      "order": 5,
+      "createdAt": "2026-10-22T00:44:46.230Z",
+      "updatedAt": "2026-10-22T00:44:46.230Z",
+      "title": "Bachelor of Professional Studies – Industrial Processes and Solids Production",
+      "description": "Acquired practical expertise through a work-study program at KEM-ONE, focusing on process optimization, industrial filtration, and the application of 5S methodology."
+    },
+    {
+      "id": 6,
+      "year": "2013 - 2016",
+      "company": "Université Claude Bernard Lyon 1",
+      "type": "EDUCATION",
+      "order": 6,
+      "createdAt": "2026-10-22T00:44:46.230Z",
+      "updatedAt": "2026-10-22T00:44:46.230Z",
+      "title": "College Technology Diploma – Chemical Engineering & Industrial Processes",
+      "description": "Training in industrial processes: filtration, dissolution, and manufacturing. Mastery of laboratory techniques and 5S methods applied to chemical process engineering."
+    }
+  ],
+  "skills": [
+    {
+      "id": 1,
+      "name": "Backend",
+      "icon": "bx-server",
+      "order": 1,
+      "skills": [
+        {
+          "id": 1,
+          "name": "JavaScript",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg",
+          "order": 1,
+          "categoryId": 1
+        },
+        {
+          "id": 2,
+          "name": "TypeScript",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg",
+          "order": 2,
+          "categoryId": 1
+        },
+        {
+          "id": 3,
+          "name": "Node.js",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg",
+          "order": 3,
+          "categoryId": 1
+        },
+        {
+          "id": 4,
+          "name": "Express",
+          "type": "FRAMEWORK",
+          "parent": "Node.js",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/express/express-original-wordmark.svg",
+          "order": 4,
+          "categoryId": 1
+        },
+        {
+          "id": 5,
+          "name": "PostgreSQL",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg",
+          "order": 5,
+          "categoryId": 1
+        },
+        {
+          "id": 6,
+          "name": "Prisma",
+          "type": "FRAMEWORK",
+          "parent": "PostgreSQL",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/prisma/prisma-original.svg",
+          "order": 6,
+          "categoryId": 1
+        },
+        {
+          "id": 7,
+          "name": "Sequelize",
+          "type": "FRAMEWORK",
+          "parent": "Node.js",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sequelize/sequelize-original.svg",
+          "order": 7,
+          "categoryId": 1
+        },
+        {
+          "id": 8,
+          "name": "Python",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg",
+          "order": 8,
+          "categoryId": 1
+        },
+        {
+          "id": 9,
+          "name": "SQL",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg",
+          "order": 9,
+          "categoryId": 1
+        },
+        {
+          "id": 10,
+          "name": "PHP",
+          "type": "LEARNING",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg",
+          "order": 10,
+          "categoryId": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Frontend",
+      "icon": "bx-palette",
+      "order": 2,
+      "skills": [
+        {
+          "id": 11,
+          "name": "JavaScript",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg",
+          "order": 1,
+          "categoryId": 2
+        },
+        {
+          "id": 12,
+          "name": "TypeScript",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg",
+          "order": 2,
+          "categoryId": 2
+        },
+        {
+          "id": 13,
+          "name": "Svelte",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg",
+          "order": 3,
+          "categoryId": 2
+        },
+        {
+          "id": 14,
+          "name": "SvelteKit",
+          "type": "FRAMEWORK",
+          "parent": "Svelte",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg",
+          "order": 4,
+          "categoryId": 2
+        },
+        {
+          "id": 15,
+          "name": "React",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
+          "order": 5,
+          "categoryId": 2
+        },
+        {
+          "id": 16,
+          "name": "Next.js",
+          "type": "FRAMEWORK",
+          "parent": "React",
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg",
+          "order": 6,
+          "categoryId": 2
+        },
+        {
+          "id": 17,
+          "name": "SCSS / CSS",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sass/sass-original.svg",
+          "order": 7,
+          "categoryId": 2
+        },
+        {
+          "id": 18,
+          "name": "HTML",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg",
+          "order": 8,
+          "categoryId": 2
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "DevOps",
+      "icon": "bx-cloud",
+      "order": 3,
+      "skills": [
+        {
+          "id": 19,
+          "name": "Docker",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg",
+          "order": 1,
+          "categoryId": 3
+        },
+        {
+          "id": 20,
+          "name": "Railway",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "/icons/railway.svg",
+          "order": 2,
+          "categoryId": 3
+        },
+        {
+          "id": 21,
+          "name": "Nginx",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nginx/nginx-original.svg",
+          "order": 3,
+          "categoryId": 3
+        },
+        {
+          "id": 22,
+          "name": "Git / GitHub",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg",
+          "order": 4,
+          "categoryId": 3
+        },
+        {
+          "id": 23,
+          "name": "CI/CD",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-original.svg",
+          "order": 5,
+          "categoryId": 3
+        },
+        {
+          "id": 24,
+          "name": "YAML",
+          "type": "MAIN",
+          "parent": null,
+          "iconUrl": "/icons/yaml.svg",
+          "order": 6,
+          "categoryId": 3
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "techStack": "Svelte 5, TypeScript, Express, Node.js, Docker, Nginx, Android/TWA, Google Play",
+      "imageUrl": "/screenshots/weatherqc.webp",
+      "demoUrl": "https://qcweather.alithiel31.dev",
+      "githubUrl": "https://github.com/Alithiel31/WeatherQC",
+      "featured": true,
+      "status": "COMPLETED",
+      "order": 1,
+      "createdAt": "2026-10-22T00:44:46.239Z",
+      "updatedAt": "2026-10-22T00:44:46.239Z",
+      "title": "WeatherQC",
+      "description": "Weather forecast app for Quebec, MVC architecture (Svelte 5 PWA + Express/TypeScript), published on the Google Play Store."
+    },
+    {
+      "id": 2,
+      "techStack": "Docker, Docker Compose, GitHub Actions (CI/CD), playit.gg",
+      "imageUrl": "/screenshots/minecraft-serveur.webp",
+      "demoUrl": null,
+      "githubUrl": "https://github.com/Alithiel31/Minecraft-Serveur",
+      "featured": false,
+      "status": "COMPLETED",
+      "order": 2,
+      "createdAt": "2026-10-22T00:44:46.239Z",
+      "updatedAt": "2026-10-22T00:44:46.239Z",
+      "title": "Minecraft-Serveur",
+      "description": "Dockerized vanilla Minecraft Java server, exposed via a playit.gg tunnel, with automated CI/CD through GitHub Actions."
+    },
+    {
+      "id": 3,
+      "techStack": "Python, FastAPI, Groq API, React, Vite, PWA, Docker",
+      "imageUrl": "/screenshots/parseandcutv2.webp",
+      "demoUrl": "https://parseandcut.alithiel31.dev/",
+      "githubUrl": "https://github.com/Alithiel31/ParseAndCutV2",
+      "featured": false,
+      "status": "COMPLETED",
+      "order": 3,
+      "createdAt": "2026-10-22T00:44:46.239Z",
+      "updatedAt": "2026-10-22T00:44:46.239Z",
+      "title": "ParseAndCutV2",
+      "description": "AI assistant that transcribes and structures audio recordings into Markdown notes via the Groq API (Python/FastAPI + React PWA)."
+    },
+    {
+      "id": 4,
+      "techStack": "React, TypeScript, Express, Prisma, PostgreSQL, PWA, Docker",
+      "imageUrl": "/screenshots/thyfollow.webp",
+      "demoUrl": "https://thyrotrack.alithiel31.dev/",
+      "githubUrl": "https://github.com/Alithiel31/ThyFollow",
+      "featured": true,
+      "status": "COMPLETED",
+      "order": 4,
+      "createdAt": "2026-10-22T00:44:46.239Z",
+      "updatedAt": "2026-10-22T00:44:46.239Z",
+      "title": "ThyFollow",
+      "description": "Thyroid tracking app inspired by Clue: journal, blood tests and medication tracking, as a self-hosted React PWA."
+    },
+    {
+      "id": 5,
+      "techStack": "Next.js, React, TypeScript, Express, Prisma, PostgreSQL, Docker, Nginx",
+      "imageUrl": "/screenshots/qualisite.webp",
+      "demoUrl": "https://qualisite.alithiel31.dev",
+      "githubUrl": "https://github.com/QualiSite/QualiSiteV1",
+      "featured": true,
+      "status": "COMPLETED",
+      "order": 5,
+      "createdAt": "2026-10-22T00:44:46.239Z",
+      "updatedAt": "2026-10-22T00:44:46.239Z",
+      "title": "QualiSite",
+      "description": "Showcase site and internal management tool built during an internship, with Next.js 16 and an Express/TypeScript backend."
+    },
+    {
+      "id": 6,
+      "techStack": "SvelteKit, TypeScript, Express, Node.js, PostgreSQL, Prisma, Docker",
+      "imageUrl": "/screenshots/skillfusion.webp",
+      "demoUrl": "https://skillfusion.alithiel31.dev",
+      "githubUrl": "https://github.com/Alithiel31/SkillFusion",
+      "featured": true,
+      "status": "COMPLETED",
+      "order": 6,
+      "createdAt": "2026-10-22T00:44:46.239Z",
+      "updatedAt": "2026-10-22T00:44:46.239Z",
+      "title": "SkillFusion",
+      "description": "End-of-studies project in a 4-person team, agile sprints: 3-tier app with SvelteKit, Express/Node.js and PostgreSQL."
+    }
+  ],
+  "services": [
+    {
+      "id": 1,
+      "icon": "bx-code-block",
+      "order": 1,
+      "createdAt": "2026-10-22T00:44:46.242Z",
+      "updatedAt": "2026-10-22T00:44:46.242Z",
+      "title": "Web Development",
+      "description": "Design and development of modern, performant, responsive web applications. From MVP to production."
+    },
+    {
+      "id": 2,
+      "icon": "bx-server",
+      "order": 2,
+      "createdAt": "2026-10-22T00:44:46.242Z",
+      "updatedAt": "2026-10-22T00:44:46.242Z",
+      "title": "Backend Architecture",
+      "description": "Design of robust REST APIs, database modeling, performance optimization and scalability."
+    },
+    {
+      "id": 3,
+      "icon": "bx-bulb",
+      "order": 3,
+      "createdAt": "2026-10-22T00:44:46.242Z",
+      "updatedAt": "2026-10-22T00:44:46.242Z",
+      "title": "Technical Consulting",
+      "description": "Code audits, technology stack decisions, and support for teams in their digital transformation projects."
+    },
+    {
+      "id": 4,
+      "icon": "bx-cloud-upload",
+      "order": 4,
+      "createdAt": "2026-10-22T00:44:46.242Z",
+      "updatedAt": "2026-10-22T00:44:46.242Z",
+      "title": "DevOps & Deployment",
+      "description": "CI/CD pipeline setup, Docker containerization, and deployment — whether self-hosted or cloud-based."
+    }
+  ],
+  "location": "France"
+}

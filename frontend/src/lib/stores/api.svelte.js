@@ -15,19 +15,33 @@ async function apiFetch(endpoint) {
   return data;
 }
 
-export function createApiStore(endpoint) {
+/**
+ * @param {string} endpoint
+ * @param {{ fallback?: (locale: string) => Promise<unknown> }} [options]
+ *   `fallback` : données de repli chargées si l'API échoue. Le store expose alors ces données
+ *   sans erreur, avec `degraded` à true, plutôt qu'un écran d'erreur.
+ */
+export function createApiStore(endpoint, { fallback } = {}) {
   let data = $state(null);
   let loading = $state(true);
   let error = $state(null);
+  let degraded = $state(false);
 
   async function load() {
     loading = true;
     error = null;
     try {
       data = await apiFetch(endpoint);
+      degraded = false;
     } catch (e) {
-      error = e.message;
       console.error(`Erreur Store ${endpoint}:`, e);
+      try {
+        if (!fallback) throw e;
+        data = await fallback(locale.current);
+        degraded = true;
+      } catch {
+        error = e.message;
+      }
     } finally {
       loading = false;
     }
@@ -47,6 +61,9 @@ export function createApiStore(endpoint) {
     },
     get error() {
       return error;
+    },
+    get degraded() {
+      return degraded;
     },
     reload: load,
   };

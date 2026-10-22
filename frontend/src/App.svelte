@@ -15,15 +15,19 @@
   import NavDots from './lib/components/NavDots.svelte';
   import LoadingSpinner from './lib/components/LoadingSpinner.svelte';
 
-  const profile = createApiStore('/profile');
-  const experiences = createApiStore('/experiences');
-  const skills = createApiStore('/skills');
-  const projects = createApiStore('/projects');
-  const services = createApiStore('/services');
+  // Tout le contenu de l'accueil en un appel (GET /api/portfolio). Si l'API est injoignable,
+  // le site s'affiche quand même avec le contenu figé dans lib/data/ (npm run export:fallback
+  // côté backend), chargé à la demande : il ne pèse rien sur le chemin normal.
+  const portfolio = createApiStore('/portfolio', {
+    fallback: (lang) =>
+      (lang === 'fr'
+        ? import('./lib/data/fallback.fr.json')
+        : import('./lib/data/fallback.en.json')
+      ).then((m) => m.default),
+  });
 
   const API_BASE = import.meta.env.VITE_API_URL ?? '';
   const BASE_TITLE = document.title;
-  let geoLocation = $state(null);
 
   // Les pages légales (composant + textes FR/EN, ~30 Ko) ne sont chargées que si un
   // visiteur y accède réellement — ce n'est jamais le cas sur le chemin d'atterrissage
@@ -68,13 +72,6 @@
   });
 
   $effect(() => {
-    fetch(`${API_BASE}/api/location`)
-      .then((r) => r.json())
-      .then((d) => {
-        geoLocation = d.location;
-      })
-      .catch(() => {});
-
     // untrack : l'opt-out et la route ne doivent pas relancer cet effet — la visite se
     // compte une seule fois par session navigateur, au premier rendu.
     untrack(() => {
@@ -91,8 +88,14 @@
     });
   });
 
+  // Le lieu affiché (selon la zone du visiteur) arrive résolu avec le reste du contenu.
   const profileData = $derived(
-    profile.data ? { ...profile.data, location: geoLocation ?? profile.data.location } : null,
+    portfolio.data
+      ? {
+          ...portfolio.data.profile,
+          location: portfolio.data.location ?? portfolio.data.profile.location,
+        }
+      : null,
   );
 
   const sections = $derived([
@@ -133,13 +136,13 @@
   <NavDots {sections} />
 
   <main class="scroll-container">
-    {#if profile.loading}
+    {#if portfolio.loading && !portfolio.data}
       <LoadingSpinner />
-    {:else if profile.error}
+    {:else if portfolio.error}
       <div class="api-error">
         <i class="bx bx-error-circle"></i>
         <p>{t('error.load')}</p>
-        <button onclick={profile.reload}>{t('error.retry')}</button>
+        <button onclick={portfolio.reload}>{t('error.retry')}</button>
       </div>
     {:else}
       <ul class="stacking-cards" style="--card-count: {sections.length}">
@@ -148,19 +151,19 @@
         </li>
 
         <li class="card" id="skills">
-          <SkillsSection data={skills.data} loading={skills.loading} />
+          <SkillsSection data={portfolio.data.skills} loading={portfolio.loading} />
         </li>
 
         <li class="card" id="experience">
-          <ExperienceSection data={experiences.data} loading={experiences.loading} />
+          <ExperienceSection data={portfolio.data.experiences} loading={portfolio.loading} />
         </li>
 
         <li class="card" id="projects">
-          <ProjectsSection data={projects.data} loading={projects.loading} />
+          <ProjectsSection data={portfolio.data.projects} loading={portfolio.loading} />
         </li>
 
         <li class="card" id="services">
-          <ServicesSection data={services.data} loading={services.loading} />
+          <ServicesSection data={portfolio.data.services} loading={portfolio.loading} />
         </li>
 
         <li class="card" id="contact">

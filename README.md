@@ -186,7 +186,7 @@ autre origine ; en dev comme en prod, le proxy s'en charge.
 | `GET /api/projects?featured=true` | Projets mis en avant |
 | `GET /api/projects/:id` | Un projet par ID |
 | `GET /api/services` | Services proposés |
-| `GET /api/location` | Zone géographique du visiteur (Canada / France) |
+| `GET /api/location` | Zone géographique du visiteur (Canada / France) — incluse dans `/api/portfolio`, conservée pour compatibilité |
 | `GET /api/stats` | Stats agrégées — **privé**, requiert l'en-tête `X-Stats-Token` |
 | `POST /api/contact` | Envoi du formulaire de contact (5 req/IP/15 min) |
 | `POST /api/track` | Enregistrement d'une vue de page (20 req/IP/min) |
@@ -359,6 +359,19 @@ Prisma Studio localement, ou directement sur le Pi :
 
 ```bash
 sudo -u postgres psql -d portfolio   # PostgreSQL de l'hôte ; en dev Docker : docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+```
+
+---
+
+### Contenu de repli (API injoignable)
+
+Si `GET /api/portfolio` échoue, le frontend affiche le contenu figé dans
+`frontend/src/lib/data/fallback.{fr,en}.json` plutôt qu'un écran d'erreur (chargé à la demande,
+absent du bundle principal). Après toute modification du contenu en base, le régénérer puis
+commiter les deux fichiers :
+
+```bash
+cd backend && DATABASE_URL="postgresql://…" npm run export:fallback
 ```
 
 ---
