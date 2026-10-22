@@ -145,6 +145,18 @@ npm run check      # svelte-check — frontend uniquement
 Ces commandes tournent aussi en CI (`.github/workflows/ci.yml`), avec en plus
 `prisma validate`, le build TypeScript et un build des images Docker de production.
 
+### Tests de bout en bout (Playwright)
+
+`e2e/` vérifie le site réel servi par la stack de production : accueil chargé en un seul appel
+API, page légale en accès direct, bascule de langue, formulaire de contact (réponse du backend
+simulée) et cache des captures. En CI, le job `e2e` lance la stack Docker, la seede puis exécute
+les tests. En local, stack démarrée et seedée (voir plus haut) :
+
+```bash
+cd e2e && npm ci && npx playwright install chromium
+npx playwright test            # BASE_URL=http://localhost:8080 par défaut
+```
+
 ---
 
 ## Variables d'environnement
@@ -285,7 +297,8 @@ portfolio/
 ├── LICENSE
 ├── .github/
 │   ├── dependabot.yml
-│   └── workflows/                  # ci · codeql
+│   └── workflows/                  # ci (lint, tests, build, e2e) · codeql
+├── e2e/                            # Tests Playwright contre la stack de production
 ├── backend/
 │   ├── Dockerfile                  # Multi-stage : deps · dev · build · prod
 │   ├── .env.example

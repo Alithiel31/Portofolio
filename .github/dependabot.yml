@@ -22,6 +22,11 @@ updates:
           - minor
           - patch
 
+  - package-ecosystem: npm
+    directory: /e2e
+    schedule:
+      interval: weekly
+
   - package-ecosystem: docker
     directory: /frontend
     schedule:

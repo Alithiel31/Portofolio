@@ -23,4 +23,5 @@ npm-debug.log*
 postgres_data/
 
 .claude
-.clone
+.clonetest-results/
+playwright-report/
