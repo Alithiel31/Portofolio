@@ -12,6 +12,8 @@ describe('locale store', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    window.history.replaceState({}, '', '/');
+    document.head.innerHTML = '<link rel="canonical" href="https://alithiel31.dev/" />';
     vi.resetModules();
   });
 
@@ -74,6 +76,45 @@ describe('locale store', () => {
     expect(locale.current).toBe('fr');
     expect(document.documentElement.lang).toBe('fr');
     spy.mockRestore();
+  });
+
+  it('?lang= wins over localStorage and the browser language', async () => {
+    localStorage.setItem('locale', 'fr');
+    setNavigatorLanguage('fr-FR');
+    window.history.replaceState({}, '', '/?lang=en');
+    const { locale } = await import('./locale.svelte.js');
+    expect(locale.current).toBe('en');
+    expect(document.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(
+      'https://alithiel31.dev/?lang=en',
+    );
+  });
+
+  it('ignores an unsupported ?lang= value and keeps the canonical untouched', async () => {
+    setNavigatorLanguage('fr-FR');
+    window.history.replaceState({}, '', '/?lang=de');
+    const { locale } = await import('./locale.svelte.js');
+    expect(locale.current).toBe('fr');
+    expect(document.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(
+      'https://alithiel31.dev/',
+    );
+  });
+
+  it('set() reflects the language in the home URL and the canonical', async () => {
+    setNavigatorLanguage('en-US');
+    const { locale } = await import('./locale.svelte.js');
+    locale.set('fr');
+    expect(window.location.search).toBe('?lang=fr');
+    expect(document.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(
+      'https://alithiel31.dev/?lang=fr',
+    );
+  });
+
+  it('set() leaves the URL of a legal page alone', async () => {
+    setNavigatorLanguage('en-US');
+    window.history.replaceState({}, '', '/cgu');
+    const { locale } = await import('./locale.svelte.js');
+    locale.set('fr');
+    expect(window.location.pathname + window.location.search).toBe('/cgu');
   });
 
   it('set() ignores unsupported locales', async () => {
