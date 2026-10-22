@@ -251,6 +251,12 @@
     }
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .card :global(.card-inner) {
+      animation: none;
+    }
+  }
+
   @keyframes stack-scale {
     to {
       transform: scale(calc(1 - (var(--si, 1) * 0.025)));

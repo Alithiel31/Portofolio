@@ -84,6 +84,25 @@ body {
   outline-offset: 2px;
 }
 
+// Mouvement réduit (réglage système) : apparitions, pulsations et transitions deviennent
+// instantanées, défilement sans lissage. L'anneau du spinner (.ring) garde sa rotation : c'est
+// le seul signe que le chargement progresse. Les cartes empilées, animées au défilement
+// (animation-timeline), sont neutralisées dans App.svelte, la durée n'ayant pas d'effet sur elles.
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *:not(.ring),
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 // Utilitaires
 .sr-only {
   position: absolute;
